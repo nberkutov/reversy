@@ -1,5 +1,7 @@
 package models;
 
+import exception.GameErrorCode;
+import exception.GameException;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
@@ -33,29 +35,29 @@ public class Board implements GameBoard {
 
 
     @Override
-    public Cell getCell(int x, int y) {
+    public Cell getCell(int x, int y) throws GameException {
         return getCell(new Point(x, y));
     }
 
     @Override
-    public Cell getCell(Point point) {
+    public Cell getCell(Point point) throws GameException {
         checkPoint(point);
         return cells.get(point);
     }
 
     @Override
-    public void setCell(int x, int y, Cell cell) {
+    public void setCell(int x, int y, Cell cell) throws GameException {
         setCell(new Point(x, y), cell);
     }
 
     @Override
-    public void setCell(Point point, Cell cell) {
+    public void setCell(Point point, Cell cell) throws GameException {
         checkPoint(point);
         cells.put(point, cell);
     }
 
     @Override
-    public Set<Point> getCellInAllDirection(Point point, Cell cell) {
+    public Set<Point> getCellInAllDirection(Point point, Cell cell) throws GameException {
         checkPoint(point);
         Set<Point> points = new HashSet<>();
         //left
@@ -163,17 +165,17 @@ public class Board implements GameBoard {
     }
 
     @Override
-    public void reverseCell(int x, int y) {
+    public void reverseCell(int x, int y) throws GameException {
         reverseCell(new Point(x, y));
     }
 
     @Override
-    public void reverseCell(Point point) {
+    public void reverseCell(Point point) throws GameException {
         checkPoint(point);
         Cell cell = cells.get(point);
         if (cell.equals(Cell.EMPTY)) {
             log.error("Bad reverseCell {}, its cell is {}", point, cell);
-            throw new RuntimeException("Bad point");
+            throw new GameException(GameErrorCode.CELL_IS_EMPTY);
         }
 
         if (cell.equals(Cell.WHITE)) {
@@ -183,14 +185,14 @@ public class Board implements GameBoard {
         }
     }
 
-    private boolean isCellEmpty(Point point){
+    private boolean isCellEmpty(Point point) throws GameException {
         return getCell(point).equals(Cell.EMPTY);
     }
 
-    private void checkPoint(Point point) {
+    private void checkPoint(Point point) throws GameException {
         if (!validation(point)) {
             log.error("Bad checkPoint {}", point);
-            throw new RuntimeException("Bad point");
+            throw new GameException(GameErrorCode.BAD_POINT);
         }
     }
 
