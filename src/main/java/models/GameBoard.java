@@ -8,7 +8,7 @@ interface GameBoard {
     void setCell(int x, int y, Cell cell);
     void setCell(Point point, Cell cell);
     Set<Point> getCellInAllDirection(Point point, Cell cell);
-    int getCountCell(Cell cell);
+    long getCountCell(Cell cell);
     void reverseCell(int x, int y);
     void reverseCell(Point point);
 
