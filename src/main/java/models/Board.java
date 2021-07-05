@@ -78,6 +78,6 @@ public class Board implements GameBoard {
     }
 
     private boolean validation(Point point) {
-        return point.getX() >= 0 && point.getY() >= 0 && point.getX() < BOARD_SIZE && point.getY() < BOARD_SIZE;
+        return point != null && point.getX() >= 0 && point.getY() >= 0 && point.getX() < BOARD_SIZE && point.getY() < BOARD_SIZE;
     }
 }
