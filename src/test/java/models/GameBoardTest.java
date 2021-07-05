@@ -58,7 +58,10 @@ class GameBoardTest {
     void testReverseCell() {
         GameBoard board = new Board();
         assertEquals(Cell.EMPTY, board.getCell(0, 0));
-        board.reverseCell(0, 0);
+        try {
+            board.reverseCell(0, 0);
+            fail();
+        } catch (RuntimeException ignored){}
         assertEquals(Cell.EMPTY, board.getCell(0, 0));
         board.setCell(0, 0, Cell.BLACK);
         board.reverseCell(0, 0);

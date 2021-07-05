@@ -189,16 +189,6 @@ public class Board implements GameBoard {
         }
     }
 
-    private static Map<Point, Cell> init() {
-        Map<Point, Cell> map = new HashMap<>();
-        for (int i = 0; i < BOARD_SIZE; i++) {
-            for (int j = 0; j < BOARD_SIZE; j++) {
-                map.put(new Point(i, j), Cell.EMPTY);
-            }
-        }
-        return map;
-    }
-
     private boolean isCellEmpty(Point point){
         return getCell(point).equals(Cell.EMPTY);
     }
