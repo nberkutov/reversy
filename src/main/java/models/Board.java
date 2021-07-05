@@ -24,6 +24,20 @@ public class Board implements GameBoard {
         this.mapCell = mapCell;
     }
 
+    private static Map<Point, Cell> init() {
+        Map<Point, Cell> map = new HashMap<>();
+        for (int i = 0; i < BOARD_SIZE; i++) {
+            for (int j = 0; j < BOARD_SIZE; j++) {
+                map.put(new Point(i, j), Cell.EMPTY);
+            }
+        }
+        map.put(new Point(3, 3), Cell.WHITE);
+        map.put(new Point(3, 4), Cell.BLACK);
+        map.put(new Point(4, 3), Cell.BLACK);
+        map.put(new Point(4, 4), Cell.WHITE);
+        return map;
+    }
+
     @Override
     public Cell getCell(int x, int y) {
         return getCell(new Point(x, y));
