@@ -30,9 +30,6 @@
             <artifactId>slf4j-api</artifactId>
             <version>1.7.31</version>
         </dependency>
-    </dependencies>
-    <dependencies>
-        <!-- https://mvnrepository.com/artifact/junit/junit -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
