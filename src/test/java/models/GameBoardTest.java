@@ -23,10 +23,10 @@ class GameBoardTest {
         GameBoard board = new Board();
         for (int y = 0; y < SIZE; y++) {
             for (int x = 0; x < SIZE; x++) {
-                if (y == 3 && x == 3 || y == 4 && x == 3) {
-                    assertEquals(Cell.BLACK, board.getCell(new Point(x, y)));
-                } else if (y == 3 && x == 4 || y == 4 && x == 4) {
+                if (y == 3 && x == 3 || y == 4 && x == 4) {
                     assertEquals(Cell.WHITE, board.getCell(new Point(x, y)));
+                } else if (y == 3 && x == 4 || y == 4 && x == 3) {
+                    assertEquals(Cell.BLACK, board.getCell(new Point(x, y)));
                 } else {
                     assertEquals(Cell.EMPTY, board.getCell(new Point(x, y)));
                 }

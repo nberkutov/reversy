@@ -30,6 +30,10 @@ public class Board implements GameBoard {
                 map.put(new Point(i, j), Cell.EMPTY);
             }
         }
+        map.put(new Point(3, 3), Cell.WHITE);
+        map.put(new Point(3, 4), Cell.BLACK);
+        map.put(new Point(4, 3), Cell.BLACK);
+        map.put(new Point(4, 4), Cell.WHITE);
         return map;
     }
 
