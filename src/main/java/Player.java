@@ -1,3 +1,4 @@
 public class Player {
-    private String name;
+    private String secondName;
+    private Integer integer;
 }
