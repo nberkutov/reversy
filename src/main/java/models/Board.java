@@ -12,7 +12,7 @@ import java.util.Set;
 @Slf4j
 public class Board implements GameBoard {
     private static int BOARD_SIZE = 8;
-    private Map<Point, Cell> cells;
+    private final Map<Point, Cell> cells;
 
     public Board() {
         cells = new HashMap<>();
