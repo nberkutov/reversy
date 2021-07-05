@@ -1,8 +1,6 @@
 package models;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
@@ -14,29 +12,25 @@ import java.util.Set;
 @Slf4j
 public class Board implements GameBoard {
     private static int BOARD_SIZE = 8;
-    private Map<Point, Cell> mapCell;
+    private Map<Point, Cell> cells;
 
     public Board() {
-        this(init());
+        cells = new HashMap<>();
+        for (int i = 0; i < BOARD_SIZE; i++) {
+            for (int j = 0; j < BOARD_SIZE; j++) {
+                cells.put(new Point(i, j), Cell.EMPTY);
+            }
+        }
+        cells.put(new Point(3, 3), Cell.WHITE);
+        cells.put(new Point(3, 4), Cell.BLACK);
+        cells.put(new Point(4, 3), Cell.BLACK);
+        cells.put(new Point(4, 4), Cell.WHITE);
     }
 
     public Board(Map<Point, Cell> mapCell) {
-        this.mapCell = mapCell;
+        this.cells = mapCell;
     }
 
-    private static Map<Point, Cell> init() {
-        Map<Point, Cell> map = new HashMap<>();
-        for (int i = 0; i < BOARD_SIZE; i++) {
-            for (int j = 0; j < BOARD_SIZE; j++) {
-                map.put(new Point(i, j), Cell.EMPTY);
-            }
-        }
-        map.put(new Point(3, 3), Cell.WHITE);
-        map.put(new Point(3, 4), Cell.BLACK);
-        map.put(new Point(4, 3), Cell.BLACK);
-        map.put(new Point(4, 4), Cell.WHITE);
-        return map;
-    }
 
     @Override
     public Cell getCell(int x, int y) {
@@ -46,7 +40,7 @@ public class Board implements GameBoard {
     @Override
     public Cell getCell(Point point) {
         checkPoint(point);
-        return mapCell.get(point);
+        return cells.get(point);
     }
 
     @Override
@@ -57,7 +51,7 @@ public class Board implements GameBoard {
     @Override
     public void setCell(Point point, Cell cell) {
         checkPoint(point);
-        mapCell.put(point, cell);
+        cells.put(point, cell);
     }
 
     @Override
@@ -165,7 +159,7 @@ public class Board implements GameBoard {
 
     @Override
     public long getCountCell(Cell cell) {
-        return mapCell.values().stream().filter(x -> x.equals(cell)).count();
+        return cells.values().stream().filter(x -> x.equals(cell)).count();
     }
 
     @Override
@@ -176,16 +170,16 @@ public class Board implements GameBoard {
     @Override
     public void reverseCell(Point point) {
         checkPoint(point);
-        Cell cell = mapCell.get(point);
+        Cell cell = cells.get(point);
         if (cell.equals(Cell.EMPTY)) {
             log.error("Bad reverseCell {}, its cell is {}", point, cell);
             throw new RuntimeException("Bad point");
         }
 
         if (cell.equals(Cell.WHITE)) {
-            mapCell.put(point, Cell.BLACK);
+            cells.put(point, Cell.BLACK);
         } else {
-            mapCell.put(point, Cell.WHITE);
+            cells.put(point, Cell.WHITE);
         }
     }
 
