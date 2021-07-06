@@ -41,12 +41,15 @@ public class Game {
                 white.nextMove(board);
                 state = GameState.BLACK;
                 break;
-
-
+            case END:
+                break;
         }
     }
 
-    public GameResult getResult() {
+    public GameResult getResult() throws Exception {
+        if (state != GameState.END) {
+            throw new Exception("Game is not finished yet.");
+        }
         long blackCells = board.getCountCell(Cell.BLACK);
         long whiteCells = board.getCountCell(Cell.WHITE);
         if (blackCells == whiteCells) {
