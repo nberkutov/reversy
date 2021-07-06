@@ -3,6 +3,7 @@ package models;
 import exception.GameException;
 import models.base.PlayerColor;
 
+import java.util.List;
 import java.util.Set;
 
 interface GameBoard {
@@ -10,7 +11,8 @@ interface GameBoard {
     Cell getCell(Point point) throws GameException;
     void setCell(int x, int y, Cell cell) throws GameException;
     void setCell(Point point, Cell cell) throws GameException;
-    Set<Point> getCellInAllDirection(Point point, Cell cell) throws GameException;
+    List<Point> getCellInAllDirection(Point point, Cell cell) throws GameException;
+    List<Point> getAvailableMoves(PlayerColor color) throws GameException;
     long getCountCell(Cell cell);
     Set<Point> getAvailableMoves(PlayerColor color);
     void reverseCell(int x, int y) throws GameException;
