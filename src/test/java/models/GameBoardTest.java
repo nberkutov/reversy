@@ -1,5 +1,7 @@
 package models;
 
+import exception.GameErrorCode;
+import exception.GameException;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -8,7 +10,7 @@ class GameBoardTest {
     static final int SIZE = 8;
 
     @Test
-    void testGetCell() {
+    void testGetCell() throws GameException {
         GameBoard board = new Board();
         for (int y = 0; y < SIZE; y++) {
             for (int x = 0; x < SIZE; x++) {
@@ -19,7 +21,7 @@ class GameBoardTest {
     }
 
     @Test
-    void testCreateBoard() {
+    void testCreateBoard() throws GameException {
         GameBoard board = new Board();
         for (int y = 0; y < SIZE; y++) {
             for (int x = 0; x < SIZE; x++) {
@@ -35,7 +37,7 @@ class GameBoardTest {
     }
 
     @Test
-    void testSetCell() {
+    void testSetCell() throws GameException {
         GameBoard board = new Board();
         assertEquals(Cell.EMPTY, board.getCell(0, 0));
         board.setCell(0, 0, Cell.BLACK);
@@ -55,13 +57,15 @@ class GameBoardTest {
     }
 
     @Test
-    void testReverseCell() {
+    void testReverseCell() throws GameException {
         GameBoard board = new Board();
         assertEquals(Cell.EMPTY, board.getCell(0, 0));
         try {
             board.reverseCell(0, 0);
             fail();
-        } catch (RuntimeException ignored){}
+        } catch (GameException ex){
+            assertEquals(ex.getErrorCode(), GameErrorCode.CELL_IS_EMPTY);
+        }
         assertEquals(Cell.EMPTY, board.getCell(0, 0));
         board.setCell(0, 0, Cell.BLACK);
         board.reverseCell(0, 0);
