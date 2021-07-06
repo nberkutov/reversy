@@ -1,5 +1,6 @@
 package services;
 
+import exception.GameException;
 import models.Board;
 import models.Game;
 import models.GameResult;
@@ -16,7 +17,7 @@ public class SelfPlay {
         game = new Game(first, second);
     }
 
-    public void play() {
+    public void play() throws GameException {
         while (!game.isFinished()) {
             game.next();
             Board board = game.getBoard();

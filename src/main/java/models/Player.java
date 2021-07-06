@@ -1,19 +1,25 @@
 package models;
 
+import controller.BoardController;
+import exception.GameException;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import models.base.PlayerColor;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+
+import java.util.List;
+import java.util.Random;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class Player {
     private long id;
-    private PlayerColor color;
+    protected PlayerColor color;
+    protected BoardController boardController;
 
-    public Board nextMove(Board board) {
-        board.getAvailableMoves(color);
-        return board;
+    public void nextMove() throws GameException {
+        throw new NotImplementedException();
     }
 }
