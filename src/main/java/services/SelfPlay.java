@@ -16,7 +16,7 @@ public class SelfPlay {
         game = new Game(first, second);
     }
 
-    public void play() {
+    public void play() throws Exception {
         while (!game.isFinished()) {
             game.next();
             Board board = game.getBoard();
