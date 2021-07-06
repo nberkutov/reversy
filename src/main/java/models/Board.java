@@ -166,11 +166,6 @@ public class Board implements GameBoard {
     }
 
     @Override
-    public Set<Point> getAvailableMoves(PlayerColor color) {
-        return null;
-    }
-
-    @Override
     public void reverseCell(int x, int y) throws GameException {
         reverseCell(new Point(x, y));
     }
