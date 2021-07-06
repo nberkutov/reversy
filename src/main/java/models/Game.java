@@ -1,8 +1,10 @@
 package models;
 
+import exception.GameException;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import models.base.Cell;
 import models.base.GameState;
 
 @Slf4j
@@ -34,14 +36,14 @@ public class Game {
         return state == GameState.END;
     }
 
-    public void next() {
+    public void next() throws GameException {
         switch (state) {
             case BLACK:
-                black.nextMove(board);
+                black.nextMove();
                 state = GameState.WHITE;
                 break;
             case WHITE:
-                white.nextMove(board);
+                white.nextMove();
                 state = GameState.BLACK;
                 break;
             case END:
