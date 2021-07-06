@@ -4,6 +4,7 @@ import exception.GameErrorCode;
 import exception.GameException;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import models.base.PlayerColor;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -162,6 +163,11 @@ public class Board implements GameBoard {
     @Override
     public long getCountCell(Cell cell) {
         return cells.values().stream().filter(x -> x.equals(cell)).count();
+    }
+
+    @Override
+    public Set<Point> getAvailableMoves(PlayerColor color) {
+        return null;
     }
 
     @Override
