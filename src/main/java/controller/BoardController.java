@@ -48,7 +48,9 @@ public class BoardController {
                 forRevers.addAll(temp);
                 break;
             }
-            temp.add(checkPoint);
+            if (!board.getCell(checkPoint).equals(cell)) {
+                temp.add(checkPoint);
+            }
         }
         temp.clear();
         //left+up
@@ -61,7 +63,9 @@ public class BoardController {
                 forRevers.addAll(temp);
                 break;
             }
-            temp.add(checkPoint);
+            if (!board.getCell(checkPoint).equals(cell)) {
+                temp.add(checkPoint);
+            }
         }
         temp.clear();
         //up
@@ -74,7 +78,9 @@ public class BoardController {
                 forRevers.addAll(temp);
                 break;
             }
-            temp.add(checkPoint);
+            if (!board.getCell(checkPoint).equals(cell)) {
+                temp.add(checkPoint);
+            }
         }
         temp.clear();
         //right+up
@@ -87,7 +93,9 @@ public class BoardController {
                 forRevers.addAll(temp);
                 break;
             }
-            temp.add(checkPoint);
+            if (!board.getCell(checkPoint).equals(cell)) {
+                temp.add(checkPoint);
+            }
         }
         temp.clear();
         //right
@@ -100,7 +108,9 @@ public class BoardController {
                 forRevers.addAll(temp);
                 break;
             }
-            temp.add(checkPoint);
+            if (!board.getCell(checkPoint).equals(cell)) {
+                temp.add(checkPoint);
+            }
         }
         temp.clear();
         //right+down
@@ -114,8 +124,9 @@ public class BoardController {
                 forRevers.addAll(temp);
                 break;
             }
-            temp.add(checkPoint);
-
+            if (!board.getCell(checkPoint).equals(cell)) {
+                temp.add(checkPoint);
+            }
         }
         temp.clear();
         //down
@@ -128,7 +139,9 @@ public class BoardController {
                 forRevers.addAll(temp);
                 break;
             }
-            temp.add(checkPoint);
+            if (!board.getCell(checkPoint).equals(cell)) {
+                temp.add(checkPoint);
+            }
         }
         temp.clear();
         //left+down
@@ -141,7 +154,9 @@ public class BoardController {
                 forRevers.addAll(temp);
                 break;
             }
-            temp.add(checkPoint);
+            if (!board.getCell(checkPoint).equals(cell)) {
+                temp.add(checkPoint);
+            }
         }
 
         if (forRevers.isEmpty()) {
