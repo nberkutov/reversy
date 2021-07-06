@@ -34,7 +34,7 @@ public class RandomBot extends Player {
         for (int i = 0; i < BOARD_SIZE; i++) {
             for (int j = 0; j < BOARD_SIZE; j++) {
                 Point checkPoint = new Point(i, j);
-                if (getCellInAllDirection(checkPoint, cell).size() > 0) {
+                if (!getCellInAllDirection(checkPoint, cell).isEmpty()) {
                     points.add(checkPoint);
                 }
             }
@@ -45,6 +45,7 @@ public class RandomBot extends Player {
     public List<Point> getCellInAllDirection(Point point, Cell cell) throws GameException {
         Set<Point> points = new HashSet<>();
         Board board = boardController.getBoard();
+        boolean wasOtherCell = false;
         //left
         for (int x = point.getX() - 1; x >= 0; x--) {
             Point checkPoint = new Point(x, point.getY());
@@ -53,10 +54,16 @@ public class RandomBot extends Player {
                 break;
             }
             if (board.getCell(checkPoint).equals(cell)) {
-                points.add(checkPoint);
+                if (wasOtherCell) {
+                    points.add(checkPoint);
+                }
                 break;
             }
+            if (!board.getCell(checkPoint).equals(cell)) {
+                wasOtherCell = true;
+            }
         }
+        wasOtherCell = false;
         //left+up
         for (int x = point.getX() - 1, y = point.getY() - 1; x >= 0 && y >= 0; x--, y--) {
             Point checkPoint = new Point(x, y);
@@ -64,11 +71,16 @@ public class RandomBot extends Player {
                 break;
             }
             if (board.getCell(checkPoint).equals(cell)) {
-                points.add(checkPoint);
+                if (wasOtherCell) {
+                    points.add(checkPoint);
+                }
                 break;
             }
-
+            if (!board.getCell(checkPoint).equals(cell)) {
+                wasOtherCell = true;
+            }
         }
+        wasOtherCell = false;
         //up
         for (int y = point.getY() - 1; y >= 0; y--) {
             Point checkPoint = new Point(point.getX(), y);
@@ -76,10 +88,16 @@ public class RandomBot extends Player {
                 break;
             }
             if (board.getCell(checkPoint).equals(cell)) {
-                points.add(checkPoint);
+                if (wasOtherCell) {
+                    points.add(checkPoint);
+                }
                 break;
             }
+            if (!board.getCell(checkPoint).equals(cell)) {
+                wasOtherCell = true;
+            }
         }
+        wasOtherCell = false;
         //right+up
         for (int x = point.getX() + 1, y = point.getY() - 1; x < BOARD_SIZE && y >= 0; x++, y--) {
             Point checkPoint = new Point(x, y);
@@ -87,11 +105,16 @@ public class RandomBot extends Player {
                 break;
             }
             if (board.getCell(checkPoint).equals(cell)) {
-                points.add(checkPoint);
+                if (wasOtherCell) {
+                    points.add(checkPoint);
+                }
                 break;
             }
-
+            if (!board.getCell(checkPoint).equals(cell)) {
+                wasOtherCell = true;
+            }
         }
+        wasOtherCell = false;
         //right
         for (int x = point.getX() + 1; x < BOARD_SIZE; x++) {
             Point checkPoint = new Point(x, point.getY());
@@ -99,10 +122,16 @@ public class RandomBot extends Player {
                 break;
             }
             if (board.getCell(checkPoint).equals(cell)) {
-                points.add(checkPoint);
+                if (wasOtherCell) {
+                    points.add(checkPoint);
+                }
                 break;
             }
+            if (!board.getCell(checkPoint).equals(cell)) {
+                wasOtherCell = true;
+            }
         }
+        wasOtherCell = false;
         //right+down
         for (int x = point.getX() + 1, y = point.getY() + 1; x < BOARD_SIZE && y < BOARD_SIZE; x++, y++) {
             Point checkPoint = new Point(x, y);
@@ -110,11 +139,16 @@ public class RandomBot extends Player {
                 break;
             }
             if (board.getCell(checkPoint).equals(cell)) {
-                points.add(checkPoint);
+                if (wasOtherCell) {
+                    points.add(checkPoint);
+                }
                 break;
             }
-
+            if (!board.getCell(checkPoint).equals(cell)) {
+                wasOtherCell = true;
+            }
         }
+        wasOtherCell = false;
         //down
         for (int y = point.getY() + 1; y < BOARD_SIZE; y++) {
             Point checkPoint = new Point(point.getX(), y);
@@ -122,10 +156,16 @@ public class RandomBot extends Player {
                 break;
             }
             if (board.getCell(checkPoint).equals(cell)) {
-                points.add(checkPoint);
+                if (wasOtherCell) {
+                    points.add(checkPoint);
+                }
                 break;
             }
+            if (!board.getCell(checkPoint).equals(cell)) {
+                wasOtherCell = true;
+            }
         }
+        wasOtherCell = false;
         //left+down
         for (int x = point.getX() - 1, y = point.getY() + 1; x >= 0 && y < BOARD_SIZE; x--, y++) {
             Point checkPoint = new Point(x, y);
@@ -133,8 +173,13 @@ public class RandomBot extends Player {
                 break;
             }
             if (board.getCell(checkPoint).equals(cell)) {
-                points.add(checkPoint);
+                if (wasOtherCell) {
+                    points.add(checkPoint);
+                }
                 break;
+            }
+            if (!board.getCell(checkPoint).equals(cell)) {
+                wasOtherCell = true;
             }
         }
 
