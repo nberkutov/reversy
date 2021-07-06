@@ -6,15 +6,12 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import models.base.PlayerColor;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Data
 @Slf4j
 public class Board implements GameBoard {
-    private static int BOARD_SIZE = 8;
+    public static final int BOARD_SIZE = 8;
     private final Map<Point, Cell> cells;
 
     public Board() {
@@ -58,13 +55,16 @@ public class Board implements GameBoard {
     }
 
     @Override
-    public Set<Point> getCellInAllDirection(Point point, Cell cell) throws GameException {
+    public List<Point> getCellInAllDirection(Point point, Cell cell) throws GameException {
         checkPoint(point);
         Set<Point> points = new HashSet<>();
         //left
         for (int x = point.getX(); x >= 0; x--) {
-            Point checkPoint = new Point(x,point.getY());
-            if(isCellEmpty(checkPoint)){
+            Point checkPoint = new Point(x, point.getY());
+            if (checkPoint.equals(point)) {
+                continue;
+            }
+            if (isCellEmpty(checkPoint)) {
                 break;
             }
             if (getCell(checkPoint).equals(cell)) {
@@ -73,22 +73,29 @@ public class Board implements GameBoard {
             }
         }
         //left+up
-        for (int x = point.getX(); x >= 0; x--) {
-            for (int y = point.getY(); y >= 0; y--) {
-                Point checkPoint = new Point(x,y);
-                if(isCellEmpty(checkPoint)){
-                    break;
-                }
-                if (getCell(checkPoint).equals(cell)) {
-                    points.add(checkPoint);
-                    break;
-                }
+        for (int x = point.getX(), y = point.getY(); x >= 0 && y >= 0; ) {
+            Point checkPoint = new Point(x, y);
+            x--;
+            y--;
+            if (checkPoint.equals(point)) {
+                continue;
             }
+            if (isCellEmpty(checkPoint)) {
+                break;
+            }
+            if (getCell(checkPoint).equals(cell)) {
+                points.add(checkPoint);
+                break;
+            }
+
         }
         //up
         for (int y = point.getY(); y >= 0; y--) {
-            Point checkPoint = new Point(point.getX(),y);
-            if(isCellEmpty(checkPoint)){
+            Point checkPoint = new Point(point.getX(), y);
+            if (checkPoint.equals(point)) {
+                continue;
+            }
+            if (isCellEmpty(checkPoint)) {
                 break;
             }
             if (getCell(checkPoint).equals(cell)) {
@@ -97,22 +104,29 @@ public class Board implements GameBoard {
             }
         }
         //right+up
-        for (int x = point.getX(); x < BOARD_SIZE; x++) {
-            for (int y = point.getY(); y >= 0; y--) {
-                Point checkPoint = new Point(x,y);
-                if(isCellEmpty(checkPoint)){
-                    break;
-                }
-                if (getCell(checkPoint).equals(cell)) {
-                    points.add(checkPoint);
-                    break;
-                }
+        for (int x = point.getX(), y = point.getY(); x < BOARD_SIZE && y >= 0; ) {
+            Point checkPoint = new Point(x, y);
+            x++;
+            y--;
+            if (checkPoint.equals(point)) {
+                continue;
             }
+            if (isCellEmpty(checkPoint)) {
+                break;
+            }
+            if (getCell(checkPoint).equals(cell)) {
+                points.add(checkPoint);
+                break;
+            }
+
         }
         //right
         for (int x = point.getX(); x < BOARD_SIZE; x++) {
-            Point checkPoint = new Point(x,point.getY());
-            if(isCellEmpty(checkPoint)){
+            Point checkPoint = new Point(x, point.getY());
+            if (checkPoint.equals(point)) {
+                continue;
+            }
+            if (isCellEmpty(checkPoint)) {
                 break;
             }
             if (getCell(checkPoint).equals(cell)) {
@@ -121,22 +135,29 @@ public class Board implements GameBoard {
             }
         }
         //right+down
-        for (int x = point.getX(); x < BOARD_SIZE; x++) {
-            for (int y = point.getY(); y < BOARD_SIZE; y++) {
-                Point checkPoint = new Point(x,y);
-                if(isCellEmpty(checkPoint)){
-                    break;
-                }
-                if (getCell(checkPoint).equals(cell)) {
-                    points.add(checkPoint);
-                    break;
-                }
+        for (int x = point.getX(), y = point.getY(); x < BOARD_SIZE && y < BOARD_SIZE; ) {
+            Point checkPoint = new Point(x, y);
+            x++;
+            y++;
+            if (checkPoint.equals(point)) {
+                continue;
             }
+            if (isCellEmpty(checkPoint)) {
+                break;
+            }
+            if (getCell(checkPoint).equals(cell)) {
+                points.add(checkPoint);
+                break;
+            }
+
         }
         //down
         for (int y = point.getY(); y < BOARD_SIZE; y++) {
-            Point checkPoint = new Point(point.getX(),y);
-            if(isCellEmpty(checkPoint)){
+            Point checkPoint = new Point(point.getX(), y);
+            if (checkPoint.equals(point)) {
+                continue;
+            }
+            if (isCellEmpty(checkPoint)) {
                 break;
             }
             if (getCell(checkPoint).equals(cell)) {
@@ -145,19 +166,37 @@ public class Board implements GameBoard {
             }
         }
         //left+down
-        for (int x = point.getX(); x >= 0; x--) {
-            for (int y = point.getY(); y < BOARD_SIZE; y++) {
-                Point checkPoint = new Point(x,y);
-                if(isCellEmpty(checkPoint)){
-                    break;
-                }
-                if (getCell(checkPoint).equals(cell)) {
+        for (int x = point.getX(), y = point.getY(); x >= 0 && y < BOARD_SIZE; ) {
+            Point checkPoint = new Point(x, y);
+            x--;
+            y++;
+            if (checkPoint.equals(point)) {
+                continue;
+            }
+            if (isCellEmpty(checkPoint)) {
+                break;
+            }
+            if (getCell(checkPoint).equals(cell)) {
+                points.add(checkPoint);
+                break;
+            }
+        }
+
+        return new ArrayList<>(points);
+    }
+
+    @Override
+    public List<Point> getAvailableMoves(PlayerColor color) throws GameException {
+        Set<Point> points = new HashSet<>();
+        for (int i = 0; i < BOARD_SIZE; i++) {
+            for (int j = 0; j < BOARD_SIZE; j++) {
+                Point checkPoint = new Point(i, j);
+                if (getCellInAllDirection(checkPoint, Cell.BLACK).size() > 0) {
                     points.add(checkPoint);
-                    break;
                 }
             }
         }
-        return points;
+        return new ArrayList<>(points);
     }
 
     @Override
