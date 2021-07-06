@@ -17,11 +17,14 @@ public class Game {
     private int countBlack;
     private int countWhite;
 
+    private GameResult result;
+
     public Game(Player black, Player white) {
         board = new Board();
         this.black = black;
         this.white = white;
         state = GameState.BLACK;
+        result = GameResult.none(board);
     }
 
     public boolean isFinished() {
@@ -37,6 +40,21 @@ public class Game {
             case WHITE:
                 white.nextMove(board);
                 state = GameState.BLACK;
+                break;
+
+
+        }
+    }
+
+    public GameResult getResult() {
+        long blackCells = board.getCountCell(Cell.BLACK);
+        long whiteCells = board.getCountCell(Cell.WHITE);
+        if (blackCells == whiteCells) {
+            return GameResult.draw(board);
+        } else if (blackCells > whiteCells) {
+            return new GameResult(board, GameResultState.BLACK, black);
+        } else {
+            return new GameResult(board, GameResultState.WHITE, white);
         }
     }
 }
