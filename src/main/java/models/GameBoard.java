@@ -14,6 +14,7 @@ interface GameBoard {
     List<Point> getCellInAllDirection(Point point, Cell cell) throws GameException;
     List<Point> getAvailableMoves(PlayerColor color) throws GameException;
     long getCountCell(Cell cell);
+    Set<Point> getAvailableMoves(PlayerColor color);
     void reverseCell(int x, int y) throws GameException;
     void reverseCell(Point point) throws GameException;
 }
