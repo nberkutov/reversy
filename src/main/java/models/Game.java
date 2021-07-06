@@ -14,6 +14,9 @@ public class Game {
     private final Player black;
     private final Player white;
 
+    private int countBlack;
+    private int countWhite;
+
     public Game(Player black, Player white) {
         board = new Board();
         this.black = black;
@@ -21,4 +24,19 @@ public class Game {
         state = GameState.BLACK;
     }
 
+    public boolean isFinished() {
+        return state == GameState.END;
+    }
+
+    public void next() {
+        switch (state) {
+            case BLACK:
+                black.nextMove(board);
+                state = GameState.WHITE;
+                break;
+            case WHITE:
+                white.nextMove(board);
+                state = GameState.BLACK;
+        }
+    }
 }
