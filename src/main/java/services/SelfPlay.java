@@ -25,12 +25,12 @@ public class SelfPlay {
         }
     }
 
-    public void play() throws GameException {
+    public GameResult play() throws GameException {
         while (!game.isFinished()) {
             game.next();
             Board board = game.getBoard();
         }
-        GameResult result = game.getResult();
+        return game.getResult();
     }
 
     public static void main(String[] args) {
