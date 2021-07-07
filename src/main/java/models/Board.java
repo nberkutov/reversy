@@ -32,7 +32,6 @@ public class Board {
     }
 
 
-
     public Cell getCell(int x, int y) throws GameException {
         return getCell(new Point(x, y));
     }
@@ -59,6 +58,15 @@ public class Board {
         reverseCell(new Point(x, y));
     }
 
+    public void reverseCellAll(Collection<Point> points) throws GameException {
+        if (points == null) {
+            throw new GameException(GameErrorCode.POINTS_NOT_FOUND);
+        }
+        for (Point p : points) {
+            reverseCell(p);
+        }
+    }
+
     public void reverseCell(Point point) throws GameException {
         checkPoint(point);
         Cell cell = cells.get(point);
@@ -81,7 +89,7 @@ public class Board {
         }
     }
 
-    private boolean validation(Point point) {
+    public boolean validation(Point point) {
         return point != null && point.getX() >= 0 && point.getY() >= 0 && point.getX() < BOARD_SIZE && point.getY() < BOARD_SIZE;
     }
 
@@ -89,4 +97,5 @@ public class Board {
     public String toString() {
         return "Board{}";
     }
+
 }
