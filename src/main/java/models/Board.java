@@ -12,19 +12,14 @@ import java.util.*;
 @Slf4j
 public class Board {
     private Map<Cell, String> tiles;
-
     public static final int BOARD_SIZE = 8;
-
     private final Map<Point, Cell> cells;
-
     private int countBlack;
     private int countWhite;
+    private int countEmpty;
 
     public Board() {
-        countBlack = 2;
-        countWhite = 2;
-
-        tiles = new HashMap<Cell, String>();
+        tiles = new HashMap<>();
         tiles.put(Cell.EMPTY, "□");
         tiles.put(Cell.BLACK, "●");
         tiles.put(Cell.WHITE, "○");
@@ -43,6 +38,8 @@ public class Board {
     public Board(Map<Point, Cell> mapCell) {
         this.cells = mapCell;
     }
+
+
 
     public Cell getCell(int x, int y) throws GameException {
         return getCell(new Point(x, y));
@@ -70,6 +67,15 @@ public class Board {
         reverseCell(new Point(x, y));
     }
 
+    public void reverseCellAll(Collection<Point> points) throws GameException {
+        if (points == null) {
+            throw new GameException(GameErrorCode.POINTS_NOT_FOUND);
+        }
+        for (Point p : points) {
+            reverseCell(p);
+        }
+    }
+
     public void reverseCell(Point point) throws GameException {
         checkPoint(point);
         Cell cell = cells.get(point);
@@ -92,7 +98,7 @@ public class Board {
         }
     }
 
-    private boolean validation(Point point) {
+    public boolean validation(Point point) {
         return point != null && point.getX() >= 0 && point.getY() >= 0 && point.getX() < BOARD_SIZE && point.getY() < BOARD_SIZE;
     }
 
@@ -106,6 +112,7 @@ public class Board {
         }
         return boardBuilder.toString();
     }
+
 
     @Override
     public String toString() {

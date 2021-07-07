@@ -39,6 +39,12 @@ class BoardControllerTest {
         assertEquals(boardController.getCellInAllDirection(new Point(0, 0), Cell.WHITE).size(), 0);
         assertEquals(boardController.getCellInAllDirection(new Point(2, 1), Cell.BLACK).size(), 1);
     }
+
+    @Test
+    void testMove(){
+
+    }
+
     @Test
     void testGetAvailableMoves2() throws GameException {
         String s = ""
