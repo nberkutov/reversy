@@ -14,4 +14,9 @@ public class GameException extends Exception {
         super(message);
         this.errorCode = errorCode;
     }
+
+    @Override
+    public String getMessage() {
+        return errorCode.getMessage();
+    }
 }

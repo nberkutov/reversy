@@ -1,13 +1,19 @@
 package exception;
 
 public enum GameErrorCode {
-    BAD_POINT(""),
-    INVALID_MOVE(""),
-    INVALID_REQUEST(""),
-    CELL_IS_EMPTY("");
+    GAME_NOT_FINISHED("Game is not finished yet."),
+    BAD_POINT("Bad point."),
+    INVALID_MOVE("Invalid move."),
+    INVALID_REQUEST("Invalid request."),
+    CELL_IS_EMPTY("Cell is empty.");
+
     private final String message;
 
     GameErrorCode(String message) {
         this.message = message;
+    }
+
+    public String getMessage() {
+        return message;
     }
 }

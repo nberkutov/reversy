@@ -1,5 +1,6 @@
 package models;
 
+import exception.GameErrorCode;
 import exception.GameException;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -51,9 +52,9 @@ public class Game {
         }
     }
 
-    public GameResult getResult() throws Exception {
+    public GameResult getResult() throws GameException {
         if (state != GameState.END) {
-            throw new Exception("Game is not finished yet.");
+            throw new GameException(GameErrorCode.GAME_NOT_FINISHED);
         }
         long blackCells = board.getCountCell(Cell.BLACK);
         long whiteCells = board.getCountCell(Cell.WHITE);
