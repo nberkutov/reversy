@@ -1,7 +1,7 @@
 package models;
 
 public enum GameResultState {
-    NONE,
+    PLAYING,
     BLACK,
     WHITE,
     DRAW,

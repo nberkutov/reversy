@@ -3,7 +3,9 @@ package models;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Getter
 @EqualsAndHashCode
 public class GameResult {
@@ -26,6 +28,13 @@ public class GameResult {
     }
 
     public static GameResult none(Board board) {
-        return new GameResult(board, GameResultState.NONE);
+        return new GameResult(board, GameResultState.PLAYING);
+    }
+
+    @Override
+    public String toString() {
+        return "GameResult{" +
+                "resultState=" + resultState +
+                '}';
     }
 }
