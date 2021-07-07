@@ -13,18 +13,21 @@ import java.util.*;
 public class Board {
     public static final int BOARD_SIZE = 8;
     private final Map<Point, Cell> cells;
+    private int countBlack;
+    private int countWhite;
+    private int countEmpty;
 
-    public Board() {
+    public Board() throws GameException {
         cells = new HashMap<>();
         for (int i = 0; i < BOARD_SIZE; i++) {
             for (int j = 0; j < BOARD_SIZE; j++) {
                 cells.put(new Point(i, j), Cell.EMPTY);
             }
         }
-        cells.put(new Point(3, 3), Cell.WHITE);
-        cells.put(new Point(3, 4), Cell.BLACK);
-        cells.put(new Point(4, 3), Cell.BLACK);
-        cells.put(new Point(4, 4), Cell.WHITE);
+        setCell(new Point(3, 3), Cell.WHITE);
+        setCell(new Point(3, 4), Cell.BLACK);
+        setCell(new Point(4, 3), Cell.BLACK);
+        setCell(new Point(4, 4), Cell.WHITE);
     }
 
     public Board(Map<Point, Cell> mapCell) {
@@ -47,6 +50,29 @@ public class Board {
 
     public void setCell(Point point, Cell cell) throws GameException {
         checkPoint(point);
+        Cell before = getCell(point);
+        switch (before){
+            case BLACK:{
+                countBlack--;
+            }
+            case WHITE:{
+                countWhite--;
+            }
+            case EMPTY:{
+                countEmpty--;
+            }
+        }
+        switch (cell){
+            case BLACK:{
+                countBlack++;
+            }
+            case WHITE:{
+                countWhite++;
+            }
+            case EMPTY:{
+                countEmpty++;
+            }
+        }
         cells.put(point, cell);
     }
 

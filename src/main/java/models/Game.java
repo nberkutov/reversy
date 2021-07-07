@@ -1,6 +1,7 @@
 package models;
 
 import controller.BoardController;
+import exception.GameErrorCode;
 import exception.GameException;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -25,7 +26,7 @@ public class Game {
 
     private GameResult result;
 
-    public Game(Player first, Player second) {
+    public Game(Player first, Player second) throws GameException {
         board = new Board();
         state = GameState.BLACK;
         result = GameResult.none(board);
@@ -36,10 +37,6 @@ public class Game {
             this.black = second;
             this.white = first;
         }
-        initPlayers();
-    }
-
-    private void initPlayers() {
         black.setBoardController(new BoardController(board));
         white.setBoardController(new BoardController(board));
         black.setColor(PlayerColor.BLACK);
@@ -60,10 +57,15 @@ public class Game {
                 white.nextMove();
                 state = GameState.BLACK;
                 break;
+            case END:
+                break;
         }
     }
 
-    public GameResult getResult() {
+    public GameResult getResult() throws GameException {
+        if (state != GameState.END) {
+            throw new GameException(GameErrorCode.GAME_NOT_FINISHED);
+        }
         long blackCells = board.getCountCell(Cell.BLACK);
         long whiteCells = board.getCountCell(Cell.WHITE);
         if (blackCells == whiteCells) {

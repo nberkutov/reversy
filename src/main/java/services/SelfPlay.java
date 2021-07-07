@@ -11,13 +11,13 @@ public class SelfPlay {
     private final Player second;
     private final Game game;
 
-    public SelfPlay(Player first, Player second) {
+    public SelfPlay(Player first, Player second) throws GameException {
         this.first = first;
         this.second = second;
         game = new Game(first, second);
     }
 
-    public GameResult play() throws GameException {
+    public GameResult play() throws Exception {
         while (!game.isFinished()) {
             game.next();
             Board board = game.getBoard();

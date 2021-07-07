@@ -35,6 +35,18 @@ public class BoardController {
         makeMove(point, Cell.valueOf(color));
     }
 
+    public int getCountWhite() {
+        return board.getCountWhite();
+    }
+
+    public int getCountBlack() {
+        return board.getCountWhite();
+    }
+
+    public int getCountEmpty() {
+        return board.getCountEmpty();
+    }
+
     private void moveAndReverse(Point point, Cell cell) throws GameException {
         List<Point> moves = getCellInAllDirection(point, cell);
 
