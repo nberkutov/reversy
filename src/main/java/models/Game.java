@@ -1,5 +1,7 @@
 package models;
 
+import exception.GameErrorCode;
+
 import exception.GameException;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,7 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 import models.base.Cell;
 import models.base.GameState;
 
-@Data
 @Slf4j
 @AllArgsConstructor
 public class Game {
@@ -29,6 +30,10 @@ public class Game {
         result = GameResult.none(board);
     }
 
+    public Board getBoard() {
+        return board;
+    }
+
     public boolean isFinished() {
         return state == GameState.END;
     }
@@ -48,9 +53,9 @@ public class Game {
         }
     }
 
-    public GameResult getResult() throws Exception {
+    public GameResult getResult() throws GameException {
         if (state != GameState.END) {
-            throw new Exception("Game is not finished yet.");
+            throw new GameException(GameErrorCode.GAME_NOT_FINISHED);
         }
         long blackCells = board.getCountCell(Cell.BLACK);
         long whiteCells = board.getCountCell(Cell.WHITE);
