@@ -1,11 +1,15 @@
 package models;
 
+import controller.BoardController;
 import exception.GameException;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import models.base.Cell;
 import models.base.GameState;
+import models.base.PlayerColor;
+
+import java.util.Random;
 
 @Data
 @Slf4j
@@ -21,12 +25,25 @@ public class Game {
 
     private GameResult result;
 
-    public Game(Player black, Player white) {
+    public Game(Player first, Player second) {
         board = new Board();
-        this.black = black;
-        this.white = white;
         state = GameState.BLACK;
         result = GameResult.none(board);
+        if (new Random().nextBoolean()) {
+            this.black = first;
+            this.white = second;
+        } else {
+            this.black = second;
+            this.white = first;
+        }
+        initPlayers();
+    }
+
+    private void initPlayers() {
+        black.setBoardController(new BoardController(board));
+        white.setBoardController(new BoardController(board));
+        black.setColor(PlayerColor.BLACK);
+        white.setColor(PlayerColor.WHITE);
     }
 
     public boolean isFinished() {
@@ -43,8 +60,6 @@ public class Game {
                 white.nextMove();
                 state = GameState.BLACK;
                 break;
-
-
         }
     }
 
