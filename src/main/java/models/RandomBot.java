@@ -23,8 +23,13 @@ public class RandomBot extends Player {
     @Override
     public void nextMove() throws GameException {
         List<Point> points = boardController.getAvailableMoves(color);
-        Point move = points.get(new Random().nextInt(points.size()));
-        boardController.makeMove(move, color);
+        try {
+            Point move = points.get(new Random().nextInt(points.size()));
+
+            boardController.makeMove(move, color);
+        }catch (IllegalArgumentException e){
+            System.out.println(e);
+        }
     }
 
 }

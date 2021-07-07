@@ -1,8 +1,11 @@
 package exception;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 
-@Data
+@Getter
+@EqualsAndHashCode
 public class GameException extends Exception {
     private GameErrorCode errorCode;
 

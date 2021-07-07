@@ -5,6 +5,7 @@ import exception.GameException;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import models.Board;
+import models.Player;
 import models.base.Cell;
 import models.Point;
 import models.base.PlayerColor;
@@ -35,6 +36,22 @@ public class BoardController {
         makeMove(point, Cell.valueOf(color));
     }
 
+    public int getCountWhite() {
+        return board.getCountWhite();
+    }
+
+    public int getCountBlack() {
+        return board.getCountBlack();
+    }
+
+    public int getCountEmpty() {
+        return board.getCountEmpty();
+    }
+
+    public boolean isPossibleMove(Player player) throws GameException {
+        return !getAvailableMoves(player.getColor()).isEmpty();
+    }
+
     private void moveAndReverse(Point point, Cell cell) throws GameException {
         List<Point> moves = getCellInAllDirection(point, cell);
 
@@ -47,23 +64,24 @@ public class BoardController {
             pointsForReverse.addAll(getPointsForReverse(point, target));
         }
         board.reverseCellAll(pointsForReverse);
+        board.setCell(point, cell);
     }
 
     private Set<Point> getPointsForReverse(Point point, Point target) {
         Set<Point> points = new HashSet<>();
         Point p = new Point(point.getX(), point.getY());
         while (!p.equals(target)) {
-            if (p.getX() - target.getX() < 0) {
+            if (p.getX() < target.getX()) {
                 p.setX(p.getX() + 1);
-            } else {
+            } else if (p.getX() > target.getX()) {
                 p.setX(p.getX() - 1);
             }
-            if (p.getY() - target.getY() < 0) {
-                p.setY(p.getX() + 1);
-            } else {
-                p.setY(p.getX() - 1);
+            if (p.getY() < target.getY()) {
+                p.setY(p.getY() + 1);
+            } else if (p.getY() > target.getY()) {
+                p.setY(p.getY() - 1);
             }
-            points.add(p);
+            points.add(new Point(p.getX(), p.getY()));
         }
         points.remove(target);
         return points;

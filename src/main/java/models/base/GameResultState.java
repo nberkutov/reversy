@@ -1,8 +1,7 @@
-package models;
+package models.base;
 
 public enum GameResultState {
     PLAYING,
-    BLACK,
-    WHITE,
+    WINNER_FOUND,
     DRAW,
 }

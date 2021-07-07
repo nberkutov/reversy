@@ -4,20 +4,19 @@ import controller.BoardController;
 import exception.GameErrorCode;
 import exception.GameException;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import models.base.Cell;
 import models.base.GameState;
 import models.base.PlayerColor;
 
 import java.util.Random;
 
-@Data
+@Getter
 @Slf4j
 @AllArgsConstructor
 public class Game {
     private GameState state;
-    private final Board board;
+    private BoardController boardController;
     private final Player black;
     private final Player white;
 
@@ -26,10 +25,10 @@ public class Game {
 
     private GameResult result;
 
-    public Game(Player first, Player second) throws GameException {
-        board = new Board();
+    public Game(BoardController boardController, Player first, Player second) throws GameException {
         state = GameState.BLACK;
-        result = GameResult.none(board);
+        this.boardController = boardController;
+        result = GameResult.playing(boardController);
         if (new Random().nextBoolean()) {
             this.black = first;
             this.white = second;
@@ -37,8 +36,8 @@ public class Game {
             this.black = second;
             this.white = first;
         }
-        black.setBoardController(new BoardController(board));
-        white.setBoardController(new BoardController(board));
+        black.setBoardController(boardController);
+        white.setBoardController(boardController);
         black.setColor(PlayerColor.BLACK);
         white.setColor(PlayerColor.WHITE);
     }
@@ -50,30 +49,43 @@ public class Game {
     public void next() throws GameException {
         switch (state) {
             case BLACK:
-                black.nextMove();
+                if (boardController.isPossibleMove(black)) {
+                    black.nextMove();
+                }
                 state = GameState.WHITE;
                 break;
             case WHITE:
-                white.nextMove();
+                if (boardController.isPossibleMove(white)) {
+                    white.nextMove();
+                }
                 state = GameState.BLACK;
                 break;
             case END:
                 break;
         }
+        if (isEndGame()) {
+            state = GameState.END;
+        }
+    }
+
+    private boolean isEndGame() throws GameException {
+        return boardController.getCountEmpty() == 0 ||
+                (!boardController.isPossibleMove(black)
+                        && boardController.isPossibleMove(white));
     }
 
     public GameResult getResult() throws GameException {
         if (state != GameState.END) {
             throw new GameException(GameErrorCode.GAME_NOT_FINISHED);
         }
-        long blackCells = board.getCountCell(Cell.BLACK);
-        long whiteCells = board.getCountCell(Cell.WHITE);
+        long blackCells = boardController.getCountBlack();
+        long whiteCells = boardController.getCountWhite();
         if (blackCells == whiteCells) {
-            return GameResult.draw(board);
+            return GameResult.draw(boardController);
         } else if (blackCells > whiteCells) {
-            return new GameResult(board, GameResultState.BLACK, black);
+            return GameResult.winner(boardController, black);
         } else {
-            return new GameResult(board, GameResultState.WHITE, white);
+            return GameResult.winner(boardController, white);
         }
     }
 }

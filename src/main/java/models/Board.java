@@ -16,23 +16,24 @@ public class Board {
     private final Map<Point, Cell> cells;
     private int countBlack = 0;
     private int countWhite = 0;
-    private int countEmpty = 0;
+    private int countEmpty;
 
-    public Board() {
+    public Board() throws GameException {
+        countEmpty = (int) Math.pow(BOARD_SIZE, 2);
         tiles = new HashMap<>();
         tiles.put(Cell.EMPTY, "□");
-        tiles.put(Cell.BLACK, "●");
-        tiles.put(Cell.WHITE, "○");
+        tiles.put(Cell.BLACK, "○");
+        tiles.put(Cell.WHITE, "●");
         cells = new HashMap<>();
         for (int i = 0; i < BOARD_SIZE; i++) {
             for (int j = 0; j < BOARD_SIZE; j++) {
                 cells.put(new Point(i, j), Cell.EMPTY);
             }
         }
-        cells.put(new Point(3, 3), Cell.WHITE);
-        cells.put(new Point(3, 4), Cell.BLACK);
-        cells.put(new Point(4, 3), Cell.BLACK);
-        cells.put(new Point(4, 4), Cell.WHITE);
+        setCell(new Point(3, 3), Cell.WHITE);
+        setCell(new Point(3, 4), Cell.BLACK);
+        setCell(new Point(4, 3), Cell.BLACK);
+        setCell(new Point(4, 4), Cell.WHITE);
     }
 
     public Board(Map<Point, Cell> mapCell) {
@@ -105,23 +106,22 @@ public class Board {
     }
 
     public void reverseCell(Point point) throws GameException {
-        checkPoint(point);
-        Cell cell = cells.get(point);
+        Cell cell = getCell(point);
         if (cell.equals(Cell.EMPTY)) {
-            log.error("Bad reverseCell {}, its cell is {}", point, cell);
+            log.error("Bad reverseCell {}, {}", point, cell, new GameException(GameErrorCode.CELL_IS_EMPTY));
             throw new GameException(GameErrorCode.CELL_IS_EMPTY);
         }
 
         if (cell.equals(Cell.WHITE)) {
-            cells.put(point, Cell.BLACK);
+            setCell(point, Cell.BLACK);
         } else {
-            cells.put(point, Cell.WHITE);
+            setCell(point, Cell.WHITE);
         }
     }
 
     private void checkPoint(Point point) throws GameException {
         if (!validation(point)) {
-            log.error("Bad checkPoint {}", point);
+            log.error("Bad checkPoint {}", point, new GameException(GameErrorCode.BAD_POINT));
             throw new GameException(GameErrorCode.BAD_POINT);
         }
     }
