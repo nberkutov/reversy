@@ -1,6 +1,7 @@
 package models;
 
 import exception.GameErrorCode;
+
 import exception.GameException;
 import lombok.AllArgsConstructor;
 import lombok.Data;

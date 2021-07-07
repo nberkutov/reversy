@@ -1,6 +1,7 @@
 package exception;
 
 public enum GameErrorCode {
+
     GAME_NOT_FINISHED("Game is not finished yet."),
     BAD_POINT("Bad point."),
     INVALID_MOVE("Invalid move."),

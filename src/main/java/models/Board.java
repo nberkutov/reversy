@@ -44,7 +44,6 @@ public class Board {
         this.cells = mapCell;
     }
 
-
     public Cell getCell(int x, int y) throws GameException {
         return getCell(new Point(x, y));
     }
