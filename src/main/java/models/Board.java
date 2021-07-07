@@ -14,9 +14,9 @@ public class Board {
     private Map<Cell, String> tiles;
     public static final int BOARD_SIZE = 8;
     private final Map<Point, Cell> cells;
-    private int countBlack;
-    private int countWhite;
-    private int countEmpty;
+    private int countBlack = 0;
+    private int countWhite = 0;
+    private int countEmpty = 0;
 
     public Board() {
         tiles = new HashMap<>();
@@ -40,7 +40,6 @@ public class Board {
     }
 
 
-
     public Cell getCell(int x, int y) throws GameException {
         return getCell(new Point(x, y));
     }
@@ -56,6 +55,35 @@ public class Board {
 
     public void setCell(Point point, Cell cell) throws GameException {
         checkPoint(point);
+        Cell before = getCell(point);
+        switch (before) {
+            case EMPTY: {
+                countEmpty--;
+                break;
+            }
+            case BLACK: {
+                countBlack--;
+                break;
+            }
+            case WHITE: {
+                countWhite--;
+                break;
+            }
+        }
+        switch (cell) {
+            case EMPTY: {
+                countEmpty++;
+                break;
+            }
+            case BLACK: {
+                countBlack++;
+                break;
+            }
+            case WHITE: {
+                countWhite++;
+                break;
+            }
+        }
         cells.put(point, cell);
     }
 
