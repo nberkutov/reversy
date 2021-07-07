@@ -42,7 +42,7 @@ public class Board implements GameBoard {
 
     @Override
     public Cell getCell(Point point) throws GameException {
-        checkPoint(point);
+        validate(point);
         return cells.get(point);
     }
 
@@ -53,13 +53,13 @@ public class Board implements GameBoard {
 
     @Override
     public void setCell(Point point, Cell cell) throws GameException {
-        checkPoint(point);
+        validate(point);
         cells.put(point, cell);
     }
 
     @Override
     public Set<Point> getCellInAllDirection(Point point, Cell cell) throws GameException {
-        checkPoint(point);
+        validate(point);
         Set<Point> points = new HashSet<>();
         //left
         for (int x = point.getX(); x >= 0; x--) {
@@ -177,7 +177,7 @@ public class Board implements GameBoard {
 
     @Override
     public void reverseCell(Point point) throws GameException {
-        checkPoint(point);
+        validate(point);
         Cell cell = cells.get(point);
         if (cell.equals(Cell.EMPTY)) {
             log.error("Bad reverseCell {}, its cell is {}", point, cell);
@@ -195,15 +195,16 @@ public class Board implements GameBoard {
         return getCell(point).equals(Cell.EMPTY);
     }
 
-    private void checkPoint(Point point) throws GameException {
-        if (!validation(point)) {
+    private void validate(Point point) throws GameException {
+        boolean check = point != null
+                && point.getX() >= 0
+                && point.getY() >= 0
+                && point.getX() < BOARD_SIZE
+                && point.getY() < BOARD_SIZE;
+        if (!check) {
             log.error("Bad checkPoint {}", point);
             throw new GameException(GameErrorCode.BAD_POINT);
         }
-    }
-
-    private boolean validation(Point point) {
-        return point != null && point.getX() >= 0 && point.getY() >= 0 && point.getX() < BOARD_SIZE && point.getY() < BOARD_SIZE;
     }
 
     @Override

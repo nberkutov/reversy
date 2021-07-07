@@ -5,7 +5,6 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import models.base.GameState;
 
-@Data
 @Slf4j
 @AllArgsConstructor
 public class Game {
@@ -25,6 +24,10 @@ public class Game {
         this.white = white;
         state = GameState.BLACK;
         result = GameResult.none(board);
+    }
+
+    public Board getBoard() {
+        return board;
     }
 
     public boolean isFinished() {
