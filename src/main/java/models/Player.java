@@ -1,26 +1,27 @@
 package models;
 
-import services.BoardService;
+import services.MoveService;
 import exception.GameException;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import models.base.PlayerColor;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class Player {
-    private long id;
-    protected PlayerColor color;
-    protected BoardService boardService;
+public abstract class Player {
+    protected final long id;
+    protected final PlayerColor color;
+    protected final MoveService moveService;
 
-    public Player(long id) {
+    public Player(long id, PlayerColor color, MoveService moveService) {
         this.id = id;
+        this.color = color;
+        this.moveService = moveService;
     }
 
-    public void nextMove() throws GameException {
-        throw new NotImplementedException();
+    public PlayerColor getColor() {
+        return color;
     }
+
+    public long getId() {
+        return id;
+    }
+
+    public abstract void nextMove() throws GameException;
 }

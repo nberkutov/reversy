@@ -74,22 +74,4 @@ class GameBoardTest {
         assertEquals(classicBoard.getCountCell(firstCheck), 2);
         assertEquals(classicBoard.getCountCell(secondCheck), 2);
     }
-
-    @Test
-    void testReverseCell() throws GameException {
-        Board board = new Board();
-        assertEquals(Cell.EMPTY, board.getCell(0, 0));
-        try {
-            board.reverseCell(0, 0);
-            fail();
-        } catch (GameException ex) {
-            assertEquals(ex.getErrorCode(), GameErrorCode.CELL_IS_EMPTY);
-        }
-        assertEquals(Cell.EMPTY, board.getCell(0, 0));
-        board.setCell(0, 0, Cell.BLACK);
-        board.reverseCell(0, 0);
-        assertEquals(Cell.WHITE, board.getCell(0, 0));
-        board.reverseCell(0, 0);
-        assertEquals(Cell.BLACK, board.getCell(0, 0));
-    }
 }

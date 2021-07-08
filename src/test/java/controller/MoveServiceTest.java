@@ -6,13 +6,13 @@ import models.BoardUtilsTest;
 import models.Point;
 import models.base.Cell;
 import org.junit.jupiter.api.Test;
-import services.BoardService;
+import services.MoveService;
 
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class BoardServiceTest {
+class MoveServiceTest {
 
     @Test
     void testGetCellInAllDirection() throws GameException {
@@ -26,17 +26,17 @@ class BoardServiceTest {
                 + "00000000"
                 + "00000000";
         Board board = new Board(BoardUtilsTest.parserMapByString(s));
-        BoardService boardService = new BoardService(board);
+        MoveService moveService = new MoveService(board);
 
-        List<Point> result = boardService.getCellInAllDirection(new Point(4, 6), Cell.WHITE);
+        List<Point> result = moveService.getCellInAllDirection(new Point(4, 6), Cell.WHITE);
         assertEquals(result.size(), 1);
         assertEquals(result.get(0).getX(), 4);
         assertEquals(result.get(0).getY(), 2);
-        assertEquals(boardService.getCellInAllDirection(new Point(6, 3), Cell.WHITE).size(), 1);
-        assertEquals(boardService.getCellInAllDirection(new Point(7, 3), Cell.WHITE).size(), 0);
-        assertEquals(boardService.getCellInAllDirection(new Point(7, 7), Cell.WHITE).size(), 0);
-        assertEquals(boardService.getCellInAllDirection(new Point(0, 0), Cell.WHITE).size(), 0);
-        assertEquals(boardService.getCellInAllDirection(new Point(2, 1), Cell.BLACK).size(), 1);
+        assertEquals(moveService.getCellInAllDirection(new Point(6, 3), Cell.WHITE).size(), 1);
+        assertEquals(moveService.getCellInAllDirection(new Point(7, 3), Cell.WHITE).size(), 0);
+        assertEquals(moveService.getCellInAllDirection(new Point(7, 7), Cell.WHITE).size(), 0);
+        assertEquals(moveService.getCellInAllDirection(new Point(0, 0), Cell.WHITE).size(), 0);
+        assertEquals(moveService.getCellInAllDirection(new Point(2, 1), Cell.BLACK).size(), 1);
     }
 
     @Test
@@ -56,10 +56,10 @@ class BoardServiceTest {
                 + "00000000"
                 + "00000000";
         Board board = new Board(BoardUtilsTest.parserMapByString(s));
-        BoardService boardService = new BoardService(board);
+        MoveService moveService = new MoveService(board);
 
-        assertEquals(boardService.getAvailableMoves(Cell.WHITE).size(), 8);
-        assertEquals(boardService.getAvailableMoves(Cell.BLACK).size(), 0);
+        assertEquals(moveService.getAvailableMoves(Cell.WHITE).size(), 8);
+        assertEquals(moveService.getAvailableMoves(Cell.BLACK).size(), 0);
     }
 
     @Test
@@ -74,9 +74,9 @@ class BoardServiceTest {
                 + "00000000"
                 + "00000000";
         Board board = new Board(BoardUtilsTest.parserMapByString(s));
-        BoardService boardService = new BoardService(board);
+        MoveService moveService = new MoveService(board);
 
-        List<Point> points = boardService.getAvailableMoves(Cell.WHITE);
+        List<Point> points = moveService.getAvailableMoves(Cell.WHITE);
         assertEquals(points.size(), 4);
         assertTrue(points.contains(new Point(4,2)));
         assertTrue(points.contains(new Point(5,3)));

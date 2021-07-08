@@ -1,28 +1,24 @@
 package models;
 
-import services.BoardService;
+import services.MoveService;
 import exception.GameException;
 import models.base.PlayerColor;
 
 import java.util.*;
 
-public class RandomBot extends Player {
+public class RandomBotPlayer extends Player {
 
-    public RandomBot(long id) {
-        super(id);
-    }
-
-    public RandomBot(long id, PlayerColor color, BoardService boardService) {
-        super(id, color, boardService);
+    public RandomBotPlayer(long id, PlayerColor color, MoveService moveService) {
+        super(id, color, moveService);
     }
 
     @Override
     public void nextMove() throws GameException {
-        List<Point> points = boardService.getAvailableMoves(color);
+        List<Point> points = moveService.getAvailableMoves(color);
         try {
             Point move = points.get(new Random().nextInt(points.size()));
 
-            boardService.makeMove(move, color);
+            moveService.makeMove(move, color);
         }catch (IllegalArgumentException e){
             System.out.println(e);
         }

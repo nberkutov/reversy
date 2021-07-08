@@ -5,15 +5,13 @@ import models.base.PlayerColor;
 import org.junit.jupiter.api.Test;
 import services.SelfPlay;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-class RandomBotTest {
+class RandomBotPlayerTest {
 
     @Test
     public void testGame() throws GameException {
-        RandomBot bot1 = new RandomBot(0);
-        RandomBot bot2 = new RandomBot(1);
+        /*RandomBotPlayer bot1 = new RandomBotPlayer(0, PlayerColor.BLACK, );
+        RandomBotPlayer bot2 = new RandomBotPlayer(1);
         SelfPlay selfPlay = new SelfPlay(bot1,bot2);
-        System.out.println(selfPlay.play());
+        System.out.println(selfPlay.play());*/
     }
 }

@@ -11,19 +11,14 @@ import java.util.*;
 @Data
 @Slf4j
 public class Board {
-    private Map<Cell, String> tiles;
     public static final int BOARD_SIZE = 8;
+    private Map<Cell, String> tiles;
     private final Map<Point, Cell> cells;
     private int countBlack = 0;
     private int countWhite = 0;
     private int countEmpty;
 
     public Board() throws GameException {
-        countEmpty = (int) Math.pow(BOARD_SIZE, 2);
-        tiles = new HashMap<>();
-        tiles.put(Cell.EMPTY, "e");
-        tiles.put(Cell.BLACK, "b");
-        tiles.put(Cell.WHITE, "w");
         cells = new HashMap<>();
         for (int i = 0; i < BOARD_SIZE; i++) {
             for (int j = 0; j < BOARD_SIZE; j++) {
@@ -34,6 +29,9 @@ public class Board {
         setCell(new Point(3, 4), Cell.BLACK);
         setCell(new Point(4, 3), Cell.BLACK);
         setCell(new Point(4, 4), Cell.WHITE);
+        countBlack = 2;
+        countWhite = 2;
+        countEmpty = BOARD_SIZE * BOARD_SIZE - 4;
     }
 
     public Board(Map<Point, Cell> mapCell) {
@@ -46,7 +44,7 @@ public class Board {
     }
 
     public Cell getCell(Point point) throws GameException {
-        checkPoint(point);
+        validatePoint(point);
         return cells.get(point);
     }
 
@@ -55,7 +53,7 @@ public class Board {
     }
 
     public void setCell(Point point, Cell cell) throws GameException {
-        checkPoint(point);
+        validatePoint(point);
         Cell before = getCell(point);
         switch (before) {
             case EMPTY: {
@@ -92,59 +90,33 @@ public class Board {
         return cells.values().stream().filter(x -> x.equals(cell)).count();
     }
 
-    public void reverseCell(int x, int y) throws GameException {
-        reverseCell(new Point(x, y));
-    }
-
-    public void reverseCellAll(Collection<Point> points) throws GameException {
-        if (points == null) {
-            throw new GameException(GameErrorCode.POINTS_NOT_FOUND);
-        }
-        for (Point p : points) {
-            reverseCell(p);
-        }
-    }
-
-    public void reverseCell(Point point) throws GameException {
-        Cell cell = getCell(point);
-        if (cell.equals(Cell.EMPTY)) {
-            log.error("Bad reverseCell {}, {}", point, cell, new GameException(GameErrorCode.CELL_IS_EMPTY));
-            throw new GameException(GameErrorCode.CELL_IS_EMPTY);
-        }
-
-        if (cell.equals(Cell.WHITE)) {
-            setCell(point, Cell.BLACK);
-        } else {
-            setCell(point, Cell.WHITE);
-        }
-    }
-
-    private void checkPoint(Point point) throws GameException {
-        if (!validation(point)) {
+    private void validatePoint(Point point) throws GameException {
+        if (!isValid(point)) {
             log.error("Bad checkPoint {}", point, new GameException(GameErrorCode.BAD_POINT));
             throw new GameException(GameErrorCode.BAD_POINT);
         }
     }
 
-    public boolean validation(Point point) {
-        return point != null && point.getX() >= 0 && point.getY() >= 0 && point.getX() < BOARD_SIZE && point.getY() < BOARD_SIZE;
+    public boolean isValid(Point point) {
+        return point != null
+                && point.getX() >= 0
+                && point.getY() >= 0
+                && point.getX() < BOARD_SIZE
+                && point.getY() < BOARD_SIZE;
     }
-
-    public String getVisualString() throws GameException {
-        StringBuilder boardBuilder = new StringBuilder();
-        for (int i = 0; i < BOARD_SIZE; i++) {
-            for (int j = 0; j < BOARD_SIZE; j++) {
-                boardBuilder.append(tiles.get(getCell(j, i))).append(" ");
-            }
-            boardBuilder.append("\n");
-        }
-        return boardBuilder.toString();
-    }
-
 
     @Override
     public String toString() {
         return "Board{}";
     }
 
+    public Board copy() throws GameException {
+        Board newBoard = new Board();
+        for (int i = 0; i < BOARD_SIZE; i++) {
+            for (int j = 0; j < BOARD_SIZE; j++) {
+                newBoard.setCell(j, i, getCell(j, i));
+            }
+        }
+        return newBoard;
+    }
 }
