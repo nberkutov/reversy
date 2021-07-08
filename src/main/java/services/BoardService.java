@@ -1,4 +1,4 @@
-package controller;
+package services;
 
 import exception.GameErrorCode;
 import exception.GameException;
@@ -21,10 +21,10 @@ import static models.Board.BOARD_SIZE;
 
 @Data
 @Slf4j
-public class BoardController {
+public class BoardService {
     private final Board board;
 
-    public BoardController(Board board) {
+    public BoardService(Board board) {
         this.board = board;
     }
 
