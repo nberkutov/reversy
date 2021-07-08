@@ -9,7 +9,9 @@ import lombok.extern.slf4j.Slf4j;
 import models.base.GameState;
 import models.base.PlayerColor;
 
+import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Getter
 @Slf4j
@@ -17,6 +19,7 @@ import java.util.Random;
 public class Game {
     private GameState state;
     private BoardService boardService;
+    private final Map<Integer, Player> players = new ConcurrentHashMap<>();
     private final Player black;
     private final Player white;
 

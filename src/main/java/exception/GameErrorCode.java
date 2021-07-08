@@ -7,6 +7,7 @@ public enum GameErrorCode {
     INVALID_CELL(""),
     INVALID_PLAYER_COLOR(""),
     PLAYER_NOT_FOUND(""),
+    GAME_NOT_FOUND(""),
     INVALID_MOVE("Invalid move."),
     INVALID_REQUEST("Invalid request."),
     CELL_IS_EMPTY("Cell is empty.");
