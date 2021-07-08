@@ -21,9 +21,9 @@ public class Board {
     public Board() throws GameException {
         countEmpty = (int) Math.pow(BOARD_SIZE, 2);
         tiles = new HashMap<>();
-        tiles.put(Cell.EMPTY, "□");
-        tiles.put(Cell.BLACK, "○");
-        tiles.put(Cell.WHITE, "●");
+        tiles.put(Cell.EMPTY, "e");
+        tiles.put(Cell.BLACK, "b");
+        tiles.put(Cell.WHITE, "w");
         cells = new HashMap<>();
         for (int i = 0; i < BOARD_SIZE; i++) {
             for (int j = 0; j < BOARD_SIZE; j++) {
