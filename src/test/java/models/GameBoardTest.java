@@ -56,13 +56,16 @@ class GameBoardTest {
     void getCountCell() throws GameException {
         Cell firstCheck = Cell.BLACK;
         Cell secondCheck = Cell.WHITE;
-        Map<Point, Cell> map = new HashMap<>();
-        for (int i = 0; i < SIZE; i++) {
-            for (int j = 0; j < SIZE; j++) {
-                map.put(new Point(i, j), firstCheck);
-            }
-        }
-        Board board = new Board(map);
+        String s = ""
+                + "bbbbbbbb"
+                + "bbbbbbbb"
+                + "bbbbbbbb"
+                + "bbbbbbbb"
+                + "bbbbbbbb"
+                + "bbbbbbbb"
+                + "bbbbbbbb"
+                + "bbbbbbbb";
+        Board board = BoardUtilsTest.parserBoardByString(s);
         assertEquals(board.getCountCell(firstCheck), SIZE * SIZE);
         assertEquals(board.getCountCell(secondCheck), 0);
         Random random = new Random();
