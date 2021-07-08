@@ -137,7 +137,6 @@ public class BoardController {
         } while (!board.getCell(p).equals(cell));
         return p;
     }
-
     private boolean isCellEmpty(Point point) throws GameException {
         return board.getCell(point).equals(Cell.EMPTY);
     }
