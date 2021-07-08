@@ -1,5 +1,6 @@
 package models;
 
+import exception.GameException;
 import models.base.Cell;
 
 import java.util.HashMap;
@@ -11,27 +12,27 @@ import static org.junit.jupiter.api.Assertions.fail;
 public class BoardUtilsTest {
 
     // 0 - is empty; b - black; w - white;
-    public static Map<Point, Cell> parserMapByString(String string) {
-        Map<Point, Cell> map = new HashMap<>();
+    public static Board parserBoardByString(String string) throws GameException {
+        Board board = new Board();
         int x = 0;
         int y = 0;
         for (int i = 0; i < string.length(); i++) {
             Point point = new Point(x, y);
             switch (string.charAt(i)) {
                 case '0': {
-                    map.put(point, Cell.EMPTY);
+                    board.setCell(point, Cell.EMPTY);
                     break;
                 }
                 case 'b': {
-                    map.put(point, Cell.BLACK);
+                    board.setCell(point, Cell.BLACK);
                     break;
                 }
                 case 'w': {
-                    map.put(point, Cell.WHITE);
+                    board.setCell(point, Cell.WHITE);
                     break;
                 }
                 default: {
-                    fail();
+                    throw new RuntimeException();
                 }
             }
             x++;
@@ -40,6 +41,6 @@ public class BoardUtilsTest {
                 x = 0;
             }
         }
-        return map;
+        return board;
     }
 }

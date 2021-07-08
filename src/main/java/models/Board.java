@@ -3,6 +3,7 @@ package models;
 import exception.GameErrorCode;
 import exception.GameException;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 import models.base.Cell;
 
@@ -10,6 +11,7 @@ import java.util.*;
 
 @Data
 @Slf4j
+@EqualsAndHashCode
 public class Board {
     private Map<Cell, String> tiles;
     public static final int BOARD_SIZE = 8;
@@ -36,11 +38,6 @@ public class Board {
         setCell(new Point(4, 4), Cell.WHITE);
     }
 
-    public Board(Map<Point, Cell> mapCell) {
-        this.cells = mapCell;
-    }
-
-
     public Cell getCell(int x, int y) throws GameException {
         return getCell(new Point(x, y));
     }
@@ -56,6 +53,7 @@ public class Board {
 
     public void setCell(Point point, Cell cell) throws GameException {
         checkPoint(point);
+        checkCell(cell);
         Cell before = getCell(point);
         switch (before) {
             case EMPTY: {
@@ -119,13 +117,22 @@ public class Board {
         }
     }
 
-    private void checkPoint(Point point) throws GameException {
+    //TODO: move func to Point
+    public void checkPoint(Point point) throws GameException {
         if (!validation(point)) {
             log.error("Bad checkPoint {}", point, new GameException(GameErrorCode.BAD_POINT));
             throw new GameException(GameErrorCode.BAD_POINT);
         }
     }
 
+    public void checkCell(Cell cell) throws GameException {
+        if (cell == null) {
+            log.error("Bad checkCell", new GameException(GameErrorCode.INVALID_CELL));
+            throw new GameException(GameErrorCode.INVALID_CELL);
+        }
+    }
+
+    //TODO: rename to validate
     public boolean validation(Point point) {
         return point != null && point.getX() >= 0 && point.getY() >= 0 && point.getX() < BOARD_SIZE && point.getY() < BOARD_SIZE;
     }
@@ -140,7 +147,6 @@ public class Board {
         }
         return boardBuilder.toString();
     }
-
 
     @Override
     public String toString() {
