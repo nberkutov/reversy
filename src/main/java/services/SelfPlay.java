@@ -1,5 +1,6 @@
 package services;
 
+import controller.BoardController;
 import exception.GameException;
 
 import lombok.extern.slf4j.Slf4j;
@@ -14,26 +15,25 @@ public class SelfPlay {
     private final Player second;
     private final Game game;
 
-    public SelfPlay(Player first, Player second) {
+    public SelfPlay(Player first, Player second) throws GameException {
         this.first = first;
         this.second = second;
-        game = new Game(first, second);
-        try {
-            System.out.println(game.getBoard().getVisualString());
-        } catch (GameException e) {
-            e.printStackTrace();
-        }
+        Board board = new Board();
+        BoardController boardController = new BoardController(board);
+        game = new Game(boardController, first, second);
     }
 
-    public void play() throws GameException {
+    public GameResult play() throws GameException {
         while (!game.isFinished()) {
+            log.debug("DEBUG playing \n{}", game.getBoardController().getBoard().getVisualString());
             game.next();
-            Board board = game.getBoard();
         }
-        GameResult result = game.getResult();
+
+        log.debug("DEBUG finish \n{}", game.getResult().getBoard().getVisualString());
+        return game.getResult();
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws GameException {
         SelfPlay selfPlay = new SelfPlay(new Player(), new Player());
     }
 }

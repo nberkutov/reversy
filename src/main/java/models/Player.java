@@ -19,6 +19,10 @@ public class Player {
     protected PlayerColor color;
     protected BoardController boardController;
 
+    public Player(long id) {
+        this.id = id;
+    }
+
     public void nextMove() throws GameException {
         throw new NotImplementedException();
     }
