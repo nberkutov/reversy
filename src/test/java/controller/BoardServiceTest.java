@@ -4,8 +4,10 @@ import exception.GameErrorCode;
 import exception.GameException;
 import models.Board;
 import models.BoardUtilsTest;
+import models.Player;
 import models.Point;
 import models.base.Cell;
+import models.base.PlayerColor;
 import org.junit.jupiter.api.Test;
 import services.BoardService;
 
@@ -140,6 +142,51 @@ class BoardServiceTest {
     }
 
     @Test
+    void testIsPossibleMove() throws GameException {
+        String s = ""
+                + "00000000"
+                + "00000000"
+                + "00000000"
+                + "000wb000"
+                + "000bw000"
+                + "00000000"
+                + "00000000"
+                + "00000000";
+        BoardService boardService = new BoardService(BoardUtilsTest.parserBoardByString(s));
+        Player player = new Player();
+        player.setColor(PlayerColor.WHITE);
+        assertTrue(boardService.isPossibleMove(player));
+        player.setColor(PlayerColor.BLACK);
+        assertTrue(boardService.isPossibleMove(player));
+
+        String two = ""
+                + "00000000"
+                + "00000000"
+                + "00000000"
+                + "00000000"
+                + "00000000"
+                + "00000000"
+                + "00000000"
+                + "00000000";
+        BoardService bs = new BoardService(BoardUtilsTest.parserBoardByString(two));
+        assertFalse(bs.isPossibleMove(player));
+        player.setColor(PlayerColor.WHITE);
+        assertFalse(bs.isPossibleMove(player));
+    }
+
+    @Test
+    void testIsPossibleMoveException() throws GameException {
+        Board board = new Board();
+        BoardService boardService = new BoardService(board);
+        try {
+            boardService.isPossibleMove(null);
+            fail();
+        } catch (GameException e) {
+            assertEquals(e.getErrorCode(), GameErrorCode.PLAYER_NOT_FOUND);
+        }
+    }
+
+    @Test
     void testGetCellInAllDirectionException() throws GameException {
         Board board = new Board();
         BoardService boardService = new BoardService(board);
@@ -212,10 +259,22 @@ class BoardServiceTest {
 
         try {
             boardService.getAvailableMoves((Cell) null);
+            fail();
         } catch (GameException e) {
             assertEquals(e.getErrorCode(), GameErrorCode.INVALID_CELL);
         }
-
+        try {
+            boardService.getAvailableMoves(Cell.EMPTY);
+            fail();
+        } catch (GameException e) {
+            assertEquals(e.getErrorCode(), GameErrorCode.INVALID_CELL);
+        }
+        try {
+            boardService.getAvailableMoves((PlayerColor) null);
+            fail();
+        } catch (GameException e) {
+            assertEquals(e.getErrorCode(), GameErrorCode.INVALID_PLAYER_COLOR);
+        }
     }
 
 }

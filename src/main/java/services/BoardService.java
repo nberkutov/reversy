@@ -29,6 +29,7 @@ public class BoardService {
     }
 
     public void makeMove(Point point, PlayerColor color) throws GameException {
+        checkPlayerColor(color);
         makeMove(point, Cell.valueOf(color));
     }
 
@@ -60,10 +61,14 @@ public class BoardService {
     }
 
     public boolean isPossibleMove(Player player) throws GameException {
+        if (player == null) {
+            throw new GameException(GameErrorCode.PLAYER_NOT_FOUND);
+        }
         return !getAvailableMoves(player.getColor()).isEmpty();
     }
 
     public List<Point> getAvailableMoves(PlayerColor color) throws GameException {
+        checkPlayerColor(color);
         return getAvailableMoves(Cell.valueOf(color));
     }
 
@@ -143,6 +148,13 @@ public class BoardService {
         if (isCellEmpty(cell)) {
             log.error("Bad checkCellOnEmpty", new GameException(GameErrorCode.INVALID_CELL));
             throw new GameException(GameErrorCode.INVALID_CELL);
+        }
+    }
+
+    private void checkPlayerColor(PlayerColor color) throws GameException {
+        if (color == null) {
+            log.error("Bad checkPlayerColor", new GameException(GameErrorCode.INVALID_PLAYER_COLOR));
+            throw new GameException(GameErrorCode.INVALID_PLAYER_COLOR);
         }
     }
 
