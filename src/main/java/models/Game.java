@@ -16,12 +16,9 @@ import java.util.Random;
 @AllArgsConstructor
 public class Game {
     private GameState state;
-    private BoardService boardService;
+    private final BoardService boardService;
     private final Player blackPlayer;
     private final Player whitePlayer;
-
-    private int countBlack;
-    private int countWhite;
 
     public Game(BoardService boardService, Player first, Player second) {
         state = GameState.BLACK;
