@@ -17,29 +17,26 @@ import java.util.Random;
 public class Game {
     private GameState state;
     private BoardService boardService;
-    private final Player black;
-    private final Player white;
+    private final Player blackPlayer;
+    private final Player whitePlayer;
 
     private int countBlack;
     private int countWhite;
 
-    private GameResult result;
-
-    public Game(BoardService boardService, Player first, Player second) throws GameException {
+    public Game(BoardService boardService, Player first, Player second) {
         state = GameState.BLACK;
         this.boardService = boardService;
-        result = GameResult.playing(boardService);
         if (new Random().nextBoolean()) {
-            this.black = first;
-            this.white = second;
+            this.blackPlayer = first;
+            this.whitePlayer = second;
         } else {
-            this.black = second;
-            this.white = first;
+            this.blackPlayer = second;
+            this.whitePlayer = first;
         }
-        black.setBoardService(boardService);
-        white.setBoardService(boardService);
-        black.setColor(PlayerColor.BLACK);
-        white.setColor(PlayerColor.WHITE);
+        blackPlayer.setBoardService(boardService);
+        whitePlayer.setBoardService(boardService);
+        blackPlayer.setColor(PlayerColor.BLACK);
+        whitePlayer.setColor(PlayerColor.WHITE);
     }
 
     public boolean isFinished() {
@@ -49,14 +46,14 @@ public class Game {
     public void next() throws GameException {
         switch (state) {
             case BLACK:
-                if (boardService.isPossibleMove(black)) {
-                    black.nextMove();
+                if (boardService.isPossibleMove(blackPlayer)) {
+                    blackPlayer.nextMove();
                 }
                 state = GameState.WHITE;
                 break;
             case WHITE:
-                if (boardService.isPossibleMove(white)) {
-                    white.nextMove();
+                if (boardService.isPossibleMove(whitePlayer)) {
+                    whitePlayer.nextMove();
                 }
                 state = GameState.BLACK;
                 break;
@@ -70,8 +67,8 @@ public class Game {
 
     private boolean isEndGame() throws GameException {
         return boardService.getCountEmpty() == 0 ||
-                (!boardService.isPossibleMove(black)
-                        && boardService.isPossibleMove(white));
+                (!boardService.isPossibleMove(blackPlayer)
+                        && boardService.isPossibleMove(whitePlayer));
     }
 
     public GameResult getResult() throws GameException {
@@ -83,9 +80,9 @@ public class Game {
         if (blackCells == whiteCells) {
             return GameResult.draw(boardService);
         } else if (blackCells > whiteCells) {
-            return GameResult.winner(boardService, black);
+            return GameResult.winner(boardService, blackPlayer);
         } else {
-            return GameResult.winner(boardService, white);
+            return GameResult.winner(boardService, whitePlayer);
         }
     }
 }
