@@ -18,8 +18,7 @@ public class SelfPlay {
         this.first = first;
         this.second = second;
         Board board = new Board();
-        BoardService boardService = new BoardService(board);
-        game = new Game(boardService, first, second);
+        game = new Game(board, first, second);
     }
 
     public GameResult play() throws GameException {
@@ -32,5 +31,4 @@ public class SelfPlay {
         log.debug("GAME FINISHED \n{}", game.getResult().getBoard().getVisualString());
         return game.getResult();
     }
-
 }
