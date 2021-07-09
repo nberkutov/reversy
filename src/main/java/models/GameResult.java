@@ -24,16 +24,16 @@ public class GameResult {
         this(board, resultState, null);
     }
 
-    public static GameResult winner(BoardService boardService, Player player) {
-        return new GameResult(boardService.getBoard(), GameResultState.WINNER_FOUND, player);
+    public static GameResult winner(Board board, Player player) {
+        return new GameResult(board, GameResultState.WINNER_FOUND, player);
     }
 
-    public static GameResult draw(BoardService boardService) {
-        return new GameResult(boardService.getBoard(), GameResultState.DRAW);
+    public static GameResult draw(Board board) {
+        return new GameResult(board, GameResultState.DRAW);
     }
 
-    public static GameResult playing(BoardService boardService) {
-        return new GameResult(boardService.getBoard(), GameResultState.PLAYING);
+    public static GameResult playing(Board board) {
+        return new GameResult(board, GameResultState.PLAYING);
     }
 
     @Override

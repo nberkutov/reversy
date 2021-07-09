@@ -4,11 +4,9 @@ import exception.GameErrorCode;
 import exception.GameException;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import models.Board;
-import models.Game;
-import models.Player;
+import models.*;
 import models.base.Cell;
-import models.Point;
+import models.base.GameState;
 import models.base.PlayerColor;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
@@ -22,26 +20,15 @@ import static models.Board.BOARD_SIZE;
 
 @Data
 @Slf4j
-public class BoardService {
-    private final Board board;
+public class BoardService extends BaseService {
 
-    public BoardService(Board board) {
-        this.board = board;
-    }
-
-
-    public void makeMove(Game game, Point point, PlayerColor color) throws GameException {
+    public static void makeMove(Game game, Point point, PlayerColor color) throws GameException {
         checkGame(game);
         checkPlayerColor(color);
-        makeMove(point, Cell.valueOf(color));
+        makeMoveBoard(game.getBoard(), point, Cell.valueOf(color));
     }
 
-    public void makeMove(Point point, PlayerColor color) throws GameException {
-        checkPlayerColor(color);
-        makeMove(point, Cell.valueOf(color));
-    }
-
-    public void makeMove(Board board, Point point, Cell cell) throws GameException {
+    public static void makeMoveBoard(Board board, Point point, Cell cell) throws GameException {
         List<Point> moves = getCellInAllDirection(board, point, cell);
 
         if (moves.isEmpty()) {
@@ -56,53 +43,38 @@ public class BoardService {
         board.setCell(point, cell);
     }
 
-    public void makeMove(Point point, Cell cell) throws GameException {
-        List<Point> moves = getCellInAllDirection(point, cell);
-
-        if (moves.isEmpty()) {
-            throw new GameException(GameErrorCode.INVALID_MOVE);
-        }
-
-        Set<Point> pointsForReverse = new HashSet<>();
-        for (Point target : moves) {
-            pointsForReverse.addAll(getPointsForReverse(point, target));
-        }
-        board.reverseCellAll(pointsForReverse);
-        board.setCell(point, cell);
-    }
-
-    public int getCountWhite() {
+    public int getCountWhite(Board board) {
         return board.getCountWhite();
     }
 
-    public int getCountBlack() {
+    public int getCountBlack(Board board) {
         return board.getCountBlack();
     }
 
-    public int getCountEmpty() {
+    public static int getCountEmpty(Board board) {
         return board.getCountEmpty();
     }
 
-    public boolean isPossibleMove(Player player) throws GameException {
+    public static boolean isPossibleMove(Board board, Player player) throws GameException {
         if (player == null) {
             throw new GameException(GameErrorCode.PLAYER_NOT_FOUND);
         }
-        return !getAvailableMoves(player.getColor()).isEmpty();
+        return !getAvailableMoves(board, player.getColor()).isEmpty();
     }
 
-    public List<Point> getAvailableMoves(PlayerColor color) throws GameException {
+    public static List<Point> getAvailableMoves(Board board, PlayerColor color) throws GameException {
         checkPlayerColor(color);
-        return getAvailableMoves(Cell.valueOf(color));
+        return getAvailableMoves(board, Cell.valueOf(color));
     }
 
-    public List<Point> getAvailableMoves(Cell cell) throws GameException {
+    public static List<Point> getAvailableMoves(Board board, Cell cell) throws GameException {
         board.checkCell(cell);
-        checkCellOnEmpty(cell);
+        checkCellOnEmpty(board, cell);
         Set<Point> points = new HashSet<>();
         for (int i = 0; i < BOARD_SIZE; i++) {
             for (int j = 0; j < BOARD_SIZE; j++) {
                 Point checkPoint = new Point(i, j);
-                if (isCellEmpty(checkPoint) && !getCellInAllDirection(checkPoint, cell).isEmpty()) {
+                if (isCellEmpty(board, checkPoint) && !getCellInAllDirection(board, checkPoint, cell).isEmpty()) {
                     points.add(checkPoint);
                 }
             }
@@ -110,9 +82,9 @@ public class BoardService {
         return new ArrayList<>(points);
     }
 
-    private List<Point> getCellInAllDirection(Board board, Point point, Cell cell) throws GameException {
+    private static List<Point> getCellInAllDirection(Board board, Point point, Cell cell) throws GameException {
         board.checkPoint(point);
-        checkCellOnEmpty(cell);
+        checkCellOnEmpty(board, cell);
         Set<Point> points = new HashSet<>();
         for (int i = -1; i <= 1; i++) {
             for (int j = -1; j <= 1; j++) {
@@ -134,31 +106,7 @@ public class BoardService {
         return new ArrayList<>(points);
     }
 
-    public List<Point> getCellInAllDirection(Point point, Cell cell) throws GameException {
-        board.checkPoint(point);
-        checkCellOnEmpty(cell);
-        Set<Point> points = new HashSet<>();
-        for (int i = -1; i <= 1; i++) {
-            for (int j = -1; j <= 1; j++) {
-                if (i == 0 && j == 0) {
-                    continue;
-                }
-
-                Point checkPoint = new Point(point.getX() + i, point.getY() + j);
-                if (board.validation(checkPoint)
-                        && !isCellEmpty(checkPoint)
-                        && !board.getCell(checkPoint).equals(cell)) {
-                    Point found = getPointInDirection(checkPoint, cell, i, j);
-                    if (found != null) {
-                        points.add(found);
-                    }
-                }
-            }
-        }
-        return new ArrayList<>(points);
-    }
-
-    private Set<Point> getPointsForReverse(Point point, Point target) {
+    private static Set<Point> getPointsForReverse(Point point, Point target) {
         Set<Point> points = new HashSet<>();
         Point p = new Point(point.getX(), point.getY());
         while (!p.equals(target)) {
@@ -178,66 +126,46 @@ public class BoardService {
         return points;
     }
 
-    private Point getPointInDirection(Board board, Point point, Cell cell, int difX, int difY) throws GameException {
+    private static Point getPointInDirection(Board board, Point point, Cell cell, int difX, int difY) throws GameException {
         Point p = new Point(point.getX(), point.getY());
         do {
             p.setX(p.getX() + difX);
             p.setY(p.getY() + difY);
-            if (!board.validation(p) || isCellEmpty(p)) {
+            if (!board.validation(p) || isCellEmpty(board, p)) {
                 return null;
             }
         } while (!board.getCell(p).equals(cell));
         return p;
     }
 
-    private Point getPointInDirection(Point point, Cell cell, int difX, int difY) throws GameException {
-        Point p = new Point(point.getX(), point.getY());
-        do {
-            p.setX(p.getX() + difX);
-            p.setY(p.getY() + difY);
-            if (!board.validation(p) || isCellEmpty(p)) {
-                return null;
-            }
-        } while (!board.getCell(p).equals(cell));
-        return p;
+    private static void checkGame(Game game) throws GameException {
+        if (game == null) {
+            throw new GameException(GameErrorCode.GAME_NOT_FOUND);
+        }
     }
 
-    private void checkGame(Game game){
-
-    }
-
-    private void checkCellOnEmpty(Board board, Cell cell) throws GameException {
+    private static void checkCellOnEmpty(Board board, Cell cell) throws GameException {
         board.checkCell(cell);
-        if (isCellEmpty(cell)) {
+        if (isCellEmpty(board, cell)) {
             //log.error("Bad checkCellOnEmpty", new GameException(GameErrorCode.INVALID_CELL));
             throw new GameException(GameErrorCode.INVALID_CELL);
         }
     }
 
-    private void checkCellOnEmpty(Cell cell) throws GameException {
-        board.checkCell(cell);
-        if (isCellEmpty(cell)) {
-            log.error("Bad checkCellOnEmpty", new GameException(GameErrorCode.INVALID_CELL));
-            throw new GameException(GameErrorCode.INVALID_CELL);
-        }
-    }
-
-    private void checkPlayerColor(PlayerColor color) throws GameException {
+    private static void checkPlayerColor(PlayerColor color) throws GameException {
         if (color == null) {
             log.error("Bad checkPlayerColor", new GameException(GameErrorCode.INVALID_PLAYER_COLOR));
             throw new GameException(GameErrorCode.INVALID_PLAYER_COLOR);
         }
     }
 
-    private boolean isCellEmpty(Board board, Point point) throws GameException {
-        return isCellEmpty(board.getCell(point));
+    private static boolean isCellEmpty(Board board, Point point) throws GameException {
+        return isCellEmpty(board, board.getCell(point));
     }
 
-    private boolean isCellEmpty(Point point) throws GameException {
-        return isCellEmpty(board.getCell(point));
+    private static boolean isCellEmpty(Board board, Cell cell) {
+        return cell == Cell.EMPTY;
     }
 
-    private boolean isCellEmpty(Cell cell) {
-        return cell.equals(Cell.EMPTY);
-    }
+
 }
