@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.Set;
 
 @Data
-public class PlayerResponse implements Serializable {
+public class GameBoardResponse implements Serializable {
     private GameState state;
     private Board board;
 }
