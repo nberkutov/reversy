@@ -9,13 +9,11 @@ import models.Player;
 import models.base.Cell;
 import models.Point;
 import models.base.PlayerColor;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Function;
 
 import static models.Board.BOARD_SIZE;
 
@@ -49,11 +47,11 @@ public class BoardService {
     }
 
     public int getCountWhite() {
-        return board.getCountWhite();
+        return board.getCountWhiteCells();
     }
 
     public int getCountBlack() {
-        return board.getCountBlack();
+        return board.getCountBlackCells();
     }
 
     public int getCountEmpty() {
