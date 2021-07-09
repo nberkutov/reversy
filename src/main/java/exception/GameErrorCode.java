@@ -4,6 +4,7 @@ public enum GameErrorCode {
     POINTS_NOT_FOUND("Points not found"),
     GAME_NOT_FINISHED("Game is not finished yet."),
     BAD_POINT("Bad point."),
+    CONNECTION_LOST(""),
     INVALID_CELL(""),
     INVALID_PLAYER_COLOR(""),
     PLAYER_NOT_FOUND(""),

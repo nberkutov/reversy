@@ -31,8 +31,4 @@ public class SelfPlay {
         log.debug("DEBUG finish \n{}", game.getResult().getBoard().getVisualString());
         return game.getResult();
     }
-
-    public static void main(String[] args) throws GameException {
-        SelfPlay selfPlay = new SelfPlay(new Player(), new Player());
-    }
 }

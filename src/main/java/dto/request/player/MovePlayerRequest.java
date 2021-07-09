@@ -5,6 +5,7 @@ import exception.GameException;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import models.Point;
 
 import static models.Board.BOARD_SIZE;
 
@@ -13,23 +14,21 @@ import static models.Board.BOARD_SIZE;
 public class MovePlayerRequest extends GameRequest {
     private int idPlayer;
     private int idGame;
-    private int x;
-    private int y;
+    private Point point;
 
-    public MovePlayerRequest(int idPlayer, int idGame, int x, int y) throws GameException {
-        this(x, y);
+    public MovePlayerRequest(int idPlayer, int idGame, Point point) throws GameException {
+        this(point);
         this.idPlayer = idPlayer;
         this.idGame = idGame;
     }
 
-    public MovePlayerRequest(int x, int y) throws GameException {
-        this.x = x;
-        this.y = y;
-        checkXY();
+    public MovePlayerRequest(Point point) throws GameException {
+        checkXY(point);
+        this.point = point;
     }
 
-    private void checkXY() throws GameException {
-        if (x >= 0 && y >= 0 && x < BOARD_SIZE && y < BOARD_SIZE) {
+    private void checkXY(Point point) throws GameException {
+        if (point.getX() >= 0 && point.getY() >= 0 && point.getX() < BOARD_SIZE && point.getY() < BOARD_SIZE) {
             return;
         }
         throw new GameException(GameErrorCode.INVALID_REQUEST);

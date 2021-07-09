@@ -13,22 +13,16 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
-public class GameService {
-    //BD coming +++
-    private int gameIncrement = 0;
-    private final Map<Integer, Game> games = new ConcurrentHashMap<>();
+public class GameService extends BaseService {
 
-    private int playerIncrement = 0;
-    private final Map<Integer, Player> players = new ConcurrentHashMap<>();
-    //BD ---
 
    // private final BoardService service = new BoardService();
 
-    public Game createGame() {
+    public static Game createGame() {
         throw new NotImplementedException();
     }
 
-    public GameResponse moveFromPlayer(MovePlayerRequest movePlayerRequest) {
+    public static GameResponse moveFromPlayer(MovePlayerRequest movePlayerRequest) {
         try {
             Game game = getGameById(movePlayerRequest.getIdGame());
             Player player = getPlayerById(movePlayerRequest.getIdPlayer());
@@ -40,19 +34,5 @@ public class GameService {
         }
     }
 
-    private Game getGameById(int idGame) throws GameException {
-        Game game = games.get(idGame);
-        if (game == null) {
-            throw new GameException(GameErrorCode.GAME_NOT_FOUND);
-        }
-        return game;
-    }
 
-    public Player getPlayerById(int id) throws GameException {
-        Player player = players.get(id);
-        if(player== null){
-            throw new GameException(GameErrorCode.GAME_NOT_FOUND);
-        }
-        return player;
-    }
 }

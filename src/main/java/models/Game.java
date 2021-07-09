@@ -39,8 +39,8 @@ public class Game {
             this.black = second;
             this.white = first;
         }
-        black.setBoardService(boardService);
-        white.setBoardService(boardService);
+//        black.setBoardService(boardService);
+//        white.setBoardService(boardService);
         black.setColor(PlayerColor.BLACK);
         white.setColor(PlayerColor.WHITE);
     }
