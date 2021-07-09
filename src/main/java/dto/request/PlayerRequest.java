@@ -13,10 +13,14 @@ public class PlayerRequest {
     private int y;
 
     public PlayerRequest(int x, int y) throws GameException {
+        if(x >= 0 && y >= 0 && x < BOARD_SIZE && y < BOARD_SIZE){
+            return;
+        }
+        throw new GameException(GameErrorCode.INVALID_REQUEST);
         this.x = x;
         this.y = y;
-        checkXY();
     }
+    
     private void checkXY() throws GameException {
         if(x >= 0 && y >= 0 && x < BOARD_SIZE && y < BOARD_SIZE){
             return;
