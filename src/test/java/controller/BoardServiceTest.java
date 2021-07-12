@@ -162,9 +162,9 @@ class BoardServiceTest {
                 + "00000000"
                 + "00000000";
         Board bs = BoardUtilsTest.parserBoardByString(two);
-        assertFalse(BoardService.isPossibleMove(board, player));
+        assertFalse(BoardService.isPossibleMove(bs, player));
         player.setColor(PlayerColor.WHITE);
-        assertFalse(BoardService.isPossibleMove(board, player));
+        assertFalse(BoardService.isPossibleMove(bs, player));
     }
 
     @Test

@@ -44,7 +44,6 @@ public class BoardService extends BaseService {
      * @param cell  - фишка
      */
     public static void makeMove(Board board, Point point, Cell cell) throws GameException {
-        checkBoard(board);
         makeMoveBoard(board, point, cell);
     }
 
@@ -57,6 +56,9 @@ public class BoardService extends BaseService {
      * @param cell  - фишка
      */
     private static void makeMoveBoard(Board board, Point point, Cell cell) throws GameException {
+        checkBoard(board);
+        checkPoint(point);
+        checkCellOnEmpty(cell);
         List<Point> moves = getCellInAllDirection(board, point, cell);
 
         if (moves.isEmpty()) {
@@ -104,6 +106,7 @@ public class BoardService extends BaseService {
      * Если player равен null, то выбрасывает GameException.
      *
      * @param board - Игровое поле
+     * @param player - игрок
      * @return boolean
      */
     public static boolean isPossibleMove(Board board, Player player) throws GameException {
@@ -159,6 +162,7 @@ public class BoardService extends BaseService {
      */
     public static List<Point> getCellInAllDirection(Board board, Point point, Cell cell) throws GameException {
         checkBoard(board);
+        checkPoint(point);
         checkCellOnEmpty(cell);
         Set<Point> points = new HashSet<>();
         for (int i = -1; i <= 1; i++) {
@@ -188,7 +192,9 @@ public class BoardService extends BaseService {
      * @param target - конечная точка
      * @return Set<Point>
      */
-    private static Set<Point> getPointsForReverse(Point point, Point target) {
+    private static Set<Point> getPointsForReverse(Point point, Point target) throws GameException {
+        checkPoint(point);
+        checkPoint(target);
         Set<Point> points = new HashSet<>();
         Point p = new Point(point.getX(), point.getY());
         while (!p.equals(target)) {
@@ -216,6 +222,9 @@ public class BoardService extends BaseService {
      * @return Point
      */
     private static Point getPointInDirection(Board board, Point point, Cell cell, int difX, int difY) throws GameException {
+        checkBoard(board);
+        checkPoint(point);
+        checkCellOnEmpty(cell);
         Point p = new Point(point.getX(), point.getY());
         do {
             p.setX(p.getX() + difX);
@@ -276,8 +285,26 @@ public class BoardService extends BaseService {
             log.error("Bad checkBoard", new GameException(GameErrorCode.BOARD_NOT_FOUND));
             throw new GameException(GameErrorCode.BOARD_NOT_FOUND);
         }
-
     }
+
+    /**
+     * Функция провероки
+     * Если point равен null, то выбрасывает GameException.
+     *
+     * @param point - игровое поле
+     */
+    private static void checkPoint(Point point) throws GameException {
+        if (point != null
+                && point.getX() >= 0
+                && point.getY() >= 0
+                && point.getX() < BOARD_SIZE
+                && point.getY() < BOARD_SIZE) {
+            return;
+        }
+        log.error("Bad checkPoint", new GameException(GameErrorCode.BAD_POINT));
+        throw new GameException(GameErrorCode.BAD_POINT);
+    }
+
 
     /**
      * Функция для определения поля на пустоту
