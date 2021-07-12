@@ -36,16 +36,16 @@ public class GameService extends BaseService {
      *
      * @param game - Игра
      */
-    public static void doGame(Game game) throws GameException {
+    public static void playNext(final Game game) throws GameException {
         switch (game.getState()) {
             case BLACK:
-                if (BoardService.isPossibleMove(game.getBoard(), game.getBlackPlayer())) {
+                if (BoardService.hasPossibleMove(game.getBoard(), game.getBlackPlayer())) {
                     game.getBlackPlayer().nextMove(game);
                 }
                 game.setState(GameState.WHITE);
                 break;
             case WHITE:
-                if (BoardService.isPossibleMove(game.getBoard(), game.getWhitePlayer())) {
+                if (BoardService.hasPossibleMove(game.getBoard(), game.getWhitePlayer())) {
                     game.getWhitePlayer().nextMove(game);
                 }
                 game.setState(GameState.BLACK);
@@ -64,10 +64,10 @@ public class GameService extends BaseService {
      * @param game - Игра
      * @return boolean
      */
-    public static boolean isEndGame(Game game) throws GameException {
+    public static boolean isEndGame(final Game game) throws GameException {
         return BoardService.getCountEmpty(game.getBoard()) == 0 ||
-                (!BoardService.isPossibleMove(game.getBoard(), game.getBlackPlayer())
-                        && !BoardService.isPossibleMove(game.getBoard(), game.getWhitePlayer()));
+                (!BoardService.hasPossibleMove(game.getBoard(), game.getBlackPlayer())
+                        && !BoardService.hasPossibleMove(game.getBoard(), game.getWhitePlayer()));
     }
 
     /**
@@ -76,7 +76,7 @@ public class GameService extends BaseService {
      * @param game - Игра
      * @return boolean
      */
-    public static GameResult getResultGame(Game game) throws GameException {
+    public static GameResult getResultGame(final Game game) throws GameException {
         if (game.getState() != GameState.END) {
             throw new GameException(GameErrorCode.GAME_NOT_FINISHED);
         }

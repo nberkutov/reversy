@@ -1,6 +1,5 @@
 package models;
 
-import services.BoardService;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -14,25 +13,25 @@ public class GameResult {
     private GameResultState resultState;
     private Player winner;
 
-    public GameResult(Board board, GameResultState resultState, Player winner) {
+    public GameResult(final Board board, final GameResultState resultState, final Player winner) {
         this.resultState = resultState;
         this.winner = winner;
         this.board = board;
     }
 
-    private GameResult(Board board, GameResultState resultState) {
+    private GameResult(final Board board, final GameResultState resultState) {
         this(board, resultState, null);
     }
 
-    public static GameResult winner(Board board, Player player) {
+    public static GameResult winner(final Board board, final Player player) {
         return new GameResult(board, GameResultState.WINNER_FOUND, player);
     }
 
-    public static GameResult draw(Board board) {
+    public static GameResult draw(final Board board) {
         return new GameResult(board, GameResultState.DRAW);
     }
 
-    public static GameResult playing(Board board) {
+    public static GameResult playing(final Board board) {
         return new GameResult(board, GameResultState.PLAYING);
     }
 

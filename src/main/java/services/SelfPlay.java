@@ -25,7 +25,7 @@ public class SelfPlay {
 //        log.debug("START PLAYING ");
         while (!game.isFinished()) {
 //            log.info("Board State\n{}", game.getBoard().getVisualString());
-            GameService.doGame(game);
+            GameService.playNext(game);
         }
 
         log.debug("DEBUG finish \n{}", game.getResult().getBoard().getVisualString());

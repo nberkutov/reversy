@@ -13,18 +13,18 @@ import java.util.Random;
 @Slf4j
 @AllArgsConstructor
 public class Game {
-    private GameState state;
     private final Player blackPlayer;
     private final Player whitePlayer;
     private final Board board;
 
+    private GameState state;
     private GameResult result;
 
-    public Game(Player first, Player second) throws GameException {
+    public Game(final Player first, final Player second) {
         this(new Board(), first, second);
     }
 
-    public Game(Board board, Player first, Player second) throws GameException {
+    public Game(final Board board, final Player first, final Player second) {
         state = GameState.BLACK;
         result = GameResult.playing(board);
         if (new Random().nextBoolean()) {

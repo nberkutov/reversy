@@ -9,7 +9,7 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class GameBoardTest {
+class BoardTest {
     static final int SIZE = 8;
 
     @Test
