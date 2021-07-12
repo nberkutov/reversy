@@ -21,17 +21,38 @@ import static models.Board.BOARD_SIZE;
 @Slf4j
 public class BoardService extends BaseService {
 
+    /**
+     * Функция проверяет начальные параметры
+     *
+     * @param game  - Игра
+     * @param point - точка куда походил игрок
+     * @param color - цвет игрока
+     */
     public static void makeMove(Game game, Point point, PlayerColor color) throws GameException {
         checkGame(game);
         checkPlayerColor(color);
         makeMove(game.getBoard(), point, Cell.valueOf(color));
     }
 
+    /**
+     * Функция проверяет начальные параметры
+     *
+     * @param board - Игровое поле
+     * @param point - точка куда походил игрок
+     * @param cell  - фишка
+     */
     public static void makeMove(Board board, Point point, Cell cell) throws GameException {
         checkBoard(board);
         makeMoveBoard(board, point, cell);
     }
 
+    /**
+     * Функция ищет всевозможные ходы, а в последствиии переворчивает фишки
+     *
+     * @param board - Игровое поле
+     * @param point - точка куда походил игрок
+     * @param cell  - фишка
+     */
     private static void makeMoveBoard(Board board, Point point, Cell cell) throws GameException {
         List<Point> moves = getCellInAllDirection(board, point, cell);
 
@@ -47,18 +68,40 @@ public class BoardService extends BaseService {
         board.setCell(point, cell);
     }
 
+    /**
+     * Функция получения количества белых фишек
+     *
+     * @param board - Игровое поле
+     */
     public static int getCountWhite(Board board) {
         return board.getCountWhite();
     }
 
+    /**
+     * Функция получения количества чёрных фишек
+     *
+     * @param board - Игровое поле
+     */
     public static int getCountBlack(Board board) {
         return board.getCountBlack();
     }
 
+
+    /**
+     * Функция получения количества пустых полей
+     *
+     * @param board - Игровое поле
+     */
     public static int getCountEmpty(Board board) {
         return board.getCountEmpty();
     }
 
+    /**
+     * Функция, которая определяет, может ли ходить игрок
+     *
+     * @param board - Игровое поле
+     * @return boolean
+     */
     public static boolean isPossibleMove(Board board, Player player) throws GameException {
         if (player == null) {
             throw new GameException(GameErrorCode.PLAYER_NOT_FOUND);
@@ -66,11 +109,25 @@ public class BoardService extends BaseService {
         return !getAvailableMoves(board, player.getColor()).isEmpty();
     }
 
+    /**
+     * Функция, которая находит все возможные ходы, относительно цвета игрока
+     *
+     * @param board - Игровое поле
+     * @param color - цвет игрока
+     * @return List<Point>
+     */
     public static List<Point> getAvailableMoves(Board board, PlayerColor color) throws GameException {
         checkPlayerColor(color);
         return getAvailableMoves(board, Cell.valueOf(color));
     }
 
+    /**
+     * Функция, которая находит все возможные ходы, относительно цвета фишки
+     *
+     * @param board - Игровое поле
+     * @param cell  - цвец фишки
+     * @return List<Point>
+     */
     public static List<Point> getAvailableMoves(Board board, Cell cell) throws GameException {
         board.checkCell(cell);
         checkCellOnEmpty(board, cell);
@@ -86,6 +143,13 @@ public class BoardService extends BaseService {
         return new ArrayList<>(points);
     }
 
+    /**
+     * Функция, которая находит во всех направлениях ближайшую одинаковую фишку, чтоб потом найти промежуточные фишки и их перевернуть
+     *
+     * @param board - Игровое поле
+     * @param cell  - цвец фишки
+     * @return List<Point>
+     */
     public static List<Point> getCellInAllDirection(Board board, Point point, Cell cell) throws GameException {
         board.checkPoint(point);
         checkCellOnEmpty(board, cell);
@@ -110,6 +174,13 @@ public class BoardService extends BaseService {
         return new ArrayList<>(points);
     }
 
+    /**
+     * Функция для нахождения промежуточных точек
+     *
+     * @param point- начальная точка
+     * @param target - конечная точка
+     * @return Set<Point>
+     */
     private static Set<Point> getPointsForReverse(Point point, Point target) {
         Set<Point> points = new HashSet<>();
         Point p = new Point(point.getX(), point.getY());
@@ -130,6 +201,13 @@ public class BoardService extends BaseService {
         return points;
     }
 
+    /**
+     * Функция, которая находит в одном направлениях ближайшую одинаковую фишку, чтоб потом найти промежуточные фишки и их перевернуть
+     *
+     * @param board - Игровое поле
+     * @param cell  - цвец фишки
+     * @return Point
+     */
     private static Point getPointInDirection(Board board, Point point, Cell cell, int difX, int difY) throws GameException {
         Point p = new Point(point.getX(), point.getY());
         do {
@@ -142,20 +220,36 @@ public class BoardService extends BaseService {
         return p;
     }
 
+    /**
+     * Функция провероки
+     *
+     * @param game - класс игры
+     */
     private static void checkGame(Game game) throws GameException {
         if (game == null) {
             throw new GameException(GameErrorCode.GAME_NOT_FOUND);
         }
     }
 
+    /**
+     * Функция провероки
+     *
+     * @param board - Игровое поле
+     * @param cell  - фишка
+     */
     private static void checkCellOnEmpty(Board board, Cell cell) throws GameException {
         board.checkCell(cell);
-        if (isCellEmpty(board, cell)) {
+        if (isCellEmpty(cell)) {
             //log.error("Bad checkCellOnEmpty", new GameException(GameErrorCode.INVALID_CELL));
             throw new GameException(GameErrorCode.INVALID_CELL);
         }
     }
 
+    /**
+     * Функция провероки
+     *
+     * @param color - цвет игрока
+     */
     private static void checkPlayerColor(PlayerColor color) throws GameException {
         if (color == null) {
             log.error("Bad checkPlayerColor", new GameException(GameErrorCode.INVALID_PLAYER_COLOR));
@@ -163,19 +257,35 @@ public class BoardService extends BaseService {
         }
     }
 
+    /**
+     * Функция провероки
+     *
+     * @param board - игровое поле
+     */
     private static void checkBoard(Board board) throws GameException {
-        if(board == null){
+        if (board == null) {
             log.error("Bad checkBoard", new GameException(GameErrorCode.BOARD_NOT_FOUND));
             throw new GameException(GameErrorCode.BOARD_NOT_FOUND);
         }
 
     }
 
+    /**
+     * Функция для определения поля на пустоту
+     *
+     * @param board - игровое поле
+     * @param point - точка
+     */
     private static boolean isCellEmpty(Board board, Point point) throws GameException {
-        return isCellEmpty(board, board.getCell(point));
+        return isCellEmpty(board.getCell(point));
     }
 
-    private static boolean isCellEmpty(Board board, Cell cell) {
+    /**
+     * Функция для определения поля на пустоту
+     *
+     * @param cell - фишка
+     */
+    private static boolean isCellEmpty(Cell cell) {
         return cell == Cell.EMPTY;
     }
 
