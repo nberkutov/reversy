@@ -28,7 +28,7 @@ public class BoardService extends BaseService {
      * @param point - точка куда походил игрок
      * @param color - цвет игрока
      */
-    public static void makeMove(final Game game,final  Point point,final  PlayerColor color) throws GameException {
+    public static void makeMove(final Game game, final Point point, final PlayerColor color) throws GameException {
         checkGame(game);
         checkPlayerColor(color);
         makeMove(game.getBoard(), point, Cell.valueOf(color));
@@ -41,7 +41,7 @@ public class BoardService extends BaseService {
      * @param point - точка куда походил игрок
      * @param cell  - фишка
      */
-    public static void makeMove(final Board board,final  Point point,final  Cell cell) throws GameException {
+    public static void makeMove(final Board board, final Point point, final Cell cell) throws GameException {
         makeMoveBoard(board, point, cell);
     }
 
@@ -121,7 +121,7 @@ public class BoardService extends BaseService {
      * @param color - цвет игрока
      * @return List<Point>
      */
-    public static List<Point> getAvailableMoves(final Board board,final PlayerColor color) throws GameException {
+    public static List<Point> getAvailableMoves(final Board board, final PlayerColor color) throws GameException {
         checkPlayerColor(color);
         return getAvailableMoves(board, Cell.valueOf(color));
     }
@@ -134,7 +134,7 @@ public class BoardService extends BaseService {
      * @param cell  - цвец фишки
      * @return List<Point>
      */
-    public static List<Point> getAvailableMoves(final Board board,final Cell cell) throws GameException {
+    public static List<Point> getAvailableMoves(final Board board, final Cell cell) throws GameException {
         checkBoard(board);
         checkCellIsEmpty(cell);
         Set<Point> points = new HashSet<>();
@@ -157,8 +157,9 @@ public class BoardService extends BaseService {
      * @param cell  - цвец фишки
      * @return List<Point>
      */
-    public static List<Point> getCellInAllDirection(final Board board,final Point point,final Cell cell) throws GameException {
+    public static List<Point> getCellInAllDirection(final Board board, final Point point, final Cell cell) throws GameException {
         checkBoard(board);
+        checkPoint(point);
         checkCellIsEmpty(cell);
         Set<Point> points = new HashSet<>();
         for (int i = -1; i <= 1; i++) {
@@ -188,7 +189,7 @@ public class BoardService extends BaseService {
      * @param target - конечная точка
      * @return Set<Point>
      */
-    private static Set<Point> getPointsForReverse(final Point point,final Point target) throws GameException {
+    private static Set<Point> getPointsForReverse(final Point point, final Point target) throws GameException {
         checkPoint(point);
         checkPoint(target);
         Set<Point> points = new HashSet<>();
@@ -217,7 +218,7 @@ public class BoardService extends BaseService {
      * @param cell  - цвец фишки
      * @return Point
      */
-    private static Point getPointInDirection(final Board board,final Point point,final  Cell cell,final  int difX,final  int difY) throws GameException {
+    private static Point getPointInDirection(final Board board, final Point point, final Cell cell, final int difX, final int difY) throws GameException {
         checkBoard(board);
         checkPoint(point);
         checkCellIsEmpty(cell);
@@ -308,7 +309,7 @@ public class BoardService extends BaseService {
      * @param board - игровое поле
      * @param point - точка
      */
-    private static boolean isCellEmpty(final Board board,final  Point point) throws GameException {
+    private static boolean isCellEmpty(final Board board, final Point point) throws GameException {
         return isCellEmpty(board.getCell(point));
     }
 
