@@ -155,9 +155,9 @@ class BoardServiceTest {
         BoardService boardService = new BoardService(BoardUtilsTest.parserBoardByString(s));
         Player player = new Player();
         player.setColor(PlayerColor.WHITE);
-        assertTrue(boardService.isPossibleMove(player));
+        assertTrue(boardService.hasPossibleMove(player));
         player.setColor(PlayerColor.BLACK);
-        assertTrue(boardService.isPossibleMove(player));
+        assertTrue(boardService.hasPossibleMove(player));
 
         String two = ""
                 + "00000000"
@@ -169,17 +169,17 @@ class BoardServiceTest {
                 + "00000000"
                 + "00000000";
         BoardService bs = new BoardService(BoardUtilsTest.parserBoardByString(two));
-        assertFalse(bs.isPossibleMove(player));
+        assertFalse(bs.hasPossibleMove(player));
         player.setColor(PlayerColor.WHITE);
-        assertFalse(bs.isPossibleMove(player));
+        assertFalse(bs.hasPossibleMove(player));
     }
 
     @Test
-    void testIsPossibleMoveException() throws GameException {
+    void testIsPossibleMoveException() {
         Board board = new Board();
         BoardService boardService = new BoardService(board);
         try {
-            boardService.isPossibleMove(null);
+            boardService.hasPossibleMove(null);
             fail();
         } catch (GameException e) {
             assertEquals(e.getErrorCode(), GameErrorCode.PLAYER_NOT_FOUND);
@@ -187,7 +187,7 @@ class BoardServiceTest {
     }
 
     @Test
-    void testGetCellInAllDirectionException() throws GameException {
+    void testGetCellInAllDirectionException() {
         Board board = new Board();
         BoardService boardService = new BoardService(board);
 
@@ -253,7 +253,7 @@ class BoardServiceTest {
     }
 
     @Test
-    void testGetAvailableMovesException() throws GameException {
+    void testGetAvailableMovesException() {
         Board board = new Board();
         BoardService boardService = new BoardService(board);
 

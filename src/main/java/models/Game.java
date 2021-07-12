@@ -16,12 +16,9 @@ import java.util.Random;
 @AllArgsConstructor
 public class Game {
     private GameState state;
-    private BoardService boardService;
+    private final BoardService boardService;
     private final Player blackPlayer;
     private final Player whitePlayer;
-
-    private int countBlack;
-    private int countWhite;
 
     public Game(BoardService boardService, Player first, Player second) {
         state = GameState.BLACK;
@@ -46,13 +43,13 @@ public class Game {
     public void next() throws GameException {
         switch (state) {
             case BLACK:
-                if (boardService.isPossibleMove(blackPlayer)) {
+                if (boardService.hasPossibleMove(blackPlayer)) {
                     blackPlayer.nextMove();
                 }
                 state = GameState.WHITE;
                 break;
             case WHITE:
-                if (boardService.isPossibleMove(whitePlayer)) {
+                if (boardService.hasPossibleMove(whitePlayer)) {
                     whitePlayer.nextMove();
                 }
                 state = GameState.BLACK;
@@ -67,8 +64,8 @@ public class Game {
 
     private boolean isEndGame() throws GameException {
         return boardService.getCountEmpty() == 0 ||
-                (!boardService.isPossibleMove(blackPlayer)
-                        && boardService.isPossibleMove(whitePlayer));
+                (!boardService.hasPossibleMove(blackPlayer)
+                        && boardService.hasPossibleMove(whitePlayer));
     }
 
     public GameResult getResult() throws GameException {

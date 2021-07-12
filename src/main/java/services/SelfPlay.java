@@ -14,7 +14,7 @@ public class SelfPlay {
     private final Player second;
     private final Game game;
 
-    public SelfPlay(Player first, Player second) throws GameException {
+    public SelfPlay(Player first, Player second) {
         this.first = first;
         this.second = second;
         Board board = new Board();
@@ -23,16 +23,18 @@ public class SelfPlay {
     }
 
     public GameResult play() throws GameException {
+        log.debug("START PLAYING ");
+
         while (!game.isFinished()) {
-            log.debug("DEBUG playing \n{}", game.getBoardService().getBoard().getVisualString());
+            log.info("Board State\n{}", game.getBoardService().getBoard().getVisualString());
             game.next();
         }
 
-        log.debug("DEBUG finish \n{}", game.getResult().getBoard().getVisualString());
+        log.debug("GAME FINISHED \n{}", game.getBoardService().getBoard().getVisualString());
         return game.getResult();
     }
 
-    public static void main(String[] args) throws GameException {
+    public static void main(String[] args) {
         SelfPlay selfPlay = new SelfPlay(new Player(), new Player());
     }
 }

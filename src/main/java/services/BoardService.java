@@ -32,6 +32,7 @@ public class BoardService {
     }
 
     public void makeMove(Point point, Cell cell) throws GameException {
+        log.info("MAKE MOVE Color: {}  {}", cell, point);
         List<Point> moves = getCellInAllDirection(point, cell);
 
         if (moves.isEmpty()) {
@@ -40,6 +41,7 @@ public class BoardService {
 
         Set<Point> pointsForReverse = new HashSet<>();
         for (Point target : moves) {
+            log.info("REVERSE from {} to {}", point, target);
             pointsForReverse.addAll(getPointsForReverse(point, target));
         }
         board.reverseCellAll(pointsForReverse);
@@ -58,7 +60,7 @@ public class BoardService {
         return board.getCountEmpty();
     }
 
-    public boolean isPossibleMove(Player player) throws GameException {
+    public boolean hasPossibleMove(Player player) throws GameException {
         if (player == null) {
             throw new GameException(GameErrorCode.PLAYER_NOT_FOUND);
         }
@@ -76,9 +78,9 @@ public class BoardService {
         Set<Point> points = new HashSet<>();
         for (int i = 0; i < BOARD_SIZE; i++) {
             for (int j = 0; j < BOARD_SIZE; j++) {
-                Point checkPoint = new Point(i, j);
-                if (isCellEmpty(checkPoint) && !getCellInAllDirection(checkPoint, cell).isEmpty()) {
-                    points.add(checkPoint);
+                Point point = new Point(i, j);
+                if (isCellEmpty(point) && !getCellInAllDirection(point, cell).isEmpty()) {
+                    points.add(point);
                 }
             }
         }
@@ -96,7 +98,7 @@ public class BoardService {
                 }
 
                 Point checkPoint = new Point(point.getX() + i, point.getY() + j);
-                if (board.validation(checkPoint)
+                if (board.validate(checkPoint)
                         && !isCellEmpty(checkPoint)
                         && !board.getCell(checkPoint).equals(cell)) {
                     Point found = getPointInDirection(checkPoint, cell, i, j);
@@ -134,7 +136,7 @@ public class BoardService {
         do {
             p.setX(p.getX() + difX);
             p.setY(p.getY() + difY);
-            if (!board.validation(p) || isCellEmpty(p)) {
+            if (!board.validate(p) || isCellEmpty(p)) {
                 return null;
             }
         } while (!board.getCell(p).equals(cell));

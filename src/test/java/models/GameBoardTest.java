@@ -52,7 +52,7 @@ class GameBoardTest {
     }
 
 
-    @Test
+    /*@Test
     void getCountCell() throws GameException {
         Cell firstCheck = Cell.BLACK;
         Cell secondCheck = Cell.WHITE;
@@ -77,7 +77,7 @@ class GameBoardTest {
         assertEquals(classicBoard.getCountCell(firstCheck), 2);
         assertEquals(classicBoard.getCountCell(secondCheck), 2);
     }
-
+*/
     @Test
     void testReverseCell() throws GameException {
         Board board = new Board();
