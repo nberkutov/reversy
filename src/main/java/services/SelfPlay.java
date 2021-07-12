@@ -22,9 +22,9 @@ public class SelfPlay {
     }
 
     public GameResult play() throws GameException {
-        log.debug("START PLAYING ");
+//        log.debug("START PLAYING ");
         while (!game.isFinished()) {
-            log.info("Board State\n{}", game.getBoard().getVisualString());
+//            log.info("Board State\n{}", game.getBoard().getVisualString());
             GameService.doGame(game);
         }
 
