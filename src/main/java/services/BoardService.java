@@ -74,7 +74,7 @@ public class BoardService extends BaseService {
      * @param board - Игровое поле
      */
     public static int getCountWhite(Board board) {
-        return board.getCountWhite();
+        return board.getCountWhiteCells();
     }
 
     /**
@@ -83,7 +83,7 @@ public class BoardService extends BaseService {
      * @param board - Игровое поле
      */
     public static int getCountBlack(Board board) {
-        return board.getCountBlack();
+        return board.getCountBlackCells();
     }
 
 
@@ -161,7 +161,7 @@ public class BoardService extends BaseService {
                 }
 
                 Point checkPoint = new Point(point.getX() + i, point.getY() + j);
-                if (board.validation(checkPoint)
+                if (board.validate(checkPoint)
                         && !isCellEmpty(board, checkPoint)
                         && !board.getCell(checkPoint).equals(cell)) {
                     Point found = getPointInDirection(board, checkPoint, cell, i, j);
@@ -213,7 +213,7 @@ public class BoardService extends BaseService {
         do {
             p.setX(p.getX() + difX);
             p.setY(p.getY() + difY);
-            if (!board.validation(p) || isCellEmpty(board, p)) {
+            if (!board.validate(p) || isCellEmpty(board, p)) {
                 return null;
             }
         } while (!board.getCell(p).equals(cell));
@@ -240,7 +240,7 @@ public class BoardService extends BaseService {
     private static void checkCellOnEmpty(Board board, Cell cell) throws GameException {
         board.checkCell(cell);
         if (isCellEmpty(cell)) {
-            //log.error("Bad checkCellOnEmpty", new GameException(GameErrorCode.INVALID_CELL));
+            log.error("Bad checkCellOnEmpty", new GameException(GameErrorCode.INVALID_CELL));
             throw new GameException(GameErrorCode.INVALID_CELL);
         }
     }

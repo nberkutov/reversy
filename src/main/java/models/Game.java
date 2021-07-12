@@ -21,7 +21,7 @@ public class Game {
     private GameResult result;
 
     public Game(Player first, Player second) throws GameException {
-        this(new Board(),first,second);
+        this(new Board(), first, second);
     }
 
     public Game(Board board, Player first, Player second) throws GameException {

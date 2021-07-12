@@ -3,6 +3,7 @@ package services;
 import exception.GameException;
 
 import lombok.extern.slf4j.Slf4j;
+import models.Board;
 import models.Game;
 import models.GameResult;
 import models.Player;
