@@ -1,27 +1,21 @@
 package models;
 
 import lombok.Data;
-import services.BoardService;
-import exception.GameErrorCode;
 import exception.GameException;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import models.base.GameState;
 import models.base.PlayerColor;
-import services.GameService;
 
-import java.util.Map;
 import java.util.Random;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Data
 @Slf4j
 @AllArgsConstructor
 public class Game {
     private GameState state;
-    private final Player black;
-    private final Player white;
+    private final Player blackPlayer;
+    private final Player whitePlayer;
     private final Board board;
 
     private GameResult result;
@@ -34,14 +28,14 @@ public class Game {
         state = GameState.BLACK;
         result = GameResult.playing(board);
         if (new Random().nextBoolean()) {
-            this.black = first;
-            this.white = second;
+            this.blackPlayer = first;
+            this.whitePlayer = second;
         } else {
-            this.black = second;
-            this.white = first;
+            this.blackPlayer = second;
+            this.whitePlayer = first;
         }
-        black.setColor(PlayerColor.BLACK);
-        white.setColor(PlayerColor.WHITE);
+        blackPlayer.setColor(PlayerColor.BLACK);
+        whitePlayer.setColor(PlayerColor.WHITE);
         this.board = board;
     }
 
