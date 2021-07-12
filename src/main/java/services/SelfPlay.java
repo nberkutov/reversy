@@ -3,7 +3,6 @@ package services;
 import exception.GameException;
 
 import lombok.extern.slf4j.Slf4j;
-import models.Board;
 import models.Game;
 import models.GameResult;
 import models.Player;
@@ -24,11 +23,11 @@ public class SelfPlay {
     public GameResult play() throws GameException {
         log.debug("START PLAYING ");
         while (!game.isFinished()) {
-            log.info("Board State\n{}", game.getBoardService().getBoard().getVisualString());
-            game.next();
+            log.info("Board State\n{}", game.getBoard().getVisualString());
+            GameService.doGame(game);
         }
 
-        log.debug("GAME FINISHED \n{}", game.getResult().getBoard().getVisualString());
+        log.debug("DEBUG finish \n{}", game.getResult().getBoard().getVisualString());
         return game.getResult();
     }
 }

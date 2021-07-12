@@ -38,11 +38,11 @@ public class Player implements Delayed {
         initConnect(new ClientConnection(socket));
     }
 
-    public void initConnect(ClientConnection connection) throws IOException {
+    public void initConnect(ClientConnection connection) {
         this.connection = connection;
     }
 
-    public void nextMove() throws GameException {
+    public void nextMove(Game game) throws GameException {
         throw new NotImplementedException();
     }
 
