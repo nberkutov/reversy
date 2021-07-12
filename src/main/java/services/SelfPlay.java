@@ -14,27 +14,21 @@ public class SelfPlay {
     private final Player second;
     private final Game game;
 
-    public SelfPlay(Player first, Player second) {
+    public SelfPlay(Player first, Player second) throws GameException {
         this.first = first;
         this.second = second;
         Board board = new Board();
-        BoardService boardService = new BoardService(board);
-        game = new Game(boardService, first, second);
+        game = new Game(board, first, second);
     }
 
     public GameResult play() throws GameException {
-        log.debug("START PLAYING ");
-
+//        log.debug("START PLAYING ");
         while (!game.isFinished()) {
-            log.info("Board State\n{}", game.getBoardService().getBoard().getVisualString());
-            game.next();
+//            log.info("Board State\n{}", game.getBoard().getVisualString());
+            GameService.playNext(game);
         }
 
-        log.debug("GAME FINISHED \n{}", game.getBoardService().getBoard().getVisualString());
-        return game.getResult();
-    }
-
-    public static void main(String[] args) {
-        SelfPlay selfPlay = new SelfPlay(new Player(), new Player());
+        log.debug("DEBUG finish \n{}", game.getResult().getBoard().getVisualString());
+        return GameService.getResultGame(game);
     }
 }

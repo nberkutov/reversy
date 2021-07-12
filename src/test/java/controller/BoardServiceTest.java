@@ -2,10 +2,7 @@ package controller;
 
 import exception.GameErrorCode;
 import exception.GameException;
-import models.Board;
-import models.BoardUtilsTest;
-import models.Player;
-import models.Point;
+import models.*;
 import models.base.Cell;
 import models.base.PlayerColor;
 import org.junit.jupiter.api.Test;
@@ -32,17 +29,17 @@ class BoardServiceTest {
                 + "00000000"
                 + "00000000";
         Board board = BoardUtilsTest.parserBoardByString(s);
-        BoardService boardService = new BoardService(board);
 
-        List<Point> result = boardService.getCellInAllDirection(new Point(4, 6), Cell.WHITE);
+
+        List<Point> result = BoardService.getCellInAllDirection(board, new Point(4, 6), Cell.WHITE);
         assertEquals(result.size(), 1);
         assertEquals(result.get(0).getX(), 4);
         assertEquals(result.get(0).getY(), 2);
-        assertEquals(boardService.getCellInAllDirection(new Point(6, 3), Cell.WHITE).size(), 1);
-        assertEquals(boardService.getCellInAllDirection(new Point(7, 3), Cell.WHITE).size(), 0);
-        assertEquals(boardService.getCellInAllDirection(new Point(7, 7), Cell.WHITE).size(), 0);
-        assertEquals(boardService.getCellInAllDirection(new Point(0, 0), Cell.WHITE).size(), 0);
-        assertEquals(boardService.getCellInAllDirection(new Point(2, 1), Cell.BLACK).size(), 1);
+        assertEquals(BoardService.getCellInAllDirection(board, new Point(6, 3), Cell.WHITE).size(), 1);
+        assertEquals(BoardService.getCellInAllDirection(board, new Point(7, 3), Cell.WHITE).size(), 0);
+        assertEquals(BoardService.getCellInAllDirection(board, new Point(7, 7), Cell.WHITE).size(), 0);
+        assertEquals(BoardService.getCellInAllDirection(board, new Point(0, 0), Cell.WHITE).size(), 0);
+        assertEquals(BoardService.getCellInAllDirection(board, new Point(2, 1), Cell.BLACK).size(), 1);
     }
 
     @Test
@@ -56,9 +53,8 @@ class BoardServiceTest {
                 + "bbbbbbbb"
                 + "bbbbbbbb"
                 + "wbbbbbbw";
-        Board board = BoardUtilsTest.parserBoardByString(before);
-        BoardService boardService = new BoardService(board);
-        boardService.makeMove(new Point(0, 0), Cell.WHITE);
+        Board a = BoardUtilsTest.parserBoardByString(before);
+        BoardService.makeMove(a, new Point(0, 0), Cell.WHITE);
         String after = ""
                 + "wwwwwwww"
                 + "wwbbbbbb"
@@ -68,7 +64,6 @@ class BoardServiceTest {
                 + "wbbbbwbb"
                 + "wbbbbbwb"
                 + "wbbbbbbw";
-        Board a = boardService.getBoard();
         Board b = BoardUtilsTest.parserBoardByString(after);
         assertEquals(a, b);
     }
@@ -84,9 +79,9 @@ class BoardServiceTest {
                 + "bbbbbbbb"
                 + "bbbbbbbb"
                 + "wbbbwbbw";
-        Board board = BoardUtilsTest.parserBoardByString(before);
-        BoardService boardService = new BoardService(board);
-        boardService.makeMove(new Point(4, 4), Cell.WHITE);
+        Board a = BoardUtilsTest.parserBoardByString(before);
+
+        BoardService.makeMove(a, new Point(4, 4), Cell.WHITE);
         String after = ""
                 + "wbbbwbbw"
                 + "bwbbwbbb"
@@ -96,7 +91,6 @@ class BoardServiceTest {
                 + "bbbbwwbb"
                 + "bbbbwbwb"
                 + "wbbbwbbw";
-        Board a = boardService.getBoard();
         Board b = BoardUtilsTest.parserBoardByString(after);
         assertEquals(a, b);
     }
@@ -113,10 +107,9 @@ class BoardServiceTest {
                 + "00000000"
                 + "00000000";
         Board board = BoardUtilsTest.parserBoardByString(s);
-        BoardService boardService = new BoardService(board);
 
-        assertEquals(boardService.getAvailableMoves(Cell.WHITE).size(), 8);
-        assertEquals(boardService.getAvailableMoves(Cell.BLACK).size(), 0);
+        assertEquals(BoardService.getAvailableMoves(board, Cell.WHITE).size(), 8);
+        assertEquals(BoardService.getAvailableMoves(board, Cell.BLACK).size(), 0);
     }
 
     @Test
@@ -131,9 +124,8 @@ class BoardServiceTest {
                 + "00000000"
                 + "00000000";
         Board board = BoardUtilsTest.parserBoardByString(s);
-        BoardService boardService = new BoardService(board);
 
-        List<Point> points = boardService.getAvailableMoves(Cell.WHITE);
+        List<Point> points = BoardService.getAvailableMoves(board, Cell.WHITE);
         assertEquals(points.size(), 4);
         assertTrue(points.contains(new Point(4, 2)));
         assertTrue(points.contains(new Point(5, 3)));
@@ -152,12 +144,13 @@ class BoardServiceTest {
                 + "00000000"
                 + "00000000"
                 + "00000000";
-        BoardService boardService = new BoardService(BoardUtilsTest.parserBoardByString(s));
+        Board board =  BoardUtilsTest.parserBoardByString(s);
+
         Player player = new Player();
         player.setColor(PlayerColor.WHITE);
-        assertTrue(boardService.hasPossibleMove(player));
+        assertTrue(BoardService.hasPossibleMove(board, player));
         player.setColor(PlayerColor.BLACK);
-        assertTrue(boardService.hasPossibleMove(player));
+        assertTrue(BoardService.hasPossibleMove(board, player));
 
         String two = ""
                 + "00000000"
@@ -168,18 +161,18 @@ class BoardServiceTest {
                 + "00000000"
                 + "00000000"
                 + "00000000";
-        BoardService bs = new BoardService(BoardUtilsTest.parserBoardByString(two));
-        assertFalse(bs.hasPossibleMove(player));
+        Board bs = BoardUtilsTest.parserBoardByString(two);
+        assertFalse(BoardService.hasPossibleMove(board, player));
         player.setColor(PlayerColor.WHITE);
-        assertFalse(bs.hasPossibleMove(player));
+        assertFalse(BoardService.hasPossibleMove(board, player));
     }
 
     @Test
     void testIsPossibleMoveException() {
         Board board = new Board();
-        BoardService boardService = new BoardService(board);
+
         try {
-            boardService.hasPossibleMove(null);
+            BoardService.hasPossibleMove(board, null);
             fail();
         } catch (GameException e) {
             assertEquals(e.getErrorCode(), GameErrorCode.PLAYER_NOT_FOUND);
@@ -189,24 +182,23 @@ class BoardServiceTest {
     @Test
     void testGetCellInAllDirectionException() {
         Board board = new Board();
-        BoardService boardService = new BoardService(board);
 
         try {
-            boardService.getCellInAllDirection(null, Cell.WHITE);
+            BoardService.getCellInAllDirection(board, null, Cell.WHITE);
             fail();
         } catch (GameException e) {
             assertEquals(e.getErrorCode(), GameErrorCode.BAD_POINT);
         }
 
         try {
-            boardService.getCellInAllDirection(new Point(0, 0), null);
+            BoardService.getCellInAllDirection(board, new Point(0, 0), null);
             fail();
         } catch (GameException e) {
             assertEquals(e.getErrorCode(), GameErrorCode.INVALID_CELL);
         }
 
         try {
-            boardService.getCellInAllDirection(new Point(0, 0), Cell.EMPTY);
+            BoardService.getCellInAllDirection(board, new Point(0, 0), Cell.EMPTY);
             fail();
         } catch (GameException e) {
             assertEquals(e.getErrorCode(), GameErrorCode.INVALID_CELL);
@@ -221,7 +213,7 @@ class BoardServiceTest {
                 new Point(BOARD_SIZE + 1, BOARD_SIZE + 1)));
         for (Point p : forCheck) {
             try {
-                boardService.getCellInAllDirection(p, Cell.WHITE);
+                BoardService.getCellInAllDirection(board, p, Cell.WHITE);
                 fail();
             } catch (GameException e) {
                 assertEquals(e.getErrorCode(), GameErrorCode.BAD_POINT);
@@ -241,9 +233,9 @@ class BoardServiceTest {
                 + "00000000"
                 + "00000000";
         Board board = BoardUtilsTest.parserBoardByString(before);
-        BoardService boardService = new BoardService(board);
+
         try {
-            boardService.makeMove(new Point(1, 7), Cell.WHITE);
+            BoardService.makeMove(board, new Point(1, 7), Cell.WHITE);
             fail();
         } catch (GameException e) {
             assertEquals(e.getErrorCode(), GameErrorCode.INVALID_MOVE);
@@ -255,22 +247,22 @@ class BoardServiceTest {
     @Test
     void testGetAvailableMovesException() {
         Board board = new Board();
-        BoardService boardService = new BoardService(board);
+
 
         try {
-            boardService.getAvailableMoves((Cell) null);
+            BoardService.getAvailableMoves(board, (Cell) null);
             fail();
         } catch (GameException e) {
             assertEquals(e.getErrorCode(), GameErrorCode.INVALID_CELL);
         }
         try {
-            boardService.getAvailableMoves(Cell.EMPTY);
+            BoardService.getAvailableMoves(board, Cell.EMPTY);
             fail();
         } catch (GameException e) {
             assertEquals(e.getErrorCode(), GameErrorCode.INVALID_CELL);
         }
         try {
-            boardService.getAvailableMoves((PlayerColor) null);
+            BoardService.getAvailableMoves(board, (PlayerColor) null);
             fail();
         } catch (GameException e) {
             assertEquals(e.getErrorCode(), GameErrorCode.INVALID_PLAYER_COLOR);

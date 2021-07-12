@@ -128,8 +128,8 @@ public class Board {
      * Меняет фишку доски в позиции (x, y) на противоположную.
      * Если в клетке была пустая фишка, то выбрасывает GameException.
      *
-     * @param x
-     * @param y
+     * @param x координата по горизонтали
+     * @param y координата по вуертикали (сверху вниз)
      * @throws GameException
      */
     public void reverseCell(final int x, final int y) throws GameException {

@@ -1,6 +1,7 @@
 package dto.response;
 
 import lombok.Data;
+import models.Board;
 import models.base.Cell;
 import models.Point;
 import models.base.GameState;
@@ -10,8 +11,7 @@ import java.util.Map;
 import java.util.Set;
 
 @Data
-public class PlayerResponse implements Serializable {
+public class GameBoardResponse implements Serializable {
     private GameState state;
-    private Map<Point, Cell> board;
-    private Set<Point> available;
+    private Board board;
 }

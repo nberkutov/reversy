@@ -11,9 +11,14 @@ class RandomBotTest {
 
     @Test
     public void testGame() throws GameException {
-        RandomBot bot1 = new RandomBot(0);
-        RandomBot bot2 = new RandomBot(1);
-        SelfPlay selfPlay = new SelfPlay(bot1,bot2);
-        System.out.println(selfPlay.play());
+
+        for (int i = 0; i < 10000; i++) {
+            RandomBot bot1 = new RandomBot(0);
+            RandomBot bot2 = new RandomBot(1);
+            SelfPlay selfPlay = new SelfPlay(bot1,bot2);
+            selfPlay.play();
+            System.out.println(i);
+        }
+
     }
 }

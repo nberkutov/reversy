@@ -1,28 +1,32 @@
 package models;
 
-import services.BoardService;
-import exception.GameErrorCode;
+import lombok.Data;
 import exception.GameException;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import models.base.GameState;
 import models.base.PlayerColor;
 
 import java.util.Random;
 
-@Getter
+@Data
 @Slf4j
 @AllArgsConstructor
 public class Game {
-    private GameState state;
-    private final BoardService boardService;
     private final Player blackPlayer;
     private final Player whitePlayer;
+    private final Board board;
 
-    public Game(BoardService boardService, Player first, Player second) {
+    private GameState state;
+    private GameResult result;
+
+    public Game(final Player first, final Player second) {
+        this(new Board(), first, second);
+    }
+
+    public Game(final Board board, final Player first, final Player second) {
         state = GameState.BLACK;
-        this.boardService = boardService;
+        result = GameResult.playing(board);
         if (new Random().nextBoolean()) {
             this.blackPlayer = first;
             this.whitePlayer = second;
@@ -30,56 +34,14 @@ public class Game {
             this.blackPlayer = second;
             this.whitePlayer = first;
         }
-        blackPlayer.setBoardService(boardService);
-        whitePlayer.setBoardService(boardService);
         blackPlayer.setColor(PlayerColor.BLACK);
         whitePlayer.setColor(PlayerColor.WHITE);
+        this.board = board;
     }
 
     public boolean isFinished() {
         return state == GameState.END;
     }
 
-    public void next() throws GameException {
-        switch (state) {
-            case BLACK:
-                if (boardService.hasPossibleMove(blackPlayer)) {
-                    blackPlayer.nextMove();
-                }
-                state = GameState.WHITE;
-                break;
-            case WHITE:
-                if (boardService.hasPossibleMove(whitePlayer)) {
-                    whitePlayer.nextMove();
-                }
-                state = GameState.BLACK;
-                break;
-            case END:
-                break;
-        }
-        if (isEndGame()) {
-            state = GameState.END;
-        }
-    }
 
-    private boolean isEndGame() throws GameException {
-        return boardService.getCountEmpty() == 0 ||
-                (!boardService.hasPossibleMove(blackPlayer)
-                        && boardService.hasPossibleMove(whitePlayer));
-    }
-
-    public GameResult getResult() throws GameException {
-        if (state != GameState.END) {
-            throw new GameException(GameErrorCode.GAME_NOT_FINISHED);
-        }
-        long blackCells = boardService.getCountBlack();
-        long whiteCells = boardService.getCountWhite();
-        if (blackCells == whiteCells) {
-            return GameResult.draw(boardService);
-        } else if (blackCells > whiteCells) {
-            return GameResult.winner(boardService, blackPlayer);
-        } else {
-            return GameResult.winner(boardService, whitePlayer);
-        }
-    }
 }
