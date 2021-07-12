@@ -36,6 +36,11 @@ public class GameService extends BaseService {
         }
     }
 
+    /**
+     * Функция делает ход игры
+     *
+     * @param game - Игра
+     */
     public static void doGame(Game game) throws GameException {
         switch (game.getState()) {
             case BLACK:
@@ -58,12 +63,24 @@ public class GameService extends BaseService {
         }
     }
 
+    /**
+     * Функция вовзвращает закончена ли игра
+     *
+     * @param game - Игра
+     * @return boolean
+     */
     public static boolean isEndGame(Game game) throws GameException {
         return BoardService.getCountEmpty(game.getBoard()) == 0 ||
                 (!BoardService.isPossibleMove(game.getBoard(), game.getBlack())
                         && !BoardService.isPossibleMove(game.getBoard(), game.getWhite()));
     }
 
+    /**
+     * Функция вовзвращает результат об окончании игры
+     *
+     * @param game - Игра
+     * @return boolean
+     */
     public static GameResult getResultGame(Game game) throws GameException {
         if (game.getState() != GameState.END) {
             throw new GameException(GameErrorCode.GAME_NOT_FINISHED);
