@@ -23,6 +23,7 @@ public class BoardService extends BaseService {
 
     /**
      * Функция проверяет начальные параметры
+     * Если game, color равны null, то выбрасывает GameException.
      *
      * @param game  - Игра
      * @param point - точка куда походил игрок
@@ -36,6 +37,7 @@ public class BoardService extends BaseService {
 
     /**
      * Функция проверяет начальные параметры
+     * Если board равна null, то выбрасывает GameException.
      *
      * @param board - Игровое поле
      * @param point - точка куда походил игрок
@@ -48,6 +50,7 @@ public class BoardService extends BaseService {
 
     /**
      * Функция ищет всевозможные ходы, а в последствиии переворчивает фишки
+     * Если нет возможных ходов, то выбрасывает GameException.
      *
      * @param board - Игровое поле
      * @param point - точка куда походил игрок
@@ -98,6 +101,7 @@ public class BoardService extends BaseService {
 
     /**
      * Функция, которая определяет, может ли ходить игрок
+     * Если player равен null, то выбрасывает GameException.
      *
      * @param board - Игровое поле
      * @return boolean
@@ -111,6 +115,7 @@ public class BoardService extends BaseService {
 
     /**
      * Функция, которая находит все возможные ходы, относительно цвета игрока
+     * Если color равен null, то выбрасывает GameException.
      *
      * @param board - Игровое поле
      * @param color - цвет игрока
@@ -123,14 +128,15 @@ public class BoardService extends BaseService {
 
     /**
      * Функция, которая находит все возможные ходы, относительно цвета фишки
+     * Если board равен null или cell равен null/Cell.Empty, то выбрасывает GameException.
      *
      * @param board - Игровое поле
      * @param cell  - цвец фишки
      * @return List<Point>
      */
     public static List<Point> getAvailableMoves(Board board, Cell cell) throws GameException {
-        board.checkCell(cell);
-        checkCellOnEmpty(board, cell);
+        checkBoard(board);
+        checkCellOnEmpty(cell);
         Set<Point> points = new HashSet<>();
         for (int i = 0; i < BOARD_SIZE; i++) {
             for (int j = 0; j < BOARD_SIZE; j++) {
@@ -145,14 +151,15 @@ public class BoardService extends BaseService {
 
     /**
      * Функция, которая находит во всех направлениях ближайшую одинаковую фишку, чтоб потом найти промежуточные фишки и их перевернуть
+     * Если board равен null или cell равен null/Cell.Empty, то выбрасывает GameException.
      *
      * @param board - Игровое поле
      * @param cell  - цвец фишки
      * @return List<Point>
      */
     public static List<Point> getCellInAllDirection(Board board, Point point, Cell cell) throws GameException {
-        board.checkPoint(point);
-        checkCellOnEmpty(board, cell);
+        checkBoard(board);
+        checkCellOnEmpty(cell);
         Set<Point> points = new HashSet<>();
         for (int i = -1; i <= 1; i++) {
             for (int j = -1; j <= 1; j++) {
@@ -222,6 +229,7 @@ public class BoardService extends BaseService {
 
     /**
      * Функция провероки
+     * Если game равен null, то выбрасывает GameException.
      *
      * @param game - класс игры
      */
@@ -233,13 +241,12 @@ public class BoardService extends BaseService {
 
     /**
      * Функция провероки
+     * Если cell равен null/Cell.Empty, то выбрасывает GameException.
      *
-     * @param board - Игровое поле
-     * @param cell  - фишка
+     * @param cell - фишка
      */
-    private static void checkCellOnEmpty(Board board, Cell cell) throws GameException {
-        board.checkCell(cell);
-        if (isCellEmpty(cell)) {
+    private static void checkCellOnEmpty(Cell cell) throws GameException {
+        if (cell == null || isCellEmpty(cell)) {
             log.error("Bad checkCellOnEmpty", new GameException(GameErrorCode.INVALID_CELL));
             throw new GameException(GameErrorCode.INVALID_CELL);
         }
@@ -247,6 +254,7 @@ public class BoardService extends BaseService {
 
     /**
      * Функция провероки
+     * Если color равен null, то выбрасывает GameException.
      *
      * @param color - цвет игрока
      */
@@ -259,6 +267,7 @@ public class BoardService extends BaseService {
 
     /**
      * Функция провероки
+     * Если board равен null, то выбрасывает GameException.
      *
      * @param board - игровое поле
      */
