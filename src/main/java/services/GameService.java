@@ -12,11 +12,6 @@ import models.Player;
 import models.base.GameState;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
-import static services.BoardService.isPossibleMove;
-
 @Slf4j
 public class GameService extends BaseService {
 
@@ -44,14 +39,14 @@ public class GameService extends BaseService {
     public static void doGame(Game game) throws GameException {
         switch (game.getState()) {
             case BLACK:
-                if (BoardService.isPossibleMove(game.getBoard(), game.getBlack())) {
-                    game.getBlack().nextMove(game);
+                if (BoardService.isPossibleMove(game.getBoard(), game.getBlackPlayer())) {
+                    game.getBlackPlayer().nextMove(game);
                 }
                 game.setState(GameState.WHITE);
                 break;
             case WHITE:
-                if (BoardService.isPossibleMove(game.getBoard(), game.getWhite())) {
-                    game.getWhite().nextMove(game);
+                if (BoardService.isPossibleMove(game.getBoard(), game.getWhitePlayer())) {
+                    game.getWhitePlayer().nextMove(game);
                 }
                 game.setState(GameState.BLACK);
                 break;
@@ -71,8 +66,8 @@ public class GameService extends BaseService {
      */
     public static boolean isEndGame(Game game) throws GameException {
         return BoardService.getCountEmpty(game.getBoard()) == 0 ||
-                (!BoardService.isPossibleMove(game.getBoard(), game.getBlack())
-                        && !BoardService.isPossibleMove(game.getBoard(), game.getWhite()));
+                (!BoardService.isPossibleMove(game.getBoard(), game.getBlackPlayer())
+                        && !BoardService.isPossibleMove(game.getBoard(), game.getWhitePlayer()));
     }
 
     /**
@@ -91,9 +86,9 @@ public class GameService extends BaseService {
         if (blackCells == whiteCells) {
             return GameResult.draw(board);
         } else if (blackCells > whiteCells) {
-            return GameResult.winner(board, game.getBlack());
+            return GameResult.winner(board, game.getBlackPlayer());
         } else {
-            return GameResult.winner(board, game.getWhite());
+            return GameResult.winner(board, game.getWhitePlayer());
         }
     }
 
