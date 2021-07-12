@@ -21,7 +21,7 @@ public class SelfPlay {
 
     public GameResult play() throws GameException {
         while (!game.isFinished()) {
-            log.debug("DEBUG playing \n{}", game.getBoardService().getBoard().getVisualString());
+            log.debug("DEBUG playing \n{}", game.getBoard().getVisualString());
             GameService.doGame(game);
         }
 

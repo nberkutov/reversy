@@ -18,17 +18,21 @@ import java.util.function.Function;
 
 import static models.Board.BOARD_SIZE;
 
-@Data
 @Slf4j
 public class BoardService extends BaseService {
 
     public static void makeMove(Game game, Point point, PlayerColor color) throws GameException {
         checkGame(game);
         checkPlayerColor(color);
-        makeMoveBoard(game.getBoard(), point, Cell.valueOf(color));
+        makeMove(game.getBoard(), point, Cell.valueOf(color));
     }
 
-    public static void makeMoveBoard(Board board, Point point, Cell cell) throws GameException {
+    public static void makeMove(Board board, Point point, Cell cell) throws GameException {
+        checkBoard(board);
+        makeMoveBoard(board, point, cell);
+    }
+
+    private static void makeMoveBoard(Board board, Point point, Cell cell) throws GameException {
         List<Point> moves = getCellInAllDirection(board, point, cell);
 
         if (moves.isEmpty()) {
@@ -43,11 +47,11 @@ public class BoardService extends BaseService {
         board.setCell(point, cell);
     }
 
-    public int getCountWhite(Board board) {
+    public static int getCountWhite(Board board) {
         return board.getCountWhite();
     }
 
-    public int getCountBlack(Board board) {
+    public static int getCountBlack(Board board) {
         return board.getCountBlack();
     }
 
@@ -82,7 +86,7 @@ public class BoardService extends BaseService {
         return new ArrayList<>(points);
     }
 
-    private static List<Point> getCellInAllDirection(Board board, Point point, Cell cell) throws GameException {
+    public static List<Point> getCellInAllDirection(Board board, Point point, Cell cell) throws GameException {
         board.checkPoint(point);
         checkCellOnEmpty(board, cell);
         Set<Point> points = new HashSet<>();
@@ -157,6 +161,14 @@ public class BoardService extends BaseService {
             log.error("Bad checkPlayerColor", new GameException(GameErrorCode.INVALID_PLAYER_COLOR));
             throw new GameException(GameErrorCode.INVALID_PLAYER_COLOR);
         }
+    }
+
+    private static void checkBoard(Board board) throws GameException {
+        if(board == null){
+            log.error("Bad checkBoard", new GameException(GameErrorCode.BOARD_NOT_FOUND));
+            throw new GameException(GameErrorCode.BOARD_NOT_FOUND);
+        }
+
     }
 
     private static boolean isCellEmpty(Board board, Point point) throws GameException {

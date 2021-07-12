@@ -20,9 +20,6 @@ import static services.BoardService.isPossibleMove;
 @Slf4j
 public class GameService extends BaseService {
 
-
-    // private final BoardService service = new BoardService();
-
     public static Game createGame() {
         throw new NotImplementedException();
     }
@@ -42,37 +39,38 @@ public class GameService extends BaseService {
     public static void doGame(Game game) throws GameException {
         switch (game.getState()) {
             case BLACK:
-                if (BoardService.isPossibleMove(game.getBlack())) {
-                    game.getBlack().nextMove();
+                if (BoardService.isPossibleMove(game.getBoard(), game.getBlack())) {
+                    game.getBlack().nextMove(game);
                 }
                 game.setState(GameState.WHITE);
                 break;
             case WHITE:
-                if (BoardService.isPossibleMove(game.getWhite())) {
-                    game.getWhite().nextMove();
+                if (BoardService.isPossibleMove(game.getBoard(), game.getWhite())) {
+                    game.getWhite().nextMove(game);
                 }
                 game.setState(GameState.BLACK);
                 break;
             case END:
                 break;
         }
-        if (GameService.isEndGame(board, game)) {
+        if (GameService.isEndGame(game)) {
             game.setState(GameState.END);
         }
     }
 
     public static boolean isEndGame(Game game) throws GameException {
         return BoardService.getCountEmpty(game.getBoard()) == 0 ||
-                (!BoardService.isPossibleMove(game.getBlack())
-                        && !BoardService.isPossibleMove(game.getWhite()));
+                (!BoardService.isPossibleMove(game.getBoard(), game.getBlack())
+                        && !BoardService.isPossibleMove(game.getBoard(), game.getWhite()));
     }
 
-    public static GameResult getResultGame(Game game, Board board) throws GameException {
+    public static GameResult getResultGame(Game game) throws GameException {
         if (game.getState() != GameState.END) {
             throw new GameException(GameErrorCode.GAME_NOT_FINISHED);
         }
-        long blackCells = board.getCountBlack();
-        long whiteCells = board.getCountWhite();
+        Board board = game.getBoard();
+        long blackCells = BoardService.getCountBlack(board);
+        long whiteCells = BoardService.getCountWhite(board);
         if (blackCells == whiteCells) {
             return GameResult.draw(board);
         } else if (blackCells > whiteCells) {
