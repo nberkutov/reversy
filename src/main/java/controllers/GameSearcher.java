@@ -4,19 +4,20 @@ import dto.response.CreateGameResponse;
 import dto.response.GameBoardResponse;
 import dto.response.GameResponse;
 import dto.response.TaskResponse;
+import exception.GameException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import models.ClientConnection;
 import models.Game;
 import models.Player;
-import models.base.PlayerState;
 import services.GameService;
+import services.PlayerService;
 
 import java.util.concurrent.BlockingQueue;
 
 @Slf4j
 @AllArgsConstructor
-public class GameController extends Thread {
+public class GameSearcher extends Thread {
     private final BlockingQueue<TaskResponse> responses;
     private final BlockingQueue<Player> waiting;
 
@@ -27,20 +28,20 @@ public class GameController extends Thread {
             try {
                 Player first = waiting.take();
                 Player second = waiting.take();
-                if (!isCanPlay(first)) {
+                if (!PlayerService.isCanPlay(first)) {
                     waiting.put(second);
-                    first.setState(PlayerState.NONE);
+                    PlayerService.setNoneStatePlayer(first);
                     continue;
                 }
-                if (!isCanPlay(second)) {
-                    second.setState(PlayerState.NONE);
+                if (!PlayerService.isCanPlay(second)) {
+                    PlayerService.setNoneStatePlayer(second);
                     waiting.put(first);
                     continue;
                 }
                 linkPlayers(first, second);
 
 
-            } catch (InterruptedException e) {
+            } catch (InterruptedException | GameException e) {
                 e.printStackTrace();
             }
         }
@@ -49,15 +50,8 @@ public class GameController extends Thread {
     private void linkPlayers(Player first, Player second) throws InterruptedException {
         Game game = GameService.createGame(first, second);
 
-        setStatePlaying(game.getBlackPlayer());
         sendInfoAboutGame(game, game.getBlackPlayer());
-
-        setStatePlaying(game.getWhitePlayer());
         sendInfoAboutGame(game, game.getWhitePlayer());
-    }
-
-    private void setStatePlaying(Player player) {
-        player.setState(PlayerState.PLAYING);
     }
 
     private void sendInfoAboutGame(Game game, Player player) throws InterruptedException {
@@ -73,8 +67,4 @@ public class GameController extends Thread {
         responses.put(new TaskResponse(connection, response));
     }
 
-    private boolean isCanPlay(Player player) {
-        return player.getConnection() != null
-                && player.getConnection().isConnected();
-    }
 }

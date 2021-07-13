@@ -1,11 +1,12 @@
 package services;
 
+import dto.request.player.MovePlayerRequest;
 import exception.GameErrorCode;
 import exception.GameException;
 import lombok.extern.slf4j.Slf4j;
 import models.*;
 import models.base.GameState;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+import models.base.PlayerState;
 
 @Slf4j
 public class GameService extends BaseService {
@@ -14,10 +15,19 @@ public class GameService extends BaseService {
         int idGame = getGameId();
         Game game = new Game(idGame, first, second);
         games.putIfAbsent(idGame, game);
+        first.setState(PlayerState.PLAYING);
+        second.setState(PlayerState.PLAYING);
         return game;
     }
 
-    public static void moveFromPlayer(Game game, Point point, Player player) throws GameException {
+    public static Game moveFromPlayer(MovePlayerRequest movePlayer) throws GameException {
+        Player player = PlayerService.getPlayerById(movePlayer.getIdPlayer());
+        Game game = GameService.getGameById(movePlayer.getIdGame());
+        return moveFromPlayer(game, movePlayer.getPoint(), player);
+    }
+
+    public static Game moveFromPlayer(Game game, Point point, Player player) throws GameException {
+        checkPlayerConnection(player);
         checkGameEnd(game);
         checkValidCanPlayerMove(game, player);
         BoardService.makeMove(game, point, player.getColor());
@@ -36,6 +46,7 @@ public class GameService extends BaseService {
         if (GameService.isEndGame(game)) {
             game.setState(GameState.END);
         }
+        return game;
     }
 
     public static Game getGameById(int idGame) throws GameException {
@@ -115,13 +126,14 @@ public class GameService extends BaseService {
 
     private static void checkValidCanPlayerMove(Game game, Player player) throws GameException {
         if ((game.getState() == GameState.BLACK
-                && game.getBlackPlayer().equals(player))
+                &&
+                game.getBlackPlayer().equals(player))
                 ||
                 (game.getState() == GameState.WHITE
-                        && game.getWhitePlayer().equals(player))) {
+                        &&
+                        game.getWhitePlayer().equals(player))) {
             return;
         }
         throw new GameException(GameErrorCode.INVALID_REQUEST);
     }
-
 }

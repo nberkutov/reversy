@@ -4,17 +4,12 @@ import controllers.commands.CommandRequest;
 import dto.request.player.*;
 import dto.response.*;
 import dto.response.player.CreatePlayerResponse;
-import exception.GameErrorCode;
 import exception.GameException;
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import models.ClientConnection;
 import models.Game;
 import models.Player;
-import models.base.GameState;
-import models.base.PlayerState;
-import services.BoardService;
 import services.GameService;
 import services.PlayerService;
 
@@ -49,27 +44,22 @@ public class HandlerTasks extends Thread {
                         actionMovePlayer(movePlayer, task.getClient());
                         break;
                 }
-
             } catch (InterruptedException | GameException e) {
                 e.printStackTrace();
             }
         }
     }
 
-    private void actionCreatePlayer(CreatePlayerRequest createPlayer, ClientConnection connection) throws InterruptedException {
+    public void actionCreatePlayer(CreatePlayerRequest createPlayer, ClientConnection connection) throws InterruptedException {
         log.debug("action createPlayer {}", createPlayer);
-        Player player = PlayerService.createPlayer(createPlayer);
-        player.initConnect(connection);
+        Player player = PlayerService.createPlayer(createPlayer, connection);
         addTaskResponse(player, CreatePlayerResponse.toDto(player));
     }
 
-    private void actionWantPlay(WantPlayRequest wantPlay, ClientConnection connection) throws InterruptedException {
+    public void actionWantPlay(WantPlayRequest wantPlay, ClientConnection connection) throws InterruptedException {
         log.debug("action wantPlay {}", wantPlay);
         try {
-            Player player = PlayerService.getPlayerById(wantPlay.getId());
-            checkPlayerConnection(player);
-            checkPlayerCanFindGame(player);
-            player.setState(PlayerState.SEARCH_GAME);
+            Player player = PlayerService.isPlayerCanSearchGame(wantPlay);
             waiting.put(player);
             addTaskResponse(player, new MessageResponse("Search game"));
         } catch (GameException e) {
@@ -77,29 +67,14 @@ public class HandlerTasks extends Thread {
         }
     }
 
-    private void actionMovePlayer(MovePlayerRequest movePlayer, ClientConnection connection) throws InterruptedException {
+    public void actionMovePlayer(MovePlayerRequest movePlayer, ClientConnection connection) throws InterruptedException {
         log.debug("action movePlayer {}", movePlayer);
         try {
-            Player player = PlayerService.getPlayerById(movePlayer.getIdPlayer());
-            checkPlayerConnection(player);
-            Game game = GameService.getGameById(movePlayer.getIdGame());
-            GameService.moveFromPlayer(game, movePlayer.getPoint(), player);
+            Game game = GameService.moveFromPlayer(movePlayer);
             addTaskResponse(game.getWhitePlayer(), GameBoardResponse.toDto(game));
             addTaskResponse(game.getBlackPlayer(), GameBoardResponse.toDto(game));
         } catch (GameException e) {
             addTaskResponse(connection, ErrorResponse.toDto(e));
-        }
-    }
-
-    private void checkPlayerCanFindGame(Player player) throws GameException {
-        if (player.getState() == PlayerState.PLAYING || player.getState() == PlayerState.SEARCH_GAME) {
-            throw new GameException(GameErrorCode.PLAYER_CANNOT_FIND_GAME);
-        }
-    }
-
-    private void checkPlayerConnection(Player player) throws GameException {
-        if (player.getConnection() == null || !player.getConnection().isConnected()) {
-            throw new GameException(GameErrorCode.CONNECTION_LOST);
         }
     }
 

@@ -1,28 +1,16 @@
 package controllers;
 
-import com.google.gson.Gson;
-import dto.request.player.CreatePlayerRequest;
-import dto.request.player.GameRequest;
-import dto.request.player.MovePlayerRequest;
 import dto.request.player.TaskRequest;
 import dto.response.GameResponse;
 import dto.response.MessageResponse;
 import dto.response.TaskResponse;
-import dto.response.player.CreatePlayerResponse;
-import exception.GameException;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import models.ClientConnection;
 import models.Player;
-import services.BaseService;
-import services.GameService;
-import services.PlayerService;
 
-import java.io.*;
+import java.io.IOException;
 import java.net.Socket;
-import java.util.Queue;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.DelayQueue;
 
 @Slf4j
@@ -37,10 +25,10 @@ public class ServerController {
         waiting = new DelayQueue<>();
         HandlerTasks handlerTasks = new HandlerTasks(requests, responses, waiting);
         SenderTasks senderTasks = new SenderTasks(requests, responses);
-        GameController gameController = new GameController(responses, waiting);
+        GameSearcher gameSearcher = new GameSearcher(responses, waiting);
         handlerTasks.start();
         senderTasks.start();
-        gameController.start();
+        gameSearcher.start();
     }
 
     public void addTaskResponse(ClientConnection connection, GameResponse response) throws InterruptedException {

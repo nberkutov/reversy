@@ -2,19 +2,18 @@ package services;
 
 import exception.GameErrorCode;
 import exception.GameException;
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import models.*;
+import models.Board;
+import models.Game;
+import models.Player;
+import models.Point;
 import models.base.Cell;
-import models.base.GameState;
 import models.base.PlayerColor;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Function;
 
 import static models.Board.BOARD_SIZE;
 
@@ -107,9 +106,7 @@ public class BoardService extends BaseService {
      * @return boolean
      */
     public static boolean hasPossibleMove(final Board board, final Player player) throws GameException {
-        if (player == null) {
-            throw new GameException(GameErrorCode.PLAYER_NOT_FOUND);
-        }
+        checkPlayer(player);
         return !getAvailableMoves(board, player.getColor()).isEmpty();
     }
 
@@ -233,17 +230,6 @@ public class BoardService extends BaseService {
         return p;
     }
 
-    /**
-     * Функция провероки
-     * Если game равен null, то выбрасывает GameException.
-     *
-     * @param game - класс игры
-     */
-    private static void checkGame(final Game game) throws GameException {
-        if (game == null) {
-            throw new GameException(GameErrorCode.GAME_NOT_FOUND);
-        }
-    }
 
     /**
      * Функция провероки
@@ -285,23 +271,6 @@ public class BoardService extends BaseService {
 
     }
 
-    /**
-     * Функция провероки
-     * Если point равен null, то выбрасывает GameException.
-     *
-     * @param point - игровое поле
-     */
-    private static void checkPoint(Point point) throws GameException {
-        if (point != null
-                && point.getX() >= 0
-                && point.getY() >= 0
-                && point.getX() < BOARD_SIZE
-                && point.getY() < BOARD_SIZE) {
-            return;
-        }
-        log.error("Bad checkPoint", new GameException(GameErrorCode.BAD_POINT));
-        throw new GameException(GameErrorCode.BAD_POINT);
-    }
 
     /**
      * Функция для определения поля на пустоту
