@@ -2,10 +2,10 @@ package services;
 
 import exception.GameErrorCode;
 import exception.GameException;
-import models.Board;
+import models.board.Board;
 import models.BoardUtilsTest;
-import models.Player;
-import models.Point;
+import models.player.Player;
+import models.board.Point;
 import models.base.Cell;
 import models.base.PlayerColor;
 import org.junit.jupiter.api.Test;
@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static models.Board.BOARD_SIZE;
+import static models.board.Board.BOARD_SIZE;
 import static org.junit.jupiter.api.Assertions.*;
 
 class BoardServiceTest {

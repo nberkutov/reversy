@@ -3,10 +3,10 @@ package services;
 import exception.GameException;
 
 import lombok.extern.slf4j.Slf4j;
-import models.Board;
-import models.Game;
-import models.GameResult;
-import models.Player;
+import models.board.Board;
+import models.game.Game;
+import models.game.GameResult;
+import models.player.Player;
 
 @Slf4j
 public class SelfPlay {

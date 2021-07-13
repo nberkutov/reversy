@@ -1,9 +1,11 @@
-package models;
+package models.game;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import models.board.Board;
 import models.base.GameResultState;
+import models.player.Player;
 
 @Slf4j
 @Getter

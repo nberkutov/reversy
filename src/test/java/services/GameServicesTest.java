@@ -7,6 +7,11 @@ import exception.GameException;
 import models.*;
 import models.base.GameResultState;
 import models.base.PlayerState;
+import models.board.Board;
+import models.board.Point;
+import models.game.Game;
+import models.game.GameResult;
+import models.player.Player;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;

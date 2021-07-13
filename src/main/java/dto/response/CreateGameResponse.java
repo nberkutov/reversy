@@ -1,10 +1,9 @@
 package dto.response;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.NoArgsConstructor;
-import models.Game;
-import models.Player;
+import models.game.Game;
+import models.player.Player;
 import models.base.PlayerColor;
 
 @NoArgsConstructor

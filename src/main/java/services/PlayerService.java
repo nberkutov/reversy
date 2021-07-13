@@ -5,7 +5,7 @@ import dto.request.player.WantPlayRequest;
 import exception.GameErrorCode;
 import exception.GameException;
 import models.ClientConnection;
-import models.Player;
+import models.player.Player;
 import models.base.PlayerState;
 
 public class PlayerService extends BaseService {

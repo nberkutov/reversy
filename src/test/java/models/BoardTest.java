@@ -3,6 +3,8 @@ package models;
 import exception.GameErrorCode;
 import exception.GameException;
 import models.base.Cell;
+import models.board.Board;
+import models.board.Point;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

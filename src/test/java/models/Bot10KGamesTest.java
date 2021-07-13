@@ -1,13 +1,11 @@
 package models;
 
 import exception.GameException;
-import models.base.PlayerColor;
+import models.player.RandomBot;
 import org.junit.jupiter.api.Test;
 import services.SelfPlay;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-class RandomBotTest {
+class Bot10KGamesTest {
 
     @Test
     public void testGame() throws GameException, InterruptedException {

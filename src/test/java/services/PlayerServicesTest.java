@@ -4,7 +4,7 @@ import dto.request.player.CreatePlayerRequest;
 import exception.GameErrorCode;
 import exception.GameException;
 import models.ClientConnection;
-import models.Player;
+import models.player.Player;
 import models.base.PlayerState;
 import org.junit.jupiter.api.Test;
 

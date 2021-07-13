@@ -4,9 +4,13 @@ import dto.request.player.MovePlayerRequest;
 import exception.GameErrorCode;
 import exception.GameException;
 import lombok.extern.slf4j.Slf4j;
-import models.*;
 import models.base.GameState;
 import models.base.PlayerState;
+import models.board.Board;
+import models.board.Point;
+import models.game.Game;
+import models.game.GameResult;
+import models.player.Player;
 
 @Slf4j
 public class GameService extends BaseService {

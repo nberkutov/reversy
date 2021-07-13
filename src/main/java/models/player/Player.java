@@ -1,9 +1,11 @@
-package models;
+package models.player;
 
 import exception.GameException;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import models.ClientConnection;
+import models.game.Game;
 import models.base.PlayerColor;
 import models.base.PlayerState;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;

@@ -8,8 +8,8 @@ import exception.GameException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import models.ClientConnection;
-import models.Game;
-import models.Player;
+import models.game.Game;
+import models.player.Player;
 import services.GameService;
 import services.PlayerService;
 

@@ -2,11 +2,9 @@ package models;
 
 import exception.GameException;
 import models.base.Cell;
+import models.board.Board;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import static models.Board.BOARD_SIZE;
+import static models.board.Board.BOARD_SIZE;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class BoardUtilsTest {

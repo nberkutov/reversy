@@ -5,14 +5,14 @@ import dto.request.player.GameRequest;
 import exception.GameErrorCode;
 import exception.GameException;
 import lombok.extern.slf4j.Slf4j;
-import models.Game;
-import models.Player;
-import models.Point;
+import models.game.Game;
+import models.player.Player;
+import models.board.Point;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static models.Board.BOARD_SIZE;
+import static models.board.Board.BOARD_SIZE;
 
 @Slf4j
 public class BaseService {

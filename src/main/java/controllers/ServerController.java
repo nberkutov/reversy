@@ -6,7 +6,7 @@ import dto.response.MessageResponse;
 import dto.response.TaskResponse;
 import lombok.extern.slf4j.Slf4j;
 import models.ClientConnection;
-import models.Player;
+import models.player.Player;
 
 import java.io.IOException;
 import java.net.Socket;

@@ -15,7 +15,7 @@ import lombok.Data;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import models.ClientConnection;
-import models.Point;
+import models.board.Point;
 
 import java.io.IOException;
 import java.net.Socket;

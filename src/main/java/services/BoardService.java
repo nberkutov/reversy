@@ -3,10 +3,10 @@ package services;
 import exception.GameErrorCode;
 import exception.GameException;
 import lombok.extern.slf4j.Slf4j;
-import models.Board;
-import models.Game;
-import models.Player;
-import models.Point;
+import models.board.Board;
+import models.game.Game;
+import models.player.Player;
+import models.board.Point;
 import models.base.Cell;
 import models.base.PlayerColor;
 
@@ -15,7 +15,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static models.Board.BOARD_SIZE;
+import static models.board.Board.BOARD_SIZE;
 
 @Slf4j
 public class BoardService extends BaseService {

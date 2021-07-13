@@ -1,6 +1,9 @@
-package models;
+package models.player;
 
 import exception.GameException;
+import models.board.Board;
+import models.game.Game;
+import models.board.Point;
 import services.BoardService;
 
 import java.util.List;

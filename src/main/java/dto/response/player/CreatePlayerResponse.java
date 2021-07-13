@@ -1,13 +1,10 @@
 package dto.response.player;
 
-import controllers.commands.CommandResponse;
 import dto.response.GameResponse;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import models.Player;
-
-import static services.BaseService.GSON;
+import models.player.Player;
 
 @Data
 @NoArgsConstructor

@@ -1,11 +1,12 @@
-package models;
+package models.game;
 
 import lombok.Data;
-import exception.GameException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import models.board.Board;
 import models.base.GameState;
 import models.base.PlayerColor;
+import models.player.Player;
 
 import java.util.Random;
 
