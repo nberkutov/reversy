@@ -1,19 +1,21 @@
 package client;
 
 import com.google.gson.Gson;
+import controllers.commands.CommandRequest;
+import controllers.commands.CommandResponse;
 import dto.request.player.CreatePlayerRequest;
 import dto.request.player.GameRequest;
-import dto.response.ErrorResponse;
-import dto.response.GameBoardResponse;
-import dto.response.GameResponse;
+import dto.request.player.MovePlayerRequest;
+import dto.request.player.WantPlayRequest;
+import dto.response.*;
 import dto.response.player.CreatePlayerResponse;
 import exception.GameErrorCode;
 import exception.GameException;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import models.ClientConnection;
+import models.Point;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -41,50 +43,89 @@ public class Client implements Runnable {
 
     @Override
     public void run() {
+        log.debug("Debug connect {}", connection);
+//        new Thread(new Runnable() {
+//            @SneakyThrows
+//            @Override
+//            public void run() {
+//                Thread.sleep(1000);
+//                sendRequest(connection, new CreatePlayerRequest("Test"));
+//                Thread.sleep(1000);
+//                sendRequest(connection, new WantPlayRequest(0));
+//                Thread.sleep(1000);
+//                sendRequest(connection, new MovePlayerRequest(0, 0, new Point(1, 1)));
+//            }
+//        }).start();
         try {
-//            getRequest(connection, GameResponse.class);
-
-            sendJson(connection, new CreatePlayerRequest("Player"));
-
-            CreatePlayerResponse response = getRequest(connection, CreatePlayerResponse.class);
-            idPlayer = response.getId();
             while (connection.isConnected()) {
-                Object o = getRequest(connection);
-                actionByResponseFromServer(o.getClass(), o);
+                GameResponse response = getRequest(connection);
+                actionByResponseFromServer(response);
             }
         } catch (IOException | GameException e) {
             log.error("Error", e);
         }
     }
 
-    private <T> void actionByResponseFromServer(Class<?> obj, Object t) {
-        log.debug("Response {}", t);
-        if (ErrorResponse.class.equals(obj)) {
-            ErrorResponse response = (ErrorResponse) t;
-        } else if (GameBoardResponse.class.equals(obj)) {
-            GameBoardResponse response = (GameBoardResponse) t;
-        } else {
-            GameResponse gameResponse = (GameResponse) t;
+    private void actionByResponseFromServer(GameResponse absctractResponse) throws GameException {
+        log.debug("GetResponse {}", absctractResponse);
+        switch (CommandResponse.getCommandByResponse(absctractResponse)) {
+            case ERROR:
+                ErrorResponse error = (ErrorResponse) absctractResponse;
+                actionError(error);
+                break;
+            case GAME_PLAYING:
+                GameBoardResponse response = (GameBoardResponse) absctractResponse;
+                actionPlaying(response);
+                break;
+            case CREATE_PLAYER:
+                CreatePlayerResponse createPlayer = (CreatePlayerResponse) absctractResponse;
+                actionCreatePlayer(createPlayer);
+                break;
+            case GAME_START:
+                CreateGameResponse createGame = (CreateGameResponse) absctractResponse;
+                actionStartGame(createGame);
+                break;
+            case MESSAGE:
+                MessageResponse message = (MessageResponse) absctractResponse;
+                actionMessage(message);
+                break;
+            default:
+                log.error("Unknown response {}", absctractResponse);
         }
     }
 
-    private static void sendJson(ClientConnection server, GameRequest request) throws IOException {
+    private void actionMessage(MessageResponse message) {
 
+    }
+
+    private void actionError(ErrorResponse response) {
+
+    }
+
+    private void actionPlaying(GameBoardResponse response) {
+
+    }
+
+    private void actionCreatePlayer(CreatePlayerResponse response) {
+
+    }
+
+    private void actionStartGame(CreateGameResponse response) {
+
+    }
+
+    private static void sendRequest(ClientConnection server, GameRequest request) throws IOException, GameException {
         if (server.isConnected()) {
-            server.send(gson.toJson(request));
+            server.send(CommandRequest.toJsonParser(request));
         }
     }
 
     private static GameResponse getRequest(ClientConnection server) throws GameException, IOException {
-        return getRequest(server, GameResponse.class);
-    }
-
-    private static <T> T getRequest(ClientConnection server, Class<T> obj) throws GameException, IOException {
-
         if (!server.isConnected()) {
             throw new GameException(GameErrorCode.CONNECTION_LOST);
         }
-        log.debug("Try getRequest");
-        return gson.fromJson(server.getIn().readLine(), obj);
+        String msg = server.getIn().readUTF();
+        GameResponse response = CommandResponse.getResponseFromJson(msg);
+        return response;
     }
 }

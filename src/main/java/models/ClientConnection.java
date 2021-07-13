@@ -3,22 +3,25 @@ package models;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.*;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Slf4j
 public class ClientConnection {
     private Socket socket;
-    private BufferedReader in;
-    private BufferedWriter out;
+    private DataInputStream in;
+    private DataOutputStream out;
 
     public ClientConnection(Socket socket) throws IOException {
         this.socket = socket;
-        in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+        in = new DataInputStream(socket.getInputStream());
+        out = new DataOutputStream(socket.getOutputStream());
     }
 
     public boolean isConnected() {
@@ -26,15 +29,19 @@ public class ClientConnection {
     }
 
     public void send(String msg) throws IOException {
-        out.write(msg);
+        out.writeUTF(msg);
         out.flush();
     }
 
-    public void close() throws IOException {
+    public void close() {
         if (!socket.isClosed()) {
-            socket.close();
-            in.close();
-            out.close();
+            try {
+                socket.close();
+                in.close();
+                out.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 }

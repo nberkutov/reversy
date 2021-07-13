@@ -1,5 +1,6 @@
 package services;
 
+import com.google.gson.Gson;
 import exception.GameErrorCode;
 import exception.GameException;
 import models.Game;
@@ -16,6 +17,7 @@ public class BaseService {
     protected static int playerIncrement = 0;
     protected static final Map<Integer, Player> players = new ConcurrentHashMap<>();
     //BD ---
+    public static final Gson GSON = new Gson();
 
     protected static Game getGameById(int idGame) throws GameException {
         Game game = games.get(idGame);
@@ -27,13 +29,13 @@ public class BaseService {
 
     protected static Player getPlayerById(int id) throws GameException {
         Player player = players.get(id);
-        if(player== null){
+        if (player == null) {
             throw new GameException(GameErrorCode.GAME_NOT_FOUND);
         }
         return player;
     }
 
-    protected static synchronized int getPlayerId(){
+    protected static synchronized int getPlayerId() {
         return playerIncrement++;
     }
 }

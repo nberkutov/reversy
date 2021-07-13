@@ -27,7 +27,7 @@ public class GameService extends BaseService {
             throw new GameException(GameErrorCode.GAME_NOT_FINISHED);
         } catch (GameException exception) {
             log.error("Error", exception);
-            return new GameResponse();
+            throw new NotImplementedException();
         }
     }
 

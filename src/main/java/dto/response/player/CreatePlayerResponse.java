@@ -1,10 +1,13 @@
 package dto.response.player;
 
+import controllers.commands.CommandResponse;
 import dto.response.GameResponse;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import models.Player;
+
+import static services.BaseService.GSON;
 
 @Data
 @NoArgsConstructor
@@ -15,4 +18,5 @@ public class CreatePlayerResponse extends GameResponse {
     public static CreatePlayerResponse toDto(Player player) {
         return new CreatePlayerResponse(player.getId());
     }
+
 }

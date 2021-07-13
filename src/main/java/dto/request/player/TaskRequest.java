@@ -1,6 +1,10 @@
 package dto.request.player;
 
 import com.google.gson.Gson;
+import controllers.commands.CommandRequest;
+import dto.response.ErrorResponse;
+import dto.response.GameBoardResponse;
+import dto.response.GameResponse;
 import exception.GameErrorCode;
 import exception.GameException;
 import lombok.AllArgsConstructor;
@@ -13,25 +17,31 @@ import java.lang.reflect.Type;
 import java.util.concurrent.Delayed;
 import java.util.concurrent.TimeUnit;
 
+import static services.BaseService.GSON;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class TaskRequest implements Delayed {
-    private Gson gson = new Gson();
+
     private ClientConnection client;
+    private GameRequest request;
 
     public TaskRequest(ClientConnection client) {
         this.client = client;
     }
 
-    public <T> T getRequest(Class<T> obj) throws GameException, IOException {
+    public static TaskRequest getTaskRequest(ClientConnection client) throws GameException, IOException {
 
         if (!client.isConnected()) {
             throw new GameException(GameErrorCode.CONNECTION_LOST);
         }
-        String msg = client.getIn().readLine();
-        return gson.fromJson(msg, obj);
+        String msg = client.getIn().readUTF();
+        GameRequest request = CommandRequest.getRequestFromJson(msg);
+
+        return new TaskRequest(client, request);
     }
+
 
     @Override
     public long getDelay(TimeUnit unit) {

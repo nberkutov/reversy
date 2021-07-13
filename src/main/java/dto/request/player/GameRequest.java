@@ -8,8 +8,6 @@ import java.io.Serializable;
 import java.util.concurrent.Delayed;
 import java.util.concurrent.TimeUnit;
 
-@Data
 @NoArgsConstructor
-public class GameRequest implements Serializable {
-    private int id;
+public abstract class GameRequest implements Serializable {
 }
