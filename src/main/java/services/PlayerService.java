@@ -10,7 +10,8 @@ import models.base.PlayerState;
 
 public class PlayerService extends BaseService {
 
-    public static Player createPlayer(final CreatePlayerRequest createPlayerRequest, final ClientConnection connection) {
+    public static Player createPlayer(final CreatePlayerRequest createPlayerRequest, ClientConnection connection) throws GameException {
+        checkRequestIsNull(createPlayerRequest);
         int id = getPlayerId();
         Player player = new Player(id);
         players.putIfAbsent(id, player);
@@ -26,19 +27,24 @@ public class PlayerService extends BaseService {
         return player;
     }
 
-    public static boolean canPlay(final Player player) {
+    public static boolean isCanPlay(final Player player) {
         return player.getConnection() != null
                 && player.getConnection().isConnected();
     }
 
-    public static void setPlayerSateNone(final Player player) throws GameException {
+    public static void setPlayerStateNone(final Player player) throws GameException {
         playerIsNotNull(player);
         player.setState(PlayerState.NONE);
     }
 
 
     public static Player canPlayerSearchGame(final WantPlayRequest wantPlay) throws GameException {
-        Player player = PlayerService.getPlayerById(wantPlay.getId());
+        checkRequestIsNull(wantPlay);
+        return canPlayerSearchGame(wantPlay.getId());
+    }
+
+    public static Player canPlayerSearchGame(final int id) throws GameException {
+        Player player = PlayerService.getPlayerById(id);
         checkPlayerConnection(player);
         checkPlayerCanFindGame(player);
         player.setState(PlayerState.SEARCH_GAME);
@@ -51,4 +57,6 @@ public class PlayerService extends BaseService {
             throw new GameException(GameErrorCode.PLAYER_CANNOT_FIND_GAME);
         }
     }
+
+
 }

@@ -1,23 +1,24 @@
 package models;
 
-import services.BoardService;
 import exception.GameException;
-import models.base.PlayerColor;
+import services.BoardService;
 
-import java.util.*;
+import java.util.List;
+import java.util.Random;
 
 public class RandomBot extends Player {
 
-    public RandomBot(final long id) {
+    public RandomBot(final int id) {
         super(id);
     }
-/*
 
-    public RandomBot(final long id, final PlayerColor color, final BoardService boardService) {
-        super(id, color);
-    }
+    /*
 
-*/
+        public RandomBot(final long id, final PlayerColor color, final BoardService boardService) {
+            super(id, color);
+        }
+
+    */
     @Override
     public void nextMove(final Game game) throws GameException {
         Board board = game.getBoard();

@@ -1,12 +1,14 @@
-package controller;
+package services;
 
 import exception.GameErrorCode;
 import exception.GameException;
-import models.*;
+import models.Board;
+import models.BoardUtilsTest;
+import models.Player;
+import models.Point;
 import models.base.Cell;
 import models.base.PlayerColor;
 import org.junit.jupiter.api.Test;
-import services.BoardService;
 
 import java.util.ArrayList;
 import java.util.Arrays;

@@ -1,17 +1,13 @@
 package models;
 
-import exception.GameErrorCode;
-import models.base.PlayerState;
-import services.BoardService;
 import exception.GameException;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import models.base.PlayerColor;
+import models.base.PlayerState;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
-import java.io.IOException;
-import java.net.Socket;
 import java.util.concurrent.Delayed;
 import java.util.concurrent.TimeUnit;
 
@@ -19,17 +15,17 @@ import java.util.concurrent.TimeUnit;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Player implements Delayed {
-    private long id;
+    private int id;
     private PlayerState state;
     protected PlayerColor color;
     protected ClientConnection connection;
 
-    public Player(final long id) {
+    public Player(final int id) {
         this.id = id;
         state = PlayerState.NONE;
     }
 
-    public Player(final long id, final PlayerColor color) {
+    public Player(final int id, final PlayerColor color) {
         this(id);
         this.color = color;
     }
