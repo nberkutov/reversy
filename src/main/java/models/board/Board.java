@@ -7,7 +7,10 @@ import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 import models.base.Cell;
 
-import java.util.*;
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Стандартная игровая доска. с двумя черными и двумя белыми фишками в середине.
@@ -15,7 +18,7 @@ import java.util.*;
 @Data
 @Slf4j
 @EqualsAndHashCode
-public class Board {
+public class Board implements Serializable {
     public static final int BOARD_SIZE = 8;
 
     private final Map<Cell, String> tiles;
@@ -53,6 +56,7 @@ public class Board {
     /**
      * Возвращает одно из трех состояний клетки игровой доски:
      * BLACK, WHITE, EMPTY.
+     *
      * @throws GameException
      */
     public Cell getCell(final int x, final int y) throws GameException {
@@ -62,6 +66,7 @@ public class Board {
     /**
      * Возвращает одно из трех состояний клетки игровой доски:
      * BLACK, WHITE, EMPTY.
+     *
      * @throws GameException
      */
     public Cell getCell(final Point point) throws GameException {
@@ -140,6 +145,7 @@ public class Board {
     /**
      * Меняет фишку доски в позиции point на противоположную.
      * Если в клетке была пустая фишка, то выбрасывает GameException.
+     *
      * @param point позиция
      * @throws GameException
      */
@@ -158,6 +164,7 @@ public class Board {
 
     /**
      * Переворачивает все фишки, переданные на вход функции.
+     *
      * @param points массив позиций доски для переворота.
      * @throws GameException
      */
@@ -196,7 +203,7 @@ public class Board {
     }
 
     /**
-     * @return  Возвращает представление игровой доски в виде строки.
+     * @return Возвращает представление игровой доски в виде строки.
      * @throws GameException
      */
     public String getVisualString() throws GameException {

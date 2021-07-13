@@ -25,6 +25,7 @@ public class GameSearcher extends Thread {
             try {
                 Player first = waiting.take();
                 Player second = waiting.take();
+                log.debug("GameSearcher {}, {}", first, second);
                 if (!PlayerService.isCanPlay(first)) {
                     waiting.put(second);
                     PlayerService.setPlayerStateNone(first);

@@ -51,6 +51,7 @@ public class GameService extends BaseService {
                 break;
         }
         if (isGameEnd(game)) {
+            log.debug("GameEnd {} \n{}", game, game.getBoard().getVisualString());
             game.setState(GameState.END);
             PlayerService.setPlayerStateNone(game.getBlackPlayer());
             PlayerService.setPlayerStateNone(game.getWhitePlayer());

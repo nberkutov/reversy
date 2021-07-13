@@ -1,11 +1,15 @@
 package dto.response;
 
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
+import models.base.GameState;
 import models.board.Board;
 import models.game.Game;
-import models.base.GameState;
 
+@Getter
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 public class GameBoardResponse extends GameResponse {

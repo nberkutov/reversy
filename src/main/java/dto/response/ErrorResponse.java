@@ -1,15 +1,16 @@
 package dto.response;
 
-import controllers.commands.CommandResponse;
 import exception.GameErrorCode;
 import exception.GameException;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
+@Getter
+@ToString
 public class ErrorResponse extends GameResponse {
     private GameErrorCode errorCode;
     private String message;

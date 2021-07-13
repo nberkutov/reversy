@@ -64,7 +64,7 @@ public enum CommandResponse {
     }
 
     public static GameResponse getResponseFromJson(String msg) throws GameException {
-        String[] splits = msg.split(" ", 2);
+        String[] splits = msg.split(" ");
         for (final CommandResponse commandResponse : values()) {
             if (commandResponse.equalCommand(splits[0])) {
                 String json = msg.substring(splits[0].length() + 1);

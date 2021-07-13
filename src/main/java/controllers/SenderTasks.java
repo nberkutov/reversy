@@ -5,7 +5,6 @@ import dto.response.TaskResponse;
 import exception.GameException;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -25,7 +24,7 @@ public class SenderTasks extends Thread {
         while (true) {
             try {
                 TaskResponse task = responses.take();
-                log.debug("Server send response {}", task.getResponse());
+//                log.debug("Server send response {}", task.getResponse());
                 task.sendJson();
             } catch (IOException | InterruptedException | GameException e) {
                 log.error("Error senderTask", e);

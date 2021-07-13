@@ -1,5 +1,7 @@
 package models.base;
 
-public enum PlayerColor {
-    WHITE, BLACK
+import java.io.Serializable;
+
+public enum PlayerColor implements Serializable {
+    WHITE, BLACK;
 }

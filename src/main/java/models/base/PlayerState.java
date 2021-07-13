@@ -1,5 +1,7 @@
 package models.base;
 
-public enum PlayerState {
+import java.io.Serializable;
+
+public enum PlayerState implements Serializable {
     SEARCH_GAME, PLAYING, NONE
 }

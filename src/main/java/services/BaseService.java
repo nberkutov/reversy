@@ -1,13 +1,14 @@
 package services;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import dto.request.player.GameRequest;
 import exception.GameErrorCode;
 import exception.GameException;
 import lombok.extern.slf4j.Slf4j;
+import models.board.Point;
 import models.game.Game;
 import models.player.Player;
-import models.board.Point;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -23,7 +24,9 @@ public class BaseService {
     protected static int playerIncrement = 0;
     protected static final Map<Integer, Player> players = new ConcurrentHashMap<>();
     //BD ---
-    public static final Gson GSON = new Gson();
+    public static final Gson GSON = new GsonBuilder()
+            .enableComplexMapKeySerialization()
+            .create();
 
 
     protected static synchronized int getPlayerId() {

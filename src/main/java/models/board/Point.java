@@ -3,15 +3,13 @@ package models.board;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.io.Serializable;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Point {
+public class Point implements Serializable {
     private int x;
     private int y;
 
@@ -22,4 +20,5 @@ public class Point {
                 ", " + y +
                 ')';
     }
+
 }

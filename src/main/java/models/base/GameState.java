@@ -1,5 +1,7 @@
 package models.base;
 
-public enum GameState {
+import java.io.Serializable;
+
+public enum GameState implements Serializable {
     BLACK, WHITE, END
 }
