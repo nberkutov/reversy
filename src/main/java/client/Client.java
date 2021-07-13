@@ -25,18 +25,18 @@ import java.net.Socket;
 
 public class Client implements Runnable {
     private static Gson gson = new Gson();
-    private long idPlayer;
+    private long playerId;
     private final ClientConnection connection;
 
     public Client(final String ip, final int port) throws IOException {
         this(new Socket(ip, port));
     }
 
-    public Client(Socket socket) throws IOException {
+    public Client(final Socket socket) throws IOException {
         this(new ClientConnection(socket));
     }
 
-    public Client(ClientConnection connection) {
+    public Client(final ClientConnection connection) {
         this.connection = connection;
     }
 
@@ -66,66 +66,65 @@ public class Client implements Runnable {
         }
     }
 
-    private void actionByResponseFromServer(GameResponse absctractResponse) throws GameException {
-        log.debug("GetResponse {}", absctractResponse);
-        switch (CommandResponse.getCommandByResponse(absctractResponse)) {
+    private void actionByResponseFromServer(final GameResponse gameResponse) throws GameException {
+        log.debug("GetResponse {}", gameResponse);
+        switch (CommandResponse.getCommandByResponse(gameResponse)) {
             case ERROR:
-                ErrorResponse error = (ErrorResponse) absctractResponse;
+                ErrorResponse error = (ErrorResponse) gameResponse;
                 actionError(error);
                 break;
             case GAME_PLAYING:
-                GameBoardResponse response = (GameBoardResponse) absctractResponse;
+                GameBoardResponse response = (GameBoardResponse) gameResponse;
                 actionPlaying(response);
                 break;
             case CREATE_PLAYER:
-                CreatePlayerResponse createPlayer = (CreatePlayerResponse) absctractResponse;
+                CreatePlayerResponse createPlayer = (CreatePlayerResponse) gameResponse;
                 actionCreatePlayer(createPlayer);
                 break;
             case GAME_START:
-                CreateGameResponse createGame = (CreateGameResponse) absctractResponse;
+                CreateGameResponse createGame = (CreateGameResponse) gameResponse;
                 actionStartGame(createGame);
                 break;
             case MESSAGE:
-                MessageResponse message = (MessageResponse) absctractResponse;
+                MessageResponse message = (MessageResponse) gameResponse;
                 actionMessage(message);
                 break;
             default:
-                log.error("Unknown response {}", absctractResponse);
+                log.error("Unknown response {}", gameResponse);
         }
     }
 
-    private void actionMessage(MessageResponse message) {
+    private void actionMessage(final MessageResponse message) {
 
     }
 
-    private void actionError(ErrorResponse response) {
+    private void actionError(final ErrorResponse response) {
 
     }
 
-    private void actionPlaying(GameBoardResponse response) {
+    private void actionPlaying(final GameBoardResponse response) {
 
     }
 
-    private void actionCreatePlayer(CreatePlayerResponse response) {
+    private void actionCreatePlayer(final CreatePlayerResponse response) {
 
     }
 
-    private void actionStartGame(CreateGameResponse response) {
+    private void actionStartGame(final CreateGameResponse response) {
 
     }
 
-    private static void sendRequest(ClientConnection server, GameRequest request) throws IOException, GameException {
+    private static void sendRequest(final ClientConnection server, final GameRequest request) throws IOException, GameException {
         if (server.isConnected()) {
             server.send(CommandRequest.toJsonParser(request));
         }
     }
 
-    private static GameResponse getRequest(ClientConnection server) throws GameException, IOException {
+    private static GameResponse getRequest(final ClientConnection server) throws GameException, IOException {
         if (!server.isConnected()) {
             throw new GameException(GameErrorCode.CONNECTION_LOST);
         }
         String msg = server.getIn().readUTF();
-        GameResponse response = CommandResponse.getResponseFromJson(msg);
-        return response;
+        return CommandResponse.getResponseFromJson(msg);
     }
 }

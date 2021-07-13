@@ -11,22 +11,22 @@ import models.base.PlayerState;
 @Slf4j
 public class GameService extends BaseService {
 
-    public static Game createGame(Player first, Player second) {
-        int idGame = getGameId();
-        Game game = new Game(idGame, first, second);
-        games.putIfAbsent(idGame, game);
+    public static Game createGame(final Player first, final Player second) {
+        int gameId = getGameId();
+        Game game = new Game(gameId, first, second);
+        games.putIfAbsent(gameId, game);
         first.setState(PlayerState.PLAYING);
         second.setState(PlayerState.PLAYING);
         return game;
     }
 
-    public static Game moveFromPlayer(MovePlayerRequest movePlayer) throws GameException {
-        Player player = PlayerService.getPlayerById(movePlayer.getIdPlayer());
-        Game game = GameService.getGameById(movePlayer.getIdGame());
-        return moveFromPlayer(game, movePlayer.getPoint(), player);
+    public static Game makePlayerMove(final MovePlayerRequest movePlayer) throws GameException {
+        Player player = PlayerService.getPlayerById(movePlayer.getPlayerId());
+        Game game = GameService.getGameById(movePlayer.getGameId());
+        return makePlayerMove(game, movePlayer.getPoint(), player);
     }
 
-    public static Game moveFromPlayer(Game game, Point point, Player player) throws GameException {
+    public static Game makePlayerMove(final Game game, final Point point, final Player player) throws GameException {
         checkPlayerConnection(player);
         checkGameEnd(game);
         checkValidCanPlayerMove(game, player);
@@ -49,8 +49,8 @@ public class GameService extends BaseService {
         return game;
     }
 
-    public static Game getGameById(int idGame) throws GameException {
-        Game game = games.get(idGame);
+    public static Game getGameById(final int gameId) throws GameException {
+        Game game = games.get(gameId);
         if (game == null) {
             throw new GameException(GameErrorCode.GAME_NOT_FOUND);
         }
@@ -102,7 +102,7 @@ public class GameService extends BaseService {
      * @param game - Игра
      * @return boolean
      */
-    public static GameResult getResultGame(final Game game) throws GameException {
+    public static GameResult getGameResult(final Game game) throws GameException {
         if (game.getState() != GameState.END) {
             throw new GameException(GameErrorCode.GAME_NOT_FINISHED);
         }
@@ -118,20 +118,19 @@ public class GameService extends BaseService {
         }
     }
 
-    private static void checkGameEnd(Game game) throws GameException {
+    private static void checkGameEnd(final Game game) throws GameException {
         if (game.isFinished()) {
             throw new GameException(GameErrorCode.INVALID_REQUEST);
         }
     }
 
-    private static void checkValidCanPlayerMove(Game game, Player player) throws GameException {
-        if ((game.getState() == GameState.BLACK
-                &&
-                game.getBlackPlayer().equals(player))
-                ||
-                (game.getState() == GameState.WHITE
-                        &&
-                        game.getWhitePlayer().equals(player))) {
+    private static void checkValidCanPlayerMove(final Game game, final Player player) throws GameException {
+        if (
+                (game.getState() == GameState.BLACK
+                && game.getBlackPlayer().equals(player))
+                || (game.getState() == GameState.WHITE
+                        && game.getWhitePlayer().equals(player))
+        ) {
             return;
         }
         throw new GameException(GameErrorCode.INVALID_REQUEST);

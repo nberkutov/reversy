@@ -15,7 +15,7 @@ import static services.BaseService.GSON;
 public class CreatePlayerResponse extends GameResponse {
     private long id;
 
-    public static CreatePlayerResponse toDto(Player player) {
+    public static CreatePlayerResponse toDto(final Player player) {
         return new CreatePlayerResponse(player.getId());
     }
 

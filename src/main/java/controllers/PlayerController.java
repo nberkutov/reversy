@@ -29,15 +29,13 @@ public class PlayerController extends Thread {
                 TaskRequest request = TaskRequest.getTaskRequest(connection);
                 requests.add(request);
             } catch (GameException | IOException e) {
-                if (connection != null) {
-                    connection.close();
-                    this.interrupt();
-                }
+                connection.close();
+                this.interrupt();
             }
         }
     }
 
-    public static void initPlayerController(ClientConnection connection, BlockingQueue<TaskRequest> requests){
+    public static void initPlayerController(ClientConnection connection, BlockingQueue<TaskRequest> requests) {
         PlayerController controller = new PlayerController(connection, requests);
         controller.start();
     }

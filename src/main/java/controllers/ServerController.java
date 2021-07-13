@@ -31,11 +31,12 @@ public class ServerController {
         gameSearcher.start();
     }
 
-    public void addTaskResponse(ClientConnection connection, GameResponse response) throws InterruptedException {
+    public void addTaskResponse(final ClientConnection connection, final GameResponse response)
+            throws InterruptedException {
         responses.put(new TaskResponse(connection, response));
     }
 
-    public void createControllerForPlayer(Socket socket) {
+    public void createControllerForPlayer(final Socket socket) {
         try {
             ClientConnection connection = new ClientConnection(socket);
             motdForPlayer(connection);
@@ -46,7 +47,7 @@ public class ServerController {
 
     }
 
-    private void motdForPlayer(ClientConnection connection) throws InterruptedException {
+    private void motdForPlayer(final ClientConnection connection) throws InterruptedException {
         addTaskResponse(connection, new MessageResponse("Welcome to our server"));
         addTaskResponse(connection, new MessageResponse("Whats you name?"));
     }

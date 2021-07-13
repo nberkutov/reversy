@@ -20,15 +20,15 @@ class BoardServiceTest {
     @Test
     void testGetCellInAllDirection() throws GameException {
         String s = ""
-                + "00000000"
-                + "000wb000"
-                + "000bww00"
-                + "000wbb00"
-                + "0000bb00"
-                + "0000b000"
-                + "00000000"
-                + "00000000";
-        Board board = BoardUtilsTest.parserBoardByString(s);
+                + "0 0 0 0 0 0 0 0"
+                + "0 0 0 w b 0 0 0"
+                + "0 0 0 b w w 0 0"
+                + "0 0 0 w b b 0 0"
+                + "0 0 0 0 b b 0 0"
+                + "0 0 0 0 b 0 0 0"
+                + "0 0 0 0 0 0 0 0"
+                + "0 0 0 0 0 0 0 0";
+        Board board = BoardUtilsTest.parse(s);
 
 
         List<Point> result = BoardService.getCellInAllDirection(board, new Point(4, 6), Cell.WHITE);
@@ -45,59 +45,59 @@ class BoardServiceTest {
     @Test
     void testMove() throws GameException {
         String before = ""
-                + "0bbbbbbw"
-                + "bbbbbbbb"
-                + "bbbbbbbb"
-                + "bbbbbbbb"
-                + "bbbbbbbb"
-                + "bbbbbbbb"
-                + "bbbbbbbb"
-                + "wbbbbbbw";
-        Board a = BoardUtilsTest.parserBoardByString(before);
+                + "0 b b b b b b w"
+                + "b b b b b b b b"
+                + "b b b b b b b b"
+                + "b b b b b b b b"
+                + "b b b b b b b b"
+                + "b b b b b b b b"
+                + "b b b b b b b b"
+                + "w b b b b b b w";
+        Board a = BoardUtilsTest.parse(before);
         BoardService.makeMove(a, new Point(0, 0), Cell.WHITE);
         String after = ""
-                + "wwwwwwww"
-                + "wwbbbbbb"
-                + "wbwbbbbb"
-                + "wbbwbbbb"
-                + "wbbbwbbb"
-                + "wbbbbwbb"
-                + "wbbbbbwb"
-                + "wbbbbbbw";
-        Board b = BoardUtilsTest.parserBoardByString(after);
+                + "w w w w w w w w"
+                + "w w b b b b b b"
+                + "w b w b b b b b"
+                + "w b b w b b b b"
+                + "w b b b w b b b"
+                + "w b b b b w b b"
+                + "w b b b b b w b"
+                + "w b b b b b b w";
+        Board b = BoardUtilsTest.parse(after);
         assertEquals(a, b);
     }
 
     @Test
     void testMove2() throws GameException {
         String before = ""
-                + "wbbbwbbw"
-                + "bbbbbbbb"
-                + "bbbbbbbb"
-                + "bbbbbbbb"
-                + "bbbb0bbb"
-                + "bbbbbbbb"
-                + "bbbbbbbb"
-                + "wbbbwbbw";
-        Board a = BoardUtilsTest.parserBoardByString(before);
+                + "w b b b w b b w"
+                + "b b b b b b b b"
+                + "b b b b b b b b"
+                + "b b b b b b b b"
+                + "b b b b 0 b b b"
+                + "b b b b b b b b"
+                + "b b b b b b b b"
+                + "w b b b w b b w";
+        Board a = BoardUtilsTest.parse(before);
 
         BoardService.makeMove(a, new Point(4, 4), Cell.WHITE);
         String after = ""
-                + "wbbbwbbw"
-                + "bwbbwbbb"
-                + "bbwbwbbb"
-                + "bbbwwbbb"
-                + "bbbbwbbb"
-                + "bbbbwwbb"
-                + "bbbbwbwb"
-                + "wbbbwbbw";
-        Board b = BoardUtilsTest.parserBoardByString(after);
+                + "w b b b w b b w"
+                + "b w b b w b b b"
+                + "b b w b w b b b"
+                + "b b b w w b b b"
+                + "b b b b w b b b"
+                + "b b b b w w b b"
+                + "b b b b w b w b"
+                + "w b b b w b b w";
+        Board b = BoardUtilsTest.parse(after);
         assertEquals(a, b);
     }
 
     @Test
     void testGetAvailableMoves2() throws GameException {
-        String s = ""
+        String boardStr = ""
                 + "00000000"
                 + "00000000"
                 + "00bbb000"
@@ -106,24 +106,24 @@ class BoardServiceTest {
                 + "00000000"
                 + "00000000"
                 + "00000000";
-        Board board = BoardUtilsTest.parserBoardByString(s);
+        Board board = BoardUtilsTest.parse(boardStr);
 
-        assertEquals(BoardService.getAvailableMoves(board, Cell.WHITE).size(), 8);
+        assertEquals(8, BoardService.getAvailableMoves(board, Cell.WHITE).size());
         assertEquals(BoardService.getAvailableMoves(board, Cell.BLACK).size(), 0);
     }
 
     @Test
     void testGetAvailableMoves() throws GameException {
         String s = ""
-                + "00000000"
-                + "00000000"
-                + "00000000"
-                + "000wb000"
-                + "000bw000"
-                + "00000000"
-                + "00000000"
-                + "00000000";
-        Board board = BoardUtilsTest.parserBoardByString(s);
+                + "0 0 0 0 0 0 0 0"
+                + "0 0 0 0 0 0 0 0"
+                + "0 0 0 0 0 0 0 0"
+                + "0 0 0 w b 0 0 0"
+                + "0 0 0 b w 0 0 0"
+                + "0 0 0 0 0 0 0 0"
+                + "0 0 0 0 0 0 0 0"
+                + "0 0 0 0 0 0 0 0";
+        Board board = BoardUtilsTest.parse(s);
 
         List<Point> points = BoardService.getAvailableMoves(board, Cell.WHITE);
         assertEquals(points.size(), 4);
@@ -135,16 +135,16 @@ class BoardServiceTest {
 
     @Test
     void testIsPossibleMove() throws GameException {
-        String s = ""
-                + "00000000"
-                + "00000000"
-                + "00000000"
-                + "000wb000"
-                + "000bw000"
-                + "00000000"
-                + "00000000"
-                + "00000000";
-        Board board =  BoardUtilsTest.parserBoardByString(s);
+        String boardStr = ""
+                + "0 0 0 0 0 0 0 0"
+                + "0 0 0 0 0 0 0 0"
+                + "0 0 0 0 0 0 0 0"
+                + "0 0 0 w b 0 0 0"
+                + "0 0 0 b w 0 0 0"
+                + "0 0 0 0 0 0 0 0"
+                + "0 0 0 0 0 0 0 0"
+                + "0 0 0 0 0 0 0 0";
+        Board board =  BoardUtilsTest.parse(boardStr);
 
         Player player = new Player();
         player.setColor(PlayerColor.WHITE);
@@ -153,15 +153,15 @@ class BoardServiceTest {
         assertTrue(BoardService.hasPossibleMove(board, player));
 
         String two = ""
-                + "00000000"
-                + "00000000"
-                + "00000000"
-                + "00000000"
-                + "00000000"
-                + "00000000"
-                + "00000000"
-                + "00000000";
-        Board bs = BoardUtilsTest.parserBoardByString(two);
+                + "0 0 0 0 0 0 0 0"
+                + "0 0 0 0 0 0 0 0"
+                + "0 0 0 0 0 0 0 0"
+                + "0 0 0 0 0 0 0 0"
+                + "0 0 0 0 0 0 0 0"
+                + "0 0 0 0 0 0 0 0"
+                + "0 0 0 0 0 0 0 0"
+                + "0 0 0 0 0 0 0 0";
+        Board bs = BoardUtilsTest.parse(two);
         assertFalse(BoardService.hasPossibleMove(bs, player));
         player.setColor(PlayerColor.WHITE);
         assertFalse(BoardService.hasPossibleMove(bs, player));
@@ -224,15 +224,15 @@ class BoardServiceTest {
     @Test
     void testMoveException() throws GameException {
         String before = ""
-                + "00000000"
-                + "0wb00000"
-                + "0bw00000"
-                + "00000000"
-                + "00000000"
-                + "00000000"
-                + "00000000"
-                + "00000000";
-        Board board = BoardUtilsTest.parserBoardByString(before);
+                + "0 0 0 0 0 0 0 0"
+                + "0 w b 0 0 0 0 0"
+                + "0 b w 0 0 0 0 0"
+                + "0 0 0 0 0 0 0 0"
+                + "0 0 0 0 0 0 0 0"
+                + "0 0 0 0 0 0 0 0"
+                + "0 0 0 0 0 0 0 0"
+                + "0 0 0 0 0 0 0 0";
+        Board board = BoardUtilsTest.parse(before);
 
         try {
             BoardService.makeMove(board, new Point(1, 7), Cell.WHITE);
@@ -241,13 +241,12 @@ class BoardServiceTest {
             assertEquals(e.getErrorCode(), GameErrorCode.INVALID_MOVE);
         }
 
-        assertEquals(board, BoardUtilsTest.parserBoardByString(before));
+        assertEquals(board, BoardUtilsTest.parse(before));
     }
 
     @Test
     void testGetAvailableMovesException() {
         Board board = new Board();
-
 
         try {
             BoardService.getAvailableMoves(board, (Cell) null);
@@ -267,6 +266,11 @@ class BoardServiceTest {
         } catch (GameException e) {
             assertEquals(e.getErrorCode(), GameErrorCode.INVALID_PLAYER_COLOR);
         }
+    }
+
+    @Test
+    void testGameEnd() {
+
     }
 
 }

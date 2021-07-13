@@ -29,6 +29,6 @@ public class SelfPlay {
         }
 
         log.debug("DEBUG finish \n{}", game.getResult().getBoard().getVisualString());
-        return GameService.getResultGame(game);
+        return GameService.getGameResult(game);
     }
 }

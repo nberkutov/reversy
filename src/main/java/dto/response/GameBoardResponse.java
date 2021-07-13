@@ -22,7 +22,7 @@ public class GameBoardResponse extends GameResponse {
     private GameState state;
     private Board board;
 
-    public static GameBoardResponse toDto(Game game) {
+    public static GameBoardResponse toDto(final Game game) {
         return new GameBoardResponse(game.getState(), game.getBoard());
     }
 }

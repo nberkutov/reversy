@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class RandomBotTest {
 
     @Test
-    public void testGame() throws GameException {
+    public void testGame() throws GameException, InterruptedException {
         RandomBot bot1 = new RandomBot(0);
         RandomBot bot2 = new RandomBot(1);
         SelfPlay selfPlay = new SelfPlay(bot1,bot2);
@@ -18,13 +18,12 @@ class RandomBotTest {
     }
 
     void test10kGames() throws GameException {
-        for (int i = 0; i < 10000; i++) {
+        for (int i = 3000; i < 6000; i++) {
             RandomBot bot1 = new RandomBot(0);
             RandomBot bot2 = new RandomBot(1);
             SelfPlay selfPlay = new SelfPlay(bot1,bot2);
             selfPlay.play();
             System.out.println(i);
         }
-
     }
 }

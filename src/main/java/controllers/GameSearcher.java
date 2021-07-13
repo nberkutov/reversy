@@ -39,32 +39,30 @@ public class GameSearcher extends Thread {
                     continue;
                 }
                 linkPlayers(first, second);
-
-
             } catch (InterruptedException | GameException e) {
                 e.printStackTrace();
             }
         }
     }
 
-    private void linkPlayers(Player first, Player second) throws InterruptedException {
+    private void linkPlayers(final Player first, final Player second) throws InterruptedException {
         Game game = GameService.createGame(first, second);
 
         sendInfoAboutGame(game, game.getBlackPlayer());
         sendInfoAboutGame(game, game.getWhitePlayer());
     }
 
-    private void sendInfoAboutGame(Game game, Player player) throws InterruptedException {
+    private void sendInfoAboutGame(final Game game, final Player player) throws InterruptedException {
         addTaskResponse(player, CreateGameResponse.toDto(game, player));
         addTaskResponse(player, GameBoardResponse.toDto(game));
     }
 
-    public void addTaskResponse(Player player, GameResponse response) throws InterruptedException {
+    public void addTaskResponse(final Player player, final GameResponse response) throws InterruptedException {
         addTaskResponse(player.getConnection(), response);
     }
 
-    private void addTaskResponse(ClientConnection connection, GameResponse response) throws InterruptedException {
+    private void addTaskResponse(final ClientConnection connection, final GameResponse response)
+            throws InterruptedException {
         responses.put(new TaskResponse(connection, response));
     }
-
 }

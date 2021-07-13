@@ -23,11 +23,10 @@ import static services.BaseService.GSON;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TaskRequest implements Delayed {
-
     private ClientConnection client;
     private GameRequest request;
 
-    public TaskRequest(ClientConnection client) {
+    public TaskRequest(final ClientConnection client) {
         this.client = client;
     }
 
@@ -38,7 +37,6 @@ public class TaskRequest implements Delayed {
         }
         String msg = client.getIn().readUTF();
         GameRequest request = CommandRequest.getRequestFromJson(msg);
-
         return new TaskRequest(client, request);
     }
 
