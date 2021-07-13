@@ -44,6 +44,8 @@ public class GameService extends BaseService {
         }
         if (GameService.isGameEnd(game)) {
             game.setState(GameState.END);
+            PlayerService.setNoneStatePlayer(game.getBlackPlayer());
+            PlayerService.setNoneStatePlayer(game.getWhitePlayer());
         }
         return game;
     }
