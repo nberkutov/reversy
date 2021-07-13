@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
 @AllArgsConstructor
+@Data
 public class ErrorResponse extends GameResponse {
     private GameErrorCode errorCode;
     private String message;

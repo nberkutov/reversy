@@ -22,7 +22,6 @@ import java.net.Socket;
 
 @Slf4j
 @Data
-
 public class Client implements Runnable {
     private static Gson gson = new Gson();
     private long playerId;
@@ -44,18 +43,18 @@ public class Client implements Runnable {
     @Override
     public void run() {
         log.debug("Debug connect {}", connection);
-//        new Thread(new Runnable() {
-//            @SneakyThrows
-//            @Override
-//            public void run() {
-//                Thread.sleep(1000);
-//                sendRequest(connection, new CreatePlayerRequest("Test"));
-//                Thread.sleep(1000);
-//                sendRequest(connection, new WantPlayRequest(0));
-//                Thread.sleep(1000);
-//                sendRequest(connection, new MovePlayerRequest(0, 0, new Point(1, 1)));
-//            }
-//        }).start();
+        new Thread(new Runnable() {
+            @SneakyThrows
+            @Override
+            public void run() {
+                Thread.sleep(1000);
+                sendRequest(connection, new CreatePlayerRequest("Test"));
+                Thread.sleep(1000);
+                sendRequest(connection, new WantPlayRequest(0));
+                Thread.sleep(1000);
+                sendRequest(connection, new MovePlayerRequest(0, 0, new Point(1, 1)));
+            }
+        }).start();
         try {
             while (connection.isConnected()) {
                 GameResponse response = getRequest(connection);
@@ -99,7 +98,7 @@ public class Client implements Runnable {
     }
 
     private void actionError(final ErrorResponse response) {
-
+        System.out.println(response.getMessage());
     }
 
     private void actionPlaying(final GameBoardResponse response) {
