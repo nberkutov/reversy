@@ -19,7 +19,7 @@ public class TaskResponse implements Delayed {
     private ClientConnection client;
     private GameResponse response;
 
-    public TaskResponse(ClientConnection client, GameResponse response) {
+    public TaskResponse(final ClientConnection client, final GameResponse response) {
         this.client = client;
         this.response = response;
     }

@@ -14,7 +14,7 @@ public class SelfPlay {
     private final Player second;
     private final Game game;
 
-    public SelfPlay(Player first, Player second) throws GameException {
+    public SelfPlay(final Player first, final Player second) {
         this.first = first;
         this.second = second;
         Board board = new Board();

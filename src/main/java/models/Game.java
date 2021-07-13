@@ -21,7 +21,7 @@ public class Game {
     private GameState state;
     private GameResult result;
 
-    public Game(int id, Player first, Player second) {
+    public Game(final int id, final Player first, final Player second) {
         this(first, second);
         this.id = id;
     }

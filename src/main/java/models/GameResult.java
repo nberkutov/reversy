@@ -10,8 +10,8 @@ import models.base.GameResultState;
 @EqualsAndHashCode
 public class GameResult {
     private final Board board;
-    private GameResultState resultState;
-    private Player winner;
+    private final GameResultState resultState;
+    private final Player winner;
 
     public GameResult(final Board board, final GameResultState resultState, final Player winner) {
         this.resultState = resultState;

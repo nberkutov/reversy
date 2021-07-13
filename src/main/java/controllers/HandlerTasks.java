@@ -59,7 +59,7 @@ public class HandlerTasks extends Thread {
     public void actionWantPlay(final WantPlayRequest wantPlay, final ClientConnection connection) throws InterruptedException {
         log.debug("action wantPlay {}", wantPlay);
         try {
-            Player player = PlayerService.isPlayerCanSearchGame(wantPlay);
+            Player player = PlayerService.canPlayerSearchGame(wantPlay);
             waiting.put(player);
             addTaskResponse(player, new MessageResponse("Search game"));
         } catch (GameException e) {

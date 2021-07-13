@@ -10,7 +10,7 @@ import models.base.PlayerState;
 
 public class PlayerService extends BaseService {
 
-    public static Player createPlayer(CreatePlayerRequest createPlayerRequest, ClientConnection connection) {
+    public static Player createPlayer(final CreatePlayerRequest createPlayerRequest, final ClientConnection connection) {
         int id = getPlayerId();
         Player player = new Player(id);
         players.putIfAbsent(id, player);
@@ -18,7 +18,7 @@ public class PlayerService extends BaseService {
         return player;
     }
 
-    public static Player getPlayerById(int id) throws GameException {
+    public static Player getPlayerById(final int id) throws GameException {
         Player player = players.get(id);
         if (player == null) {
             throw new GameException(GameErrorCode.PLAYER_NOT_FOUND);
@@ -26,18 +26,18 @@ public class PlayerService extends BaseService {
         return player;
     }
 
-    public static boolean isCanPlay(Player player) {
+    public static boolean canPlay(final Player player) {
         return player.getConnection() != null
                 && player.getConnection().isConnected();
     }
 
-    public static void setNoneStatePlayer(Player player) throws GameException {
-        checkPlayer(player);
+    public static void setPlayerSateNone(final Player player) throws GameException {
+        playerIsNotNull(player);
         player.setState(PlayerState.NONE);
     }
 
 
-    public static Player isPlayerCanSearchGame(WantPlayRequest wantPlay) throws GameException {
+    public static Player canPlayerSearchGame(final WantPlayRequest wantPlay) throws GameException {
         Player player = PlayerService.getPlayerById(wantPlay.getId());
         checkPlayerConnection(player);
         checkPlayerCanFindGame(player);
@@ -46,11 +46,9 @@ public class PlayerService extends BaseService {
     }
 
 
-    private static void checkPlayerCanFindGame(Player player) throws GameException {
+    private static void checkPlayerCanFindGame(final Player player) throws GameException {
         if (player.getState() == PlayerState.PLAYING || player.getState() == PlayerState.SEARCH_GAME) {
             throw new GameException(GameErrorCode.PLAYER_CANNOT_FIND_GAME);
         }
     }
-
-
 }

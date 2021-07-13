@@ -39,7 +39,7 @@ public class BaseService {
      *
      * @param game - класс игры
      */
-    protected static void checkGame(final Game game) throws GameException {
+    protected static void gameIsNotNull(final Game game) throws GameException {
         if (game == null) {
             throw new GameException(GameErrorCode.GAME_NOT_FOUND);
         }
@@ -51,7 +51,7 @@ public class BaseService {
      *
      * @param player - класс игрока
      */
-    protected static void checkPlayer(final Player player) throws GameException {
+    protected static void playerIsNotNull(final Player player) throws GameException {
         if (player == null) {
             throw new GameException(GameErrorCode.PLAYER_NOT_FOUND);
         }
@@ -63,7 +63,7 @@ public class BaseService {
      *
      * @param point - игровое поле
      */
-    protected static void checkPoint(Point point) throws GameException {
+    protected static void checkPointIsInside(final Point point) throws GameException {
         if (point != null
                 && point.getX() >= 0
                 && point.getY() >= 0
@@ -75,7 +75,7 @@ public class BaseService {
         throw new GameException(GameErrorCode.BAD_POINT);
     }
 
-    protected static void checkPlayerConnection(Player player) throws GameException {
+    protected static void checkPlayerConnection(final Player player) throws GameException {
         if (player.getConnection() == null || !player.getConnection().isConnected()) {
             throw new GameException(GameErrorCode.CONNECTION_LOST);
         }

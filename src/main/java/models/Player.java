@@ -24,17 +24,17 @@ public class Player implements Delayed {
     protected PlayerColor color;
     protected ClientConnection connection;
 
-    public Player(long id) {
+    public Player(final long id) {
         this.id = id;
         state = PlayerState.NONE;
     }
 
-    public Player(long id, PlayerColor color) {
+    public Player(final long id, final PlayerColor color) {
         this(id);
         this.color = color;
     }
 
-    public void initConnect(ClientConnection connection) {
+    public void initConnect(final ClientConnection connection) {
         this.connection = connection;
     }
 
@@ -45,17 +45,17 @@ public class Player implements Delayed {
         connection = null;
     }
 
-    public void nextMove(Game game) throws GameException {
+    public void nextMove(final Game game) throws GameException {
         throw new NotImplementedException();
     }
 
     @Override
-    public long getDelay(TimeUnit unit) {
+    public long getDelay(final TimeUnit unit) {
         return 0;
     }
 
     @Override
-    public int compareTo(Delayed o) {
+    public int compareTo(final Delayed object) {
         return 0;
     }
 }

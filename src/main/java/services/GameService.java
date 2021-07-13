@@ -10,7 +10,6 @@ import models.base.PlayerState;
 
 @Slf4j
 public class GameService extends BaseService {
-
     public static Game createGame(final Player first, final Player second) {
         int gameId = getGameId();
         Game game = new Game(gameId, first, second);
@@ -43,7 +42,7 @@ public class GameService extends BaseService {
                 }
                 break;
         }
-        if (GameService.isEndGame(game)) {
+        if (GameService.isGameEnd(game)) {
             game.setState(GameState.END);
         }
         return game;
@@ -79,7 +78,7 @@ public class GameService extends BaseService {
             case END:
                 break;
         }
-        if (GameService.isEndGame(game)) {
+        if (GameService.isGameEnd(game)) {
             game.setState(GameState.END);
         }
     }
@@ -90,7 +89,7 @@ public class GameService extends BaseService {
      * @param game - Игра
      * @return boolean
      */
-    public static boolean isEndGame(final Game game) throws GameException {
+    public static boolean isGameEnd(final Game game) throws GameException {
         return BoardService.getCountEmpty(game.getBoard()) == 0 ||
                 (!BoardService.hasPossibleMove(game.getBoard(), game.getBlackPlayer())
                         && !BoardService.hasPossibleMove(game.getBoard(), game.getWhitePlayer()));
@@ -126,10 +125,8 @@ public class GameService extends BaseService {
 
     private static void checkValidCanPlayerMove(final Game game, final Player player) throws GameException {
         if (
-                (game.getState() == GameState.BLACK
-                && game.getBlackPlayer().equals(player))
-                || (game.getState() == GameState.WHITE
-                        && game.getWhitePlayer().equals(player))
+                (game.getState() == GameState.BLACK && game.getBlackPlayer().equals(player))
+                || (game.getState() == GameState.WHITE && game.getWhitePlayer().equals(player))
         ) {
             return;
         }
