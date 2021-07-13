@@ -16,8 +16,9 @@ import java.util.*;
 @Slf4j
 @EqualsAndHashCode
 public class Board {
-    private final Map<Cell, String> tiles;
     public static final int BOARD_SIZE = 8;
+
+    private final Map<Cell, String> tiles;
     private final Map<Point, Cell> cells;
     private int countBlackCells = 0;
     private int countWhiteCells = 0;
@@ -64,7 +65,7 @@ public class Board {
      * @throws GameException
      */
     public Cell getCell(final Point point) throws GameException {
-        checkPoint(point);
+        validatePoint(point);
         return cells.get(point);
     }
 
@@ -85,8 +86,8 @@ public class Board {
      * @throws GameException
      */
     public void setCell(final Point point, final Cell cell) throws GameException {
-        checkPoint(point);
-        checkCell(cell);
+        validatePoint(point);
+        checkCellIsNull(cell);
         Cell before = getCell(point);
         switch (before) {
             case EMPTY: {
@@ -169,15 +170,14 @@ public class Board {
         }
     }
 
-    //TODO: move func to Point
-    public void checkPoint(final Point point) throws GameException {
+    public void validatePoint(final Point point) throws GameException {
         if (!validate(point)) {
             log.error("Bad checkPoint {}", point, new GameException(GameErrorCode.BAD_POINT));
             throw new GameException(GameErrorCode.BAD_POINT);
         }
     }
 
-    public void checkCell(final Cell cell) throws GameException {
+    public void checkCellIsNull(final Cell cell) throws GameException {
         if (cell == null) {
             log.error("Bad checkCell", new GameException(GameErrorCode.INVALID_CELL));
             throw new GameException(GameErrorCode.INVALID_CELL);
