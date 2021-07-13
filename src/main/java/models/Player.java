@@ -1,5 +1,7 @@
 package models;
 
+import exception.GameErrorCode;
+import models.base.PlayerState;
 import services.BoardService;
 import exception.GameException;
 import lombok.AllArgsConstructor;
@@ -18,28 +20,29 @@ import java.util.concurrent.TimeUnit;
 @AllArgsConstructor
 public class Player implements Delayed {
     private long id;
+    private PlayerState state;
     protected PlayerColor color;
     protected ClientConnection connection;
 
     public Player(long id) {
         this.id = id;
+        state = PlayerState.NONE;
     }
 
     public Player(long id, PlayerColor color) {
-        this.id = id;
+        this(id);
         this.color = color;
-    }
-
-    public void initConnect(Socket socket) throws IOException {
-        if (connection != null) {
-            connection.close();
-        }
-
-        initConnect(new ClientConnection(socket));
     }
 
     public void initConnect(ClientConnection connection) {
         this.connection = connection;
+    }
+
+    public void closeConnect() {
+        if (connection != null) {
+            connection.close();
+        }
+        connection = null;
     }
 
     public void nextMove(Game game) throws GameException {

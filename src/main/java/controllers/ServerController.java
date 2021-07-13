@@ -29,20 +29,18 @@ import java.util.concurrent.DelayQueue;
 public class ServerController {
     private final BlockingQueue<TaskRequest> requests;
     private final BlockingQueue<TaskResponse> responses;
-
-    private final BlockingQueue<Player> waiting = new DelayQueue<>();
+    private final BlockingQueue<Player> waiting;
 
     public ServerController() {
         requests = new DelayQueue<>();
         responses = new DelayQueue<>();
-        HandlerTasks handlerTasks = new HandlerTasks(requests, responses);
+        waiting = new DelayQueue<>();
+        HandlerTasks handlerTasks = new HandlerTasks(requests, responses, waiting);
         SenderTasks senderTasks = new SenderTasks(requests, responses);
+        GameController gameController = new GameController(responses, waiting);
         handlerTasks.start();
         senderTasks.start();
-    }
-
-    public void addTaskResponse(Player player, GameResponse response) throws InterruptedException {
-        addTaskResponse(player.getConnection(), response);
+        gameController.start();
     }
 
     public void addTaskResponse(ClientConnection connection, GameResponse response) throws InterruptedException {

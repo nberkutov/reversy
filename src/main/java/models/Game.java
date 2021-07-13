@@ -13,12 +13,18 @@ import java.util.Random;
 @Slf4j
 @AllArgsConstructor
 public class Game {
+    private int id;
     private final Player blackPlayer;
     private final Player whitePlayer;
     private final Board board;
 
     private GameState state;
     private GameResult result;
+
+    public Game(int id, Player first, Player second) {
+        this(first, second);
+        this.id = id;
+    }
 
     public Game(final Player first, final Player second) {
         this(new Board(), first, second);

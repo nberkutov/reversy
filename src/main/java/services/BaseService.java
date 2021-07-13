@@ -19,23 +19,15 @@ public class BaseService {
     //BD ---
     public static final Gson GSON = new Gson();
 
-    protected static Game getGameById(int idGame) throws GameException {
-        Game game = games.get(idGame);
-        if (game == null) {
-            throw new GameException(GameErrorCode.GAME_NOT_FOUND);
-        }
-        return game;
-    }
 
-    protected static Player getPlayerById(int id) throws GameException {
-        Player player = players.get(id);
-        if (player == null) {
-            throw new GameException(GameErrorCode.GAME_NOT_FOUND);
-        }
-        return player;
-    }
+
+
 
     protected static synchronized int getPlayerId() {
         return playerIncrement++;
+    }
+
+    protected static synchronized int getGameId() {
+        return gameIncrement++;
     }
 }
