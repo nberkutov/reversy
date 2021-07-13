@@ -2,6 +2,7 @@ package exception;
 
 public enum GameErrorCode {
     POINTS_NOT_FOUND("Points not found"),
+    GAME_ENDED("The game is already completed"),
     GAME_NOT_FINISHED("Game is not finished yet."),
     BAD_POINT("Bad point."),
     CONNECTION_LOST("Connection lost"),

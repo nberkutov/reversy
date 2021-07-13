@@ -10,7 +10,10 @@ import models.base.PlayerState;
 
 @Slf4j
 public class GameService extends BaseService {
-    public static Game createGame(final Player first, final Player second) {
+
+    public static Game createGame(final Player first, final Player second) throws GameException {
+        playerIsNotNull(first);
+        playerIsNotNull(second);
         int gameId = getGameId();
         Game game = new Game(gameId, first, second);
         games.putIfAbsent(gameId, game);
@@ -20,13 +23,14 @@ public class GameService extends BaseService {
     }
 
     public static Game makePlayerMove(final MovePlayerRequest movePlayer) throws GameException {
+        checkRequestIsNull(movePlayer);
         Player player = PlayerService.getPlayerById(movePlayer.getPlayerId());
+        checkPlayerConnection(player);
         Game game = GameService.getGameById(movePlayer.getGameId());
         return makePlayerMove(game, movePlayer.getPoint(), player);
     }
 
     public static Game makePlayerMove(final Game game, final Point point, final Player player) throws GameException {
-        checkPlayerConnection(player);
         checkGameEnd(game);
         checkValidCanPlayerMove(game, player);
         BoardService.makeMove(game, point, player.getColor());
@@ -42,10 +46,10 @@ public class GameService extends BaseService {
                 }
                 break;
         }
-        if (GameService.isGameEnd(game)) {
+        if (isGameEnd(game)) {
             game.setState(GameState.END);
-            PlayerService.setNoneStatePlayer(game.getBlackPlayer());
-            PlayerService.setNoneStatePlayer(game.getWhitePlayer());
+            PlayerService.setPlayerStateNone(game.getBlackPlayer());
+            PlayerService.setPlayerStateNone(game.getWhitePlayer());
         }
         return game;
     }
@@ -110,25 +114,23 @@ public class GameService extends BaseService {
         Board board = game.getBoard();
         long blackCells = BoardService.getCountBlack(board);
         long whiteCells = BoardService.getCountWhite(board);
-        if (blackCells == whiteCells) {
-            return GameResult.draw(board);
-        } else if (blackCells > whiteCells) {
-            return GameResult.winner(board, game.getBlackPlayer());
-        } else {
+        if (blackCells <= whiteCells) {
             return GameResult.winner(board, game.getWhitePlayer());
+        } else {
+            return GameResult.winner(board, game.getBlackPlayer());
         }
     }
 
     private static void checkGameEnd(final Game game) throws GameException {
         if (game.isFinished()) {
-            throw new GameException(GameErrorCode.INVALID_REQUEST);
+            throw new GameException(GameErrorCode.GAME_ENDED);
         }
     }
 
     private static void checkValidCanPlayerMove(final Game game, final Player player) throws GameException {
         if (
                 (game.getState() == GameState.BLACK && game.getBlackPlayer().equals(player))
-                || (game.getState() == GameState.WHITE && game.getWhitePlayer().equals(player))
+                        || (game.getState() == GameState.WHITE && game.getWhitePlayer().equals(player))
         ) {
             return;
         }

@@ -5,8 +5,6 @@ import exception.GameException;
 import models.base.Cell;
 import org.junit.jupiter.api.Test;
 
-import java.util.*;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 class BoardTest {
@@ -51,33 +49,6 @@ class BoardTest {
         assertEquals(Cell.EMPTY, board.getCell(0, 0));
     }
 
-
-    /*@Test
-    void getCountCell() throws GameException {
-        Cell firstCheck = Cell.BLACK;
-        Cell secondCheck = Cell.WHITE;
-        String s = ""
-                + "bbbbbbbb"
-                + "bbbbbbbb"
-                + "bbbbbbbb"
-                + "bbbbbbbb"
-                + "bbbbbbbb"
-                + "bbbbbbbb"
-                + "bbbbbbbb"
-                + "bbbbbbbb";
-        Board board = BoardUtilsTest.parserBoardByString(s);
-        assertEquals(board.getCountCell(firstCheck), SIZE * SIZE);
-        assertEquals(board.getCountCell(secondCheck), 0);
-        Random random = new Random();
-        board.setCell(random.nextInt(SIZE), random.nextInt(SIZE), secondCheck);
-        assertEquals(board.getCountCell(firstCheck), SIZE * SIZE - 1);
-        assertEquals(board.getCountCell(secondCheck), 1);
-
-        Board classicBoard = new Board();
-        assertEquals(classicBoard.getCountCell(firstCheck), 2);
-        assertEquals(classicBoard.getCountCell(secondCheck), 2);
-    }
-*/
     @Test
     void testReverseCell() throws GameException {
         Board board = new Board();

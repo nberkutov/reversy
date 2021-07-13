@@ -1,6 +1,7 @@
 package services;
 
 import com.google.gson.Gson;
+import dto.request.player.GameRequest;
 import exception.GameErrorCode;
 import exception.GameException;
 import lombok.extern.slf4j.Slf4j;
@@ -78,6 +79,12 @@ public class BaseService {
     protected static void checkPlayerConnection(final Player player) throws GameException {
         if (player.getConnection() == null || !player.getConnection().isConnected()) {
             throw new GameException(GameErrorCode.CONNECTION_LOST);
+        }
+    }
+
+    protected static void checkRequestIsNull(GameRequest request) throws GameException {
+        if (request == null) {
+            throw new GameException(GameErrorCode.INVALID_REQUEST);
         }
     }
 }

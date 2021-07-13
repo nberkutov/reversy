@@ -1,9 +1,6 @@
 package controllers;
 
-import dto.response.CreateGameResponse;
-import dto.response.GameBoardResponse;
-import dto.response.GameResponse;
-import dto.response.TaskResponse;
+import dto.response.*;
 import exception.GameException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,13 +25,13 @@ public class GameSearcher extends Thread {
             try {
                 Player first = waiting.take();
                 Player second = waiting.take();
-                if (!PlayerService.canPlay(first)) {
+                if (!PlayerService.isCanPlay(first)) {
                     waiting.put(second);
-                    PlayerService.setPlayerSateNone(first);
+                    PlayerService.setPlayerStateNone(first);
                     continue;
                 }
-                if (!PlayerService.canPlay(second)) {
-                    PlayerService.setPlayerSateNone(second);
+                if (!PlayerService.isCanPlay(second)) {
+                    PlayerService.setPlayerStateNone(second);
                     waiting.put(first);
                     continue;
                 }
@@ -46,10 +43,14 @@ public class GameSearcher extends Thread {
     }
 
     private void linkPlayers(final Player first, final Player second) throws InterruptedException {
-        Game game = GameService.createGame(first, second);
-
-        sendInfoAboutGame(game, game.getBlackPlayer());
-        sendInfoAboutGame(game, game.getWhitePlayer());
+        try {
+            Game game = GameService.createGame(first, second);
+            sendInfoAboutGame(game, game.getBlackPlayer());
+            sendInfoAboutGame(game, game.getWhitePlayer());
+        } catch (GameException e) {
+            addTaskResponse(first, ErrorResponse.toDto(e));
+            addTaskResponse(second, ErrorResponse.toDto(e));
+        }
     }
 
     private void sendInfoAboutGame(final Game game, final Player player) throws InterruptedException {
