@@ -2,43 +2,38 @@ package models;
 
 import exception.GameException;
 import models.base.Cell;
+import models.board.Board;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import static models.Board.BOARD_SIZE;
+import static models.board.Board.BOARD_SIZE;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class BoardUtilsTest {
 
     // 0 - is empty; b - black; w - white;
-    public static Board parserBoardByString(String string) throws GameException {
+    public static Board parse(String string) throws GameException {
         Board board = new Board();
-        int x = 0;
-        int y = 0;
+        int k = 0;
         for (int i = 0; i < string.length(); i++) {
-            Point point = new Point(x, y);
+            int x = k % BOARD_SIZE;
+            int y = k / BOARD_SIZE;
             switch (string.charAt(i)) {
-                case '0': {
-                    board.setCell(point, Cell.EMPTY);
+                case '0':
+                    board.setCell(x, y, Cell.EMPTY);
+                    k++;
                     break;
-                }
-                case 'b': {
-                    board.setCell(point, Cell.BLACK);
+                case 'b':
+                    board.setCell(x, y, Cell.BLACK);
+                    k++;
                     break;
-                }
-                case 'w': {
-                    board.setCell(point, Cell.WHITE);
+                case 'w':
+                    board.setCell(x, y, Cell.WHITE);
+                    k++;
                     break;
-                }
-                default: {
+                case ' ':
+
+                    break;
+                default:
                     throw new RuntimeException();
-                }
-            }
-            x++;
-            if (x >= BOARD_SIZE) {
-                y++;
-                x = 0;
             }
         }
         return board;

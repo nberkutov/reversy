@@ -1,0 +1,37 @@
+package controllers;
+
+import dto.request.player.TaskRequest;
+import exception.GameException;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import models.ClientConnection;
+
+import java.io.IOException;
+import java.util.concurrent.BlockingQueue;
+
+
+@AllArgsConstructor
+@Slf4j
+public class PlayerController extends Thread {
+    private final ClientConnection connection;
+    private final BlockingQueue<TaskRequest> requests;
+
+    @Override
+    public void run() {
+        log.debug("PlayerController started");
+        while (connection.isConnected()) {
+            try {
+                TaskRequest request = TaskRequest.getTaskRequest(connection);
+                requests.add(request);
+            } catch (GameException | IOException e) {
+                connection.close();
+                this.interrupt();
+            }
+        }
+    }
+
+    public static void initPlayerController(ClientConnection connection, BlockingQueue<TaskRequest> requests) {
+        PlayerController controller = new PlayerController(connection, requests);
+        controller.start();
+    }
+}

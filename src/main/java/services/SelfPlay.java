@@ -3,10 +3,10 @@ package services;
 import exception.GameException;
 
 import lombok.extern.slf4j.Slf4j;
-import models.Board;
-import models.Game;
-import models.GameResult;
-import models.Player;
+import models.board.Board;
+import models.game.Game;
+import models.game.GameResult;
+import models.player.Player;
 
 @Slf4j
 public class SelfPlay {
@@ -14,25 +14,21 @@ public class SelfPlay {
     private final Player second;
     private final Game game;
 
-    public SelfPlay(Player first, Player second) throws GameException {
+    public SelfPlay(final Player first, final Player second) {
         this.first = first;
         this.second = second;
         Board board = new Board();
-        BoardService boardService = new BoardService(board);
-        game = new Game(boardService, first, second);
+        game = new Game(board, first, second);
     }
 
     public GameResult play() throws GameException {
+//        log.debug("START PLAYING ");
         while (!game.isFinished()) {
-            log.debug("DEBUG playing \n{}", game.getBoardService().getBoard().getVisualString());
-            game.next();
+//            log.info("Board State\n{}", game.getBoard().getVisualString());
+            GameService.playNext(game);
         }
 
         log.debug("DEBUG finish \n{}", game.getResult().getBoard().getVisualString());
-        return game.getResult();
-    }
-
-    public static void main(String[] args) throws GameException {
-        SelfPlay selfPlay = new SelfPlay(new Player(), new Player());
+        return GameService.getGameResult(game);
     }
 }
