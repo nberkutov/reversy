@@ -1,6 +1,5 @@
 package controllers;
 
-import dto.request.player.TaskRequest;
 import dto.response.TaskResponse;
 import exception.GameException;
 import lombok.AllArgsConstructor;
@@ -13,7 +12,6 @@ import java.util.concurrent.BlockingQueue;
 @AllArgsConstructor
 @Slf4j
 public class SenderTasks extends Thread {
-    private final BlockingQueue<TaskRequest> requests;
     private final BlockingQueue<TaskResponse> responses;
 
     @Override

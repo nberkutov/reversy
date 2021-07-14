@@ -15,7 +15,7 @@ public class StartClient {
     public static void main(String[] args) {
         try {
             List<Thread> list = new ArrayList<>();
-            for (int i = 0; i < 100; i++) {
+            for (int i = 0; i < 2; i++) {
                 Client client = new Client(IP, PORT);
                 Thread thread = new Thread(client);
                 thread.start();

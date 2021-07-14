@@ -2,8 +2,8 @@ package models.player;
 
 import exception.GameException;
 import models.board.Board;
-import models.game.Game;
 import models.board.Point;
+import models.game.Game;
 import services.BoardService;
 
 import java.util.List;
@@ -15,13 +15,6 @@ public class RandomBot extends Player {
         super(id);
     }
 
-    /*
-
-        public RandomBot(final long id, final PlayerColor color, final BoardService boardService) {
-            super(id, color);
-        }
-
-    */
     @Override
     public void nextMove(final Game game) throws GameException {
         Board board = game.getBoard();

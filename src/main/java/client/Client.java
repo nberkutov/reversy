@@ -67,13 +67,13 @@ public class Client implements Runnable {
                 GameResponse response = getRequest(connection);
                 actionByResponseFromServer(response);
             }
-        } catch (IOException | GameException | InterruptedException e) {
+        } catch (IOException | GameException e) {
             connection.close();
             log.error("Error", e);
         }
     }
 
-    private void actionByResponseFromServer(final GameResponse gameResponse) throws GameException, IOException, InterruptedException {
+    private void actionByResponseFromServer(final GameResponse gameResponse) throws GameException, IOException {
 
         switch (CommandResponse.getCommandByResponse(gameResponse)) {
             case ERROR:
@@ -109,29 +109,27 @@ public class Client implements Runnable {
         log.error("actionError {}", response);
     }
 
-    private void actionPlaying(final GameBoardResponse response) throws GameException, IOException, InterruptedException {
+    private void actionPlaying(final GameBoardResponse response) throws GameException, IOException {
         log.debug("actionPlaying {}", response);
         if (response.getState() != GameState.END) {
 
             if (nowMoveByMe(color, response.getState())) {
                 Board board = response.getBoard();
-                Thread.sleep(1000);
                 List<Point> points = BoardService.getAvailableMoves(board, color);
                 Point move = points.get(new Random().nextInt(points.size()));
-                sendRequest(connection, MovePlayerRequest.toDto(playerId, gameId, move));
+                sendRequest(connection, MovePlayerRequest.toDto(gameId, move));
             }
         } else {
             gameId = -1;
             color = null;
-            Thread.sleep(5000);
-            sendRequest(connection, new WantPlayRequest(playerId));
+            sendRequest(connection, new WantPlayRequest());
         }
     }
 
     private void actionCreatePlayer(final CreatePlayerResponse response) throws IOException, GameException {
         //log.info("actionCreatePlayer {}", response);
         playerId = response.getId();
-        sendRequest(connection, new WantPlayRequest(playerId));
+        sendRequest(connection, new WantPlayRequest());
     }
 
     private static void sendRequest(final ClientConnection server, final GameRequest request) throws IOException, GameException {

@@ -5,6 +5,7 @@ import dto.request.server.CreateGameRequest;
 import exception.GameErrorCode;
 import exception.GameException;
 import lombok.extern.slf4j.Slf4j;
+import models.ClientConnection;
 import models.base.GameState;
 import models.base.PlayerState;
 import models.board.Board;
@@ -16,18 +17,23 @@ import models.player.Player;
 @Slf4j
 public class GameService extends BaseService {
 
-    public static Game createGame(CreateGameRequest createGame) throws GameException {
-        checkRequestIsNull(createGame);
-        Player first = PlayerService.getPlayerById(createGame.getFirstPlayerId());
-        Player second = PlayerService.getPlayerById(createGame.getSecondPlayerId());
+    public static Game createGame(final CreateGameRequest createGame, final ClientConnection connection) throws GameException {
+        requestIsNotNull(createGame);
+        connectionIsNotNullAndConnected(connection);
+        ClientConnection firstCon = PlayerService.getConnectionById(createGame.getFirstPlayerId());
+        connectionIsNotNullAndConnected(firstCon);
+        ClientConnection secondCon = PlayerService.getConnectionById(createGame.getSecondPlayerId());
+        connectionIsNotNullAndConnected(secondCon);
+        Player first = firstCon.getPlayer();
+        Player second = secondCon.getPlayer();
         return createGame(first, second);
     }
 
     public static Game createGame(final Player first, final Player second) throws GameException {
         playerIsNotNull(first);
         playerIsNotNull(second);
-        playerIsPlaying(first);
-        playerIsPlaying(second);
+        playerIsNotPlaying(first);
+        playerIsNotPlaying(second);
         int gameId = getGameId();
         Game game = new Game(gameId, first, second);
         games.putIfAbsent(gameId, game);
@@ -36,17 +42,18 @@ public class GameService extends BaseService {
         return game;
     }
 
-    public static Game makePlayerMove(final MovePlayerRequest movePlayer) throws GameException {
-        checkRequestIsNull(movePlayer);
-        Player player = PlayerService.getPlayerById(movePlayer.getPlayerId());
-        checkPlayerConnection(player);
+    public static Game makePlayerMove(final MovePlayerRequest movePlayer, final ClientConnection connection) throws GameException {
+        requestIsNotNull(movePlayer);
+        connectionIsNotNullAndConnected(connection);
+        Player player = connection.getPlayer();
+        playerIsNotNull(player);
         Game game = GameService.getGameById(movePlayer.getGameId());
         return makePlayerMove(game, movePlayer.getPoint(), player);
     }
 
     public static Game makePlayerMove(final Game game, final Point point, final Player player) throws GameException {
-        checkGameEnd(game);
-        checkValidCanPlayerMove(game, player);
+        gameIsNotEnd(game);
+        playerValidMove(game, player);
         BoardService.makeMove(game, point, player.getColor());
         switch (game.getState()) {
             case BLACK_MOVE:
@@ -71,9 +78,7 @@ public class GameService extends BaseService {
 
     public static Game getGameById(final int gameId) throws GameException {
         Game game = games.get(gameId);
-        if (game == null) {
-            throw new GameException(GameErrorCode.GAME_NOT_FOUND);
-        }
+        gameIsNotNull(game);
         return game;
     }
 
@@ -136,13 +141,13 @@ public class GameService extends BaseService {
         }
     }
 
-    private static void checkGameEnd(final Game game) throws GameException {
+    private static void gameIsNotEnd(final Game game) throws GameException {
         if (game.isFinished()) {
             throw new GameException(GameErrorCode.GAME_ENDED);
         }
     }
 
-    private static void checkValidCanPlayerMove(final Game game, final Player player) throws GameException {
+    private static void playerValidMove(final Game game, final Player player) throws GameException {
         if (
                 (game.getState() == GameState.BLACK_MOVE && game.getBlackPlayer().equals(player))
                         || (game.getState() == GameState.WHITE_MOVE && game.getWhitePlayer().equals(player))

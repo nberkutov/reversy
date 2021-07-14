@@ -4,8 +4,8 @@ import dto.request.player.CreatePlayerRequest;
 import exception.GameErrorCode;
 import exception.GameException;
 import models.ClientConnection;
-import models.player.Player;
 import models.base.PlayerState;
+import models.player.Player;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -21,22 +21,21 @@ public class PlayerServicesTest {
     @Test
     void testIsPlayerCanSearchGameException() throws IOException, GameException {
         try {
-            PlayerService.canPlayerSearchGame(null);
+            PlayerService.canPlayerSearchGame((ClientConnection) null);
             fail();
         } catch (GameException e) {
-            assertEquals(e.getErrorCode(), GameErrorCode.INVALID_REQUEST);
+            assertEquals(e.getErrorCode(), GameErrorCode.CONNECTION_LOST);
         }
 
         try {
-            PlayerService.canPlayerSearchGame(-1);
+            PlayerService.canPlayerSearchGame((Player) null);
             fail();
         } catch (GameException e) {
             assertEquals(e.getErrorCode(), GameErrorCode.PLAYER_NOT_FOUND);
         }
-        Player player = PlayerService.createPlayer(new CreatePlayerRequest(), null);
 
         try {
-            PlayerService.canPlayerSearchGame(player.getId());
+            PlayerService.canPlayerSearchGame(new ClientConnection());
             fail();
         } catch (GameException e) {
             assertEquals(e.getErrorCode(), GameErrorCode.CONNECTION_LOST);
@@ -46,22 +45,23 @@ public class PlayerServicesTest {
         final String IP = "127.0.0.1";
         ServerSocket socket = new ServerSocket(PORT);
         Socket client = new Socket(IP, PORT);
-        player.setConnection(new ClientConnection(client));
+        ClientConnection connection = new ClientConnection(client);
+        Player player = PlayerService.createPlayer(new CreatePlayerRequest(), connection);
         player.setState(PlayerState.SEARCH_GAME);
         try {
-            PlayerService.canPlayerSearchGame(player.getId());
+            PlayerService.canPlayerSearchGame(player);
             fail();
         } catch (GameException e) {
             assertEquals(e.getErrorCode(), GameErrorCode.PLAYER_CANNOT_FIND_GAME);
         }
         player.setState(PlayerState.PLAYING);
         try {
-            PlayerService.canPlayerSearchGame(player.getId());
+            PlayerService.canPlayerSearchGame(player);
             fail();
         } catch (GameException e) {
             assertEquals(e.getErrorCode(), GameErrorCode.PLAYER_CANNOT_FIND_GAME);
         }
-        player.closeConnect();
+        connection.close();
         socket.close();
     }
 
@@ -76,10 +76,18 @@ public class PlayerServicesTest {
     @Test
     void setNoneStatePlayerException() throws GameException {
         try {
-            PlayerService.setPlayerStateNone(null);
+            PlayerService.setPlayerStateNone((Player) null);
+            fail();
         } catch (GameException e) {
             assertEquals(e.getErrorCode(), GameErrorCode.PLAYER_NOT_FOUND);
         }
+        try {
+            PlayerService.setPlayerStateNone((ClientConnection) null);
+            fail();
+        } catch (GameException e) {
+            assertEquals(e.getErrorCode(), GameErrorCode.CONNECTION_LOST);
+        }
+
     }
 
 }

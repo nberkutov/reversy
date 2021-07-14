@@ -11,11 +11,10 @@ import models.board.Point;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MovePlayerRequest extends GameRequest {
-    private int playerId;
     private int gameId;
     private Point point;
 
-    public static MovePlayerRequest toDto(int playerId, int gameId, Point point) {
-        return new MovePlayerRequest(playerId, gameId, point);
+    public static MovePlayerRequest toDto(int gameId, Point point) {
+        return new MovePlayerRequest(gameId, point);
     }
 }

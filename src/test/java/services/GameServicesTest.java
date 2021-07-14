@@ -4,7 +4,8 @@ import dto.request.player.CreatePlayerRequest;
 import dto.request.player.MovePlayerRequest;
 import exception.GameErrorCode;
 import exception.GameException;
-import models.*;
+import models.BoardUtilsTest;
+import models.ClientConnection;
 import models.base.GameResultState;
 import models.base.PlayerState;
 import models.board.Board;
@@ -107,39 +108,52 @@ public class GameServicesTest {
     @Test
     void testMoveException() throws GameException, IOException {
         try {
-            GameService.makePlayerMove(null);
+            GameService.makePlayerMove(null, null);
             fail();
         } catch (GameException e) {
             assertEquals(e.getErrorCode(), GameErrorCode.INVALID_REQUEST);
         }
-        Game game = GameService.createGame(new Player(), new Player());
+
         try {
-            GameService.makePlayerMove(new MovePlayerRequest(-1, game.getId(), new Point()));
-            fail();
-        } catch (GameException e) {
-            assertEquals(e.getErrorCode(), GameErrorCode.PLAYER_NOT_FOUND);
-        }
-        Player player = PlayerService.createPlayer(new CreatePlayerRequest(), null);
-        try {
-            GameService.makePlayerMove(new MovePlayerRequest(player.getId(), game.getId(), new Point()));
+            GameService.makePlayerMove(new MovePlayerRequest(-1, new Point()), null);
             fail();
         } catch (GameException e) {
             assertEquals(e.getErrorCode(), GameErrorCode.CONNECTION_LOST);
         }
+
+        Game game = GameService.createGame(new Player(), new Player());
+
+
         final int PORT = 8081;
         final String IP = "127.0.0.1";
         ServerSocket socket = new ServerSocket(PORT);
 
         Socket client = new Socket(IP, PORT);
-        player.setConnection(new ClientConnection(client));
+        ClientConnection connection = new ClientConnection(client);
+        Player player = PlayerService.createPlayer(new CreatePlayerRequest(), connection);
+        try {
+            GameService.makePlayerMove(new MovePlayerRequest(game.getId(), new Point()), connection);
+            fail();
+        } catch (GameException e) {
+            assertEquals(e.getErrorCode(), GameErrorCode.INVALID_REQUEST);
+        }
 
         try {
-            GameService.makePlayerMove(new MovePlayerRequest(player.getId(), -1, new Point()));
+            GameService.makePlayerMove(new MovePlayerRequest(-1, new Point()), connection);
             fail();
         } catch (GameException e) {
             assertEquals(e.getErrorCode(), GameErrorCode.GAME_NOT_FOUND);
         }
-        player.closeConnect();
+
+        connection.close();
+
+        try {
+            GameService.makePlayerMove(new MovePlayerRequest(game.getId(), new Point()), new ClientConnection());
+            fail();
+        } catch (GameException e) {
+            assertEquals(e.getErrorCode(), GameErrorCode.CONNECTION_LOST);
+        }
+
         socket.close();
     }
 

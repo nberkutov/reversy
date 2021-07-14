@@ -1,16 +1,12 @@
 package controllers;
 
 import dto.request.player.TaskRequest;
-import dto.response.GameResponse;
-import dto.response.TaskResponse;
 import exception.GameException;
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import models.ClientConnection;
 
 import java.io.IOException;
-import java.net.Socket;
 import java.util.concurrent.BlockingQueue;
 
 
@@ -23,7 +19,6 @@ public class PlayerController extends Thread {
     @Override
     public void run() {
         log.debug("PlayerController started");
-
         while (connection.isConnected()) {
             try {
                 TaskRequest request = TaskRequest.getTaskRequest(connection);
@@ -39,5 +34,4 @@ public class PlayerController extends Thread {
         PlayerController controller = new PlayerController(connection, requests);
         controller.start();
     }
-
 }

@@ -23,7 +23,7 @@ import java.util.concurrent.BlockingQueue;
 public class HandlerTasks extends Thread {
     private final BlockingQueue<TaskRequest> requests;
     private final BlockingQueue<TaskResponse> responses;
-    private final BlockingQueue<Player> waiting;
+    private final BlockingQueue<ClientConnection> waiting;
 
     @Override
     public void run() {
@@ -59,7 +59,7 @@ public class HandlerTasks extends Thread {
     private void actionCreateGame(CreateGameRequest createGame, ClientConnection connection) throws InterruptedException {
         log.info("action createGame {}", createGame);
         try {
-            Game game = GameService.createGame(createGame);
+            Game game = GameService.createGame(createGame, connection);
             sendInfoAboutGame(game, game.getBlackPlayer());
             sendInfoAboutGame(game, game.getWhitePlayer());
             log.info("Game created, {}", game);
@@ -69,7 +69,7 @@ public class HandlerTasks extends Thread {
         }
     }
 
-    private void sendInfoAboutGame(final Game game, final Player player) throws InterruptedException {
+    private void sendInfoAboutGame(final Game game, final Player player) throws InterruptedException, GameException {
         addTaskResponse(player, Arrays.asList(SearchGameResponse.toDto(game, player), GameBoardResponse.toDto(game)));
     }
 
@@ -77,7 +77,7 @@ public class HandlerTasks extends Thread {
         log.info("action createPlayer {}", createPlayer);
         try {
             Player player = PlayerService.createPlayer(createPlayer, connection);
-            addTaskResponse(player, CreatePlayerResponse.toDto(player));
+            addTaskResponse(connection, CreatePlayerResponse.toDto(player));
         } catch (GameException e) {
             log.info("action CreatePlayer error {}", createPlayer, e);
             addTaskResponse(connection, ErrorResponse.toDto(e));
@@ -87,21 +87,20 @@ public class HandlerTasks extends Thread {
     public void actionWantPlay(final WantPlayRequest wantPlay, final ClientConnection connection) throws InterruptedException {
         try {
             log.info("action wantPlay {}", wantPlay);
-            Player player = PlayerService.canPlayerSearchGame(wantPlay);
-            waiting.put(player);
-            addTaskResponse(player, new MessageResponse("Search game"));
-            log.info("player put in waiting {}", player);
+            PlayerService.canPlayerSearchGame(connection);
+            waiting.put(connection);
+            addTaskResponse(connection, new MessageResponse("Search game"));
+            log.info("player put in waiting {}", connection.getPlayer());
         } catch (GameException e) {
             log.info("action wantPlay error {}", wantPlay, e);
             addTaskResponse(connection, ErrorResponse.toDto(e));
         }
     }
 
-    public void actionMovePlayer(final MovePlayerRequest movePlayer, final ClientConnection connection)
-            throws InterruptedException {
-        log.debug("action movePlayer {}", movePlayer);
+    public void actionMovePlayer(final MovePlayerRequest movePlayer, final ClientConnection connection) throws InterruptedException {
         try {
-            Game game = GameService.makePlayerMove(movePlayer);
+            log.debug("action movePlayer {}", movePlayer);
+            Game game = GameService.makePlayerMove(movePlayer, connection);
             addTaskResponse(game.getWhitePlayer(), GameBoardResponse.toDto(game));
             addTaskResponse(game.getBlackPlayer(), GameBoardResponse.toDto(game));
         } catch (GameException e) {
@@ -109,12 +108,12 @@ public class HandlerTasks extends Thread {
         }
     }
 
-    private void addTaskResponse(final Player player, final GameResponse response) throws InterruptedException {
-        addTaskResponse(player.getConnection(), response);
+    private void addTaskResponse(final Player player, final GameResponse response) throws InterruptedException, GameException {
+        addTaskResponse(PlayerService.getConnectionByPlayer(player), response);
     }
 
-    private void addTaskResponse(final Player player, final List<GameResponse> response) throws InterruptedException {
-        addTaskResponse(player.getConnection(), response);
+    private void addTaskResponse(final Player player, final List<GameResponse> response) throws InterruptedException, GameException {
+        addTaskResponse(PlayerService.getConnectionByPlayer(player), response);
     }
 
     private void addTaskResponse(final ClientConnection connection, final List<GameResponse> response) throws InterruptedException {

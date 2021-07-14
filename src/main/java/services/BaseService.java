@@ -6,6 +6,7 @@ import dto.request.player.GameRequest;
 import exception.GameErrorCode;
 import exception.GameException;
 import lombok.extern.slf4j.Slf4j;
+import models.ClientConnection;
 import models.base.PlayerState;
 import models.board.Point;
 import models.game.Game;
@@ -24,6 +25,7 @@ public class BaseService {
 
     protected static int playerIncrement = 0;
     protected static final Map<Integer, Player> players = new ConcurrentHashMap<>();
+    protected static final Map<Integer, ClientConnection> connects = new ConcurrentHashMap<>();
     //BD ---
     public static final Gson GSON = new GsonBuilder()
             .enableComplexMapKeySerialization()
@@ -62,7 +64,7 @@ public class BaseService {
         }
     }
 
-    protected static void playerIsPlaying(final Player player) throws GameException {
+    protected static void playerIsNotPlaying(final Player player) throws GameException {
         if (player.getState() == PlayerState.PLAYING) {
             throw new GameException(GameErrorCode.PLAYER_ALREADY_PLAYING);
         }
@@ -87,12 +89,23 @@ public class BaseService {
     }
 
     protected static void checkPlayerConnection(final Player player) throws GameException {
-        if (player.getConnection() == null || !player.getConnection().isConnected()) {
+        ClientConnection connection = PlayerService.getConnectionById(player.getId());
+        connectionIsNotNullAndConnected(connection);
+    }
+
+    protected static void validateConnection(ClientConnection one, ClientConnection two) throws GameException {
+        if (!one.equals(two)) {
+            throw new GameException(GameErrorCode.ILLEGAL_REQUEST);
+        }
+    }
+
+    protected static void connectionIsNotNullAndConnected(ClientConnection connection) throws GameException {
+        if (connection == null || !connection.isConnected()) {
             throw new GameException(GameErrorCode.CONNECTION_LOST);
         }
     }
 
-    protected static void checkRequestIsNull(GameRequest request) throws GameException {
+    protected static void requestIsNotNull(GameRequest request) throws GameException {
         if (request == null) {
             throw new GameException(GameErrorCode.INVALID_REQUEST);
         }
