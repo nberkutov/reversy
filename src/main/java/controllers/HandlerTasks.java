@@ -2,6 +2,7 @@ package controllers;
 
 import controllers.commands.CommandRequest;
 import dto.request.player.*;
+import dto.request.server.CreateGameRequest;
 import dto.response.*;
 import dto.response.player.CreatePlayerResponse;
 import exception.GameException;
@@ -13,6 +14,8 @@ import models.player.Player;
 import services.GameService;
 import services.PlayerService;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
 
 @AllArgsConstructor
@@ -29,7 +32,6 @@ public class HandlerTasks extends Thread {
             try {
                 TaskRequest task = requests.take();
                 GameRequest request = task.getRequest();
-                log.info("Request {}", request);
                 switch (CommandRequest.getCommandByRequest(request)) {
                     case CREATE_PLAYER:
                         CreatePlayerRequest createPlayer = (CreatePlayerRequest) request;
@@ -43,30 +45,54 @@ public class HandlerTasks extends Thread {
                         MovePlayerRequest movePlayer = (MovePlayerRequest) request;
                         actionMovePlayer(movePlayer, task.getClient());
                         break;
+                    case PRIVATE_CREATE_GAME:
+                        CreateGameRequest createGame = (CreateGameRequest) request;
+                        actionCreateGame(createGame, task.getClient());
+                        break;
                 }
             } catch (InterruptedException | GameException e) {
-                e.printStackTrace();
+                log.error("HandlerTasks ", e);
             }
         }
     }
 
+    private void actionCreateGame(CreateGameRequest createGame, ClientConnection connection) throws InterruptedException {
+        log.info("action createGame {}", createGame);
+        try {
+            Game game = GameService.createGame(createGame);
+            sendInfoAboutGame(game, game.getBlackPlayer());
+            sendInfoAboutGame(game, game.getWhitePlayer());
+            log.info("Game created, {}", game);
+        } catch (GameException e) {
+            log.info("action CreateGame error {}", createGame, e);
+            addTaskResponse(connection, ErrorResponse.toDto(e));
+        }
+    }
+
+    private void sendInfoAboutGame(final Game game, final Player player) throws InterruptedException {
+        addTaskResponse(player, Arrays.asList(SearchGameResponse.toDto(game, player), GameBoardResponse.toDto(game)));
+    }
+
     public void actionCreatePlayer(final CreatePlayerRequest createPlayer, final ClientConnection connection) throws InterruptedException {
-//        log.debug("action createPlayer {}", createPlayer);
+        log.info("action createPlayer {}", createPlayer);
         try {
             Player player = PlayerService.createPlayer(createPlayer, connection);
             addTaskResponse(player, CreatePlayerResponse.toDto(player));
         } catch (GameException e) {
+            log.info("action CreatePlayer error {}", createPlayer, e);
             addTaskResponse(connection, ErrorResponse.toDto(e));
         }
     }
 
     public void actionWantPlay(final WantPlayRequest wantPlay, final ClientConnection connection) throws InterruptedException {
-        log.debug("action wantPlay {}", wantPlay);
         try {
+            log.info("action wantPlay {}", wantPlay);
             Player player = PlayerService.canPlayerSearchGame(wantPlay);
             waiting.put(player);
             addTaskResponse(player, new MessageResponse("Search game"));
+            log.info("player put in waiting {}", player);
         } catch (GameException e) {
+            log.info("action wantPlay error {}", wantPlay, e);
             addTaskResponse(connection, ErrorResponse.toDto(e));
         }
     }
@@ -83,9 +109,16 @@ public class HandlerTasks extends Thread {
         }
     }
 
-
-    public void addTaskResponse(final Player player, final GameResponse response) throws InterruptedException {
+    private void addTaskResponse(final Player player, final GameResponse response) throws InterruptedException {
         addTaskResponse(player.getConnection(), response);
+    }
+
+    private void addTaskResponse(final Player player, final List<GameResponse> response) throws InterruptedException {
+        addTaskResponse(player.getConnection(), response);
+    }
+
+    private void addTaskResponse(final ClientConnection connection, final List<GameResponse> response) throws InterruptedException {
+        responses.put(new TaskResponse(connection, response));
     }
 
     private void addTaskResponse(final ClientConnection connection, final GameResponse response) throws InterruptedException {

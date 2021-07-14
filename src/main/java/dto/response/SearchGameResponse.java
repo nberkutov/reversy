@@ -12,11 +12,12 @@ import models.player.Player;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateGameResponse extends GameResponse {
+public class SearchGameResponse extends GameResponse {
     private int gameId;
     private PlayerColor color;
 
-    public static CreateGameResponse toDto(Game game, Player player) {
-        return new CreateGameResponse(game.getId(), player.getColor());
+    public static SearchGameResponse toDto(Game game, Player player) {
+        return new SearchGameResponse(game.getId(), player.getColor());
     }
 }
+

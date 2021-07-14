@@ -1,6 +1,5 @@
 package client;
 
-import com.google.gson.Gson;
 import controllers.commands.CommandRequest;
 import controllers.commands.CommandResponse;
 import dto.request.player.CreatePlayerRequest;
@@ -28,7 +27,6 @@ import java.util.Random;
 @Slf4j
 @Data
 public class Client implements Runnable {
-    private static Gson gson = new Gson();
     private int playerId;
     private int gameId;
     private PlayerColor color;
@@ -47,13 +45,10 @@ public class Client implements Runnable {
     }
 
     private static boolean nowMoveByMe(PlayerColor color, GameState state) {
-        if (color == PlayerColor.WHITE && state == GameState.WHITE) {
+        if (color == PlayerColor.WHITE && state == GameState.WHITE_MOVE) {
             return true;
         }
-        if (color == PlayerColor.BLACK && state == GameState.BLACK) {
-            return true;
-        }
-        return false;
+        return color == PlayerColor.BLACK && state == GameState.BLACK_MOVE;
     }
 
     @Override
@@ -72,13 +67,13 @@ public class Client implements Runnable {
                 GameResponse response = getRequest(connection);
                 actionByResponseFromServer(response);
             }
-        } catch (IOException | GameException e) {
+        } catch (IOException | GameException | InterruptedException e) {
             connection.close();
             log.error("Error", e);
         }
     }
 
-    private void actionByResponseFromServer(final GameResponse gameResponse) throws GameException, IOException {
+    private void actionByResponseFromServer(final GameResponse gameResponse) throws GameException, IOException, InterruptedException {
 
         switch (CommandResponse.getCommandByResponse(gameResponse)) {
             case ERROR:
@@ -94,7 +89,7 @@ public class Client implements Runnable {
                 actionCreatePlayer(createPlayer);
                 break;
             case GAME_START:
-                CreateGameResponse createGame = (CreateGameResponse) gameResponse;
+                SearchGameResponse createGame = (SearchGameResponse) gameResponse;
                 actionStartGame(createGame);
                 break;
             case MESSAGE:
@@ -111,15 +106,16 @@ public class Client implements Runnable {
     }
 
     private void actionError(final ErrorResponse response) {
-        log.error("actionError {}", response.getMessage());
+        log.error("actionError {}", response);
     }
 
-    private void actionPlaying(final GameBoardResponse response) throws GameException, IOException {
-        log.info("actionPlaying {}", response);
+    private void actionPlaying(final GameBoardResponse response) throws GameException, IOException, InterruptedException {
+        log.debug("actionPlaying {}", response);
         if (response.getState() != GameState.END) {
 
             if (nowMoveByMe(color, response.getState())) {
                 Board board = response.getBoard();
+                Thread.sleep(1000);
                 List<Point> points = BoardService.getAvailableMoves(board, color);
                 Point move = points.get(new Random().nextInt(points.size()));
                 sendRequest(connection, MovePlayerRequest.toDto(playerId, gameId, move));
@@ -127,6 +123,7 @@ public class Client implements Runnable {
         } else {
             gameId = -1;
             color = null;
+            Thread.sleep(5000);
             sendRequest(connection, new WantPlayRequest(playerId));
         }
     }
@@ -151,7 +148,7 @@ public class Client implements Runnable {
         return CommandResponse.getResponseFromJson(msg);
     }
 
-    private void actionStartGame(final CreateGameResponse response) {
+    private void actionStartGame(final SearchGameResponse response) {
         log.info("actionStartGame {}", response);
         gameId = response.getGameId();
         color = response.getColor();

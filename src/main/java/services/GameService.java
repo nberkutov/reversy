@@ -1,6 +1,7 @@
 package services;
 
 import dto.request.player.MovePlayerRequest;
+import dto.request.server.CreateGameRequest;
 import exception.GameErrorCode;
 import exception.GameException;
 import lombok.extern.slf4j.Slf4j;
@@ -15,9 +16,18 @@ import models.player.Player;
 @Slf4j
 public class GameService extends BaseService {
 
+    public static Game createGame(CreateGameRequest createGame) throws GameException {
+        checkRequestIsNull(createGame);
+        Player first = PlayerService.getPlayerById(createGame.getFirstPlayerId());
+        Player second = PlayerService.getPlayerById(createGame.getSecondPlayerId());
+        return createGame(first, second);
+    }
+
     public static Game createGame(final Player first, final Player second) throws GameException {
         playerIsNotNull(first);
         playerIsNotNull(second);
+        playerIsPlaying(first);
+        playerIsPlaying(second);
         int gameId = getGameId();
         Game game = new Game(gameId, first, second);
         games.putIfAbsent(gameId, game);
@@ -39,19 +49,19 @@ public class GameService extends BaseService {
         checkValidCanPlayerMove(game, player);
         BoardService.makeMove(game, point, player.getColor());
         switch (game.getState()) {
-            case BLACK:
+            case BLACK_MOVE:
                 if (BoardService.hasPossibleMove(game.getBoard(), game.getWhitePlayer())) {
-                    game.setState(GameState.WHITE);
+                    game.setState(GameState.WHITE_MOVE);
                 }
                 break;
-            case WHITE:
+            case WHITE_MOVE:
                 if (BoardService.hasPossibleMove(game.getBoard(), game.getBlackPlayer())) {
-                    game.setState(GameState.BLACK);
+                    game.setState(GameState.BLACK_MOVE);
                 }
                 break;
         }
         if (isGameEnd(game)) {
-            log.debug("GameEnd {} \n{}", game, game.getBoard().getVisualString());
+            log.info("GameEnd {} \n{}", game, game.getBoard().getVisualString());
             game.setState(GameState.END);
             PlayerService.setPlayerStateNone(game.getBlackPlayer());
             PlayerService.setPlayerStateNone(game.getWhitePlayer());
@@ -74,17 +84,17 @@ public class GameService extends BaseService {
      */
     public static void playNext(final Game game) throws GameException {
         switch (game.getState()) {
-            case BLACK:
+            case BLACK_MOVE:
                 if (BoardService.hasPossibleMove(game.getBoard(), game.getBlackPlayer())) {
                     game.getBlackPlayer().nextMove(game);
                 }
-                game.setState(GameState.WHITE);
+                game.setState(GameState.WHITE_MOVE);
                 break;
-            case WHITE:
+            case WHITE_MOVE:
                 if (BoardService.hasPossibleMove(game.getBoard(), game.getWhitePlayer())) {
                     game.getWhitePlayer().nextMove(game);
                 }
-                game.setState(GameState.BLACK);
+                game.setState(GameState.BLACK_MOVE);
                 break;
             case END:
                 break;
@@ -134,8 +144,8 @@ public class GameService extends BaseService {
 
     private static void checkValidCanPlayerMove(final Game game, final Player player) throws GameException {
         if (
-                (game.getState() == GameState.BLACK && game.getBlackPlayer().equals(player))
-                        || (game.getState() == GameState.WHITE && game.getWhitePlayer().equals(player))
+                (game.getState() == GameState.BLACK_MOVE && game.getBlackPlayer().equals(player))
+                        || (game.getState() == GameState.WHITE_MOVE && game.getWhitePlayer().equals(player))
         ) {
             return;
         }

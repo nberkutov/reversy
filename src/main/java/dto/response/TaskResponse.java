@@ -1,14 +1,14 @@
 package dto.response;
 
-import com.google.gson.Gson;
 import controllers.commands.CommandResponse;
 import exception.GameException;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import models.ClientConnection;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Delayed;
 import java.util.concurrent.TimeUnit;
 
@@ -17,16 +17,25 @@ import java.util.concurrent.TimeUnit;
 
 public class TaskResponse implements Delayed {
     private ClientConnection client;
-    private GameResponse response;
+    private List<GameResponse> responses;
+
 
     public TaskResponse(final ClientConnection client, final GameResponse response) {
+        responses = new ArrayList<>();
         this.client = client;
-        this.response = response;
+        responses.add(response);
+    }
+
+    public TaskResponse(ClientConnection client, List<GameResponse> responses) {
+        this.client = client;
+        this.responses = responses;
     }
 
     public void sendJson() throws IOException, GameException {
         if (client.isConnected()) {
-            client.send(CommandResponse.toJsonParser(response));
+            for (GameResponse response : responses) {
+                client.send(CommandResponse.toJsonParser(response));
+            }
         }
     }
 

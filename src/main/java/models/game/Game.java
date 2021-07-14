@@ -1,11 +1,11 @@
 package models.game;
 
-import lombok.Data;
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import models.board.Board;
 import models.base.GameState;
 import models.base.PlayerColor;
+import models.board.Board;
 import models.player.Player;
 
 import java.util.Random;
@@ -32,7 +32,7 @@ public class Game {
     }
 
     public Game(final Board board, final Player first, final Player second) {
-        state = GameState.BLACK;
+        state = GameState.BLACK_MOVE;
         result = GameResult.playing(board);
         if (new Random().nextBoolean()) {
             this.blackPlayer = first;
@@ -48,5 +48,15 @@ public class Game {
 
     public boolean isFinished() {
         return state == GameState.END;
+    }
+
+    @Override
+    public String toString() {
+        return "Game{" +
+                "id=" + id +
+                ", " + blackPlayer +
+                ", vs " + whitePlayer +
+                ", state=" + state +
+                '}';
     }
 }

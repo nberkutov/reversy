@@ -3,5 +3,5 @@ package models.base;
 import java.io.Serializable;
 
 public enum GameState implements Serializable {
-    BLACK, WHITE, END
+    BLACK_MOVE, WHITE_MOVE, END
 }

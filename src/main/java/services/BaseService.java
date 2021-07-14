@@ -6,6 +6,7 @@ import dto.request.player.GameRequest;
 import exception.GameErrorCode;
 import exception.GameException;
 import lombok.extern.slf4j.Slf4j;
+import models.base.PlayerState;
 import models.board.Point;
 import models.game.Game;
 import models.player.Player;
@@ -58,6 +59,12 @@ public class BaseService {
     protected static void playerIsNotNull(final Player player) throws GameException {
         if (player == null) {
             throw new GameException(GameErrorCode.PLAYER_NOT_FOUND);
+        }
+    }
+
+    protected static void playerIsPlaying(final Player player) throws GameException {
+        if (player.getState() == PlayerState.PLAYING) {
+            throw new GameException(GameErrorCode.PLAYER_ALREADY_PLAYING);
         }
     }
 

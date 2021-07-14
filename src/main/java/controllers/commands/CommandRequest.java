@@ -4,6 +4,7 @@ import dto.request.player.CreatePlayerRequest;
 import dto.request.player.GameRequest;
 import dto.request.player.MovePlayerRequest;
 import dto.request.player.WantPlayRequest;
+import dto.request.server.CreateGameRequest;
 import exception.GameErrorCode;
 import exception.GameException;
 
@@ -12,6 +13,7 @@ import static services.BaseService.GSON;
 public enum CommandRequest {
     CREATE_PLAYER("create_player", CreatePlayerRequest.class),
     WANT_PLAY("want_play", WantPlayRequest.class),
+    PRIVATE_CREATE_GAME("create_private_game", CreateGameRequest.class),
     PLAYING_MOVE("playing_move", MovePlayerRequest.class);
 
     private final String commandName;

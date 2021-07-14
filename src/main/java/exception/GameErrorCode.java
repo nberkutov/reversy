@@ -9,6 +9,7 @@ public enum GameErrorCode {
     INVALID_CELL("Invalid cell."),
     INVALID_PLAYER_COLOR("Invalid player color."),
     PLAYER_NOT_FOUND("Player not found."),
+    PLAYER_ALREADY_PLAYING("Player already playing"),
     PLAYER_CANNOT_FIND_GAME("The player cannot start searching for the game"),
     GAME_NOT_FOUND("Game not found"),
     BOARD_NOT_FOUND("Board not found"),

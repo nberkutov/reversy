@@ -25,7 +25,7 @@ public class ServerController {
         waiting = new DelayQueue<>();
         HandlerTasks handlerTasks = new HandlerTasks(requests, responses, waiting);
         SenderTasks senderTasks = new SenderTasks(requests, responses);
-        GameSearcher gameSearcher = new GameSearcher(responses, waiting);
+        GameSearcher gameSearcher = new GameSearcher(requests, responses, waiting);
         handlerTasks.start();
         senderTasks.start();
         gameSearcher.start();

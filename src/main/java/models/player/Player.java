@@ -5,10 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import models.ClientConnection;
-import models.game.Game;
 import models.base.PlayerColor;
 import models.base.PlayerState;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+import models.game.Game;
 
 import java.util.concurrent.Delayed;
 import java.util.concurrent.TimeUnit;
@@ -44,7 +43,15 @@ public class Player implements Delayed {
     }
 
     public void nextMove(final Game game) throws GameException {
-        throw new NotImplementedException();
+    }
+
+    @Override
+    public String toString() {
+        return "Player{" +
+                "id=" + id +
+                ", state=" + state +
+                ", color=" + color +
+                '}';
     }
 
     @Override
