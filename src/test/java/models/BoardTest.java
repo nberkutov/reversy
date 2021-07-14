@@ -7,16 +7,16 @@ import models.board.Board;
 import models.board.Point;
 import org.junit.jupiter.api.Test;
 
+import static models.board.Board.BOARD_SIZE;
 import static org.junit.jupiter.api.Assertions.*;
 
 class BoardTest {
-    static final int SIZE = 8;
 
     @Test
     void testGetCell() throws GameException {
         Board board = new Board();
-        for (int y = 0; y < SIZE; y++) {
-            for (int x = 0; x < SIZE; x++) {
+        for (int y = 0; y < BOARD_SIZE; y++) {
+            for (int x = 0; x < BOARD_SIZE; x++) {
                 assertNotNull(board.getCell(x, y));
                 assertNotNull(board.getCell(new Point(x, y)));
             }
@@ -26,8 +26,8 @@ class BoardTest {
     @Test
     void testCreateBoard() throws GameException {
         Board board = new Board();
-        for (int y = 0; y < SIZE; y++) {
-            for (int x = 0; x < SIZE; x++) {
+        for (int y = 0; y < BOARD_SIZE; y++) {
+            for (int x = 0; x < BOARD_SIZE; x++) {
                 if (y == 3 && x == 3 || y == 4 && x == 4) {
                     assertEquals(Cell.WHITE, board.getCell(new Point(x, y)));
                 } else if (y == 3 && x == 4 || y == 4 && x == 3) {
