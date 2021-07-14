@@ -31,4 +31,8 @@ public class Server {
         controller.createControllerForPlayer(socket);
     }
 
+    public static void main(String[] args) throws IOException {
+        Server server = new Server();
+        server.Start();
+    }
 }

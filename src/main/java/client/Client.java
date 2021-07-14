@@ -153,7 +153,7 @@ public class Client implements Runnable {
 
     private void actionStartGame(final CreateGameResponse response) {
         log.info("actionStartGame {}", response);
-        gameId = response.getIdGame();
+        gameId = response.getGameId();
         color = response.getColor();
     }
 }

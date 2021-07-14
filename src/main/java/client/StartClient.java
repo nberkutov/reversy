@@ -19,6 +19,7 @@ public class StartClient {
                 Client client = new Client(IP, PORT);
                 Thread thread = new Thread(client);
                 thread.start();
+                list.add(thread);
             }
 
             for (Thread thread : list) {

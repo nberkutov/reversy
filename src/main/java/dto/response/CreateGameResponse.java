@@ -13,7 +13,7 @@ import models.player.Player;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreateGameResponse extends GameResponse {
-    private int idGame;
+    private int gameId;
     private PlayerColor color;
 
     public static CreateGameResponse toDto(Game game, Player player) {
