@@ -10,6 +10,7 @@ import dto.response.*;
 import dto.response.player.CreatePlayerResponse;
 import exception.GameErrorCode;
 import exception.GameException;
+import gui.WindowGUI;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import models.ClientConnection;
@@ -30,6 +31,7 @@ public class Client implements Runnable {
     private int gameId;
     private PlayerColor color;
     private final ClientConnection connection;
+    private WindowGUI gui;
 
     public Client(final String ip, final int port) throws IOException {
         this(new Socket(ip, port));
@@ -41,6 +43,7 @@ public class Client implements Runnable {
 
     public Client(final ClientConnection connection) {
         this.connection = connection;
+        gui = new WindowGUI();
     }
 
     private static boolean nowMoveByMe(PlayerColor color, GameState state) {
@@ -50,6 +53,7 @@ public class Client implements Runnable {
         return color == PlayerColor.BLACK && state == GameState.BLACK_MOVE;
     }
 
+
     private static void sendRequest(final ClientConnection server, final GameRequest request) throws IOException, GameException {
         if (server.isConnected()) {
             log.debug("sendRequest {} {}", server.getSocket().getLocalPort(), request);
@@ -57,7 +61,7 @@ public class Client implements Runnable {
         }
     }
 
-    private void actionByResponseFromServer(final GameResponse gameResponse) throws GameException, IOException {
+    private void actionByResponseFromServer(final GameResponse gameResponse) throws GameException, IOException, InterruptedException {
 
         switch (CommandResponse.getCommandByResponse(gameResponse)) {
             case ERROR:
@@ -99,6 +103,7 @@ public class Client implements Runnable {
         return CommandResponse.getResponseFromJson(msg);
     }
 
+
     @Override
     public void run() {
         log.info("Debug connect {}", connection);
@@ -135,11 +140,14 @@ public class Client implements Runnable {
         log.debug("actionPlaying {} {}", connection.getSocket().getLocalPort(), response);
 
         if (response.getState() != GameState.END) {
+            if (response.getState() != GameState.END) {
+            gui.update(response.getBoard());
             if (nowMoveByMe(color, response.getState())) {
                 Board board = response.getBoard();
+                Thread.sleep(1000);
                 List<Point> points = BoardService.getAvailableMoves(board, color);
                 Point move = points.get(new Random().nextInt(points.size()));
-                sendRequest(connection, MovePlayerRequest.toDto(response.getGameId(), move));
+                sendRequest(connection, MovePlayerRequest.toDto(gameId, move));
             }
         } else {
             gameId = -1;
