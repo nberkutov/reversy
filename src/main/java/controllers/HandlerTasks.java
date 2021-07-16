@@ -1,6 +1,7 @@
 package controllers;
 
 import controllers.commands.CommandRequest;
+import dto.request.TaskRequest;
 import dto.request.player.*;
 import dto.request.server.CreateGameRequest;
 import dto.response.*;
@@ -14,23 +15,21 @@ import models.player.Player;
 import services.GameService;
 import services.PlayerService;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingDeque;
 
 @AllArgsConstructor
 @Slf4j
 public class HandlerTasks extends Thread {
-    private final BlockingQueue<TaskRequest> requests;
-    private final BlockingQueue<TaskResponse> responses;
-    private final BlockingQueue<ClientConnection> waiting;
+    private final LinkedBlockingDeque<TaskRequest> requests;
+    private final LinkedBlockingDeque<TaskResponse> responses;
+    private final LinkedBlockingDeque<ClientConnection> waiting;
 
     @Override
     public void run() {
-        log.debug("HandlerTasks started");
+        log.info("HandlerTasks started");
         while (true) {
             try {
-                TaskRequest task = requests.take();
+                TaskRequest task = requests.takeFirst();
                 GameRequest request = task.getRequest();
                 switch (CommandRequest.getCommandByRequest(request)) {
                     case CREATE_PLAYER:
@@ -45,6 +44,10 @@ public class HandlerTasks extends Thread {
                         MovePlayerRequest movePlayer = (MovePlayerRequest) request;
                         actionMovePlayer(movePlayer, task.getClient());
                         break;
+                    case GET_GAME_INFO:
+                        GetGameInfoRequest getGame = (GetGameInfoRequest) request;
+                        actionGetGameInfo(getGame, task.getClient());
+                        break;
                     case PRIVATE_CREATE_GAME:
                         CreateGameRequest createGame = (CreateGameRequest) request;
                         actionCreateGame(createGame, task.getClient());
@@ -56,71 +59,76 @@ public class HandlerTasks extends Thread {
         }
     }
 
-    private void actionCreateGame(CreateGameRequest createGame, ClientConnection connection) throws InterruptedException {
-        log.info("action createGame {}", createGame);
+    private synchronized void actionGetGameInfo(GetGameInfoRequest getGame, ClientConnection connection) {
+        try {
+            Game game = GameService.getGameInfo(getGame, connection);
+            addTaskResponse(connection, GameBoardResponse.toDto(game));
+            log.info("getGameInfo, {}", game);
+        } catch (GameException e) {
+            addTaskResponse(connection, ErrorResponse.toDto(e));
+        }
+    }
+
+    private synchronized void actionCreateGame(CreateGameRequest createGame, ClientConnection connection) {
         try {
             Game game = GameService.createGame(createGame, connection);
             sendInfoAboutGame(game, game.getBlackPlayer());
             sendInfoAboutGame(game, game.getWhitePlayer());
             log.info("Game created, {}", game);
         } catch (GameException e) {
-            log.info("action CreateGame error {}", createGame, e);
+            log.warn("action CreateGame error {}", createGame, e);
             addTaskResponse(connection, ErrorResponse.toDto(e));
         }
     }
 
-    private void sendInfoAboutGame(final Game game, final Player player) throws InterruptedException, GameException {
-        addTaskResponse(player, Arrays.asList(SearchGameResponse.toDto(game, player), GameBoardResponse.toDto(game)));
+    private synchronized void sendInfoAboutGame(final Game game, Player player) throws GameException {
+        ClientConnection connection = PlayerService.getConnectionByPlayer(player);
+        addTaskResponse(connection, SearchGameResponse.toDto(game, player));
+        addTaskResponse(connection, GameBoardResponse.toDto(game));
     }
 
-    public void actionCreatePlayer(final CreatePlayerRequest createPlayer, final ClientConnection connection) throws InterruptedException {
-        log.info("action createPlayer {}", createPlayer);
+    public synchronized void actionCreatePlayer(final CreatePlayerRequest createPlayer, final ClientConnection connection) {
         try {
             Player player = PlayerService.createPlayer(createPlayer, connection);
+            log.debug("action createPlayer {} {}", connection.getSocket().getPort(), createPlayer);
             addTaskResponse(connection, CreatePlayerResponse.toDto(player));
         } catch (GameException e) {
-            log.info("action CreatePlayer error {}", createPlayer, e);
+            log.warn("action CreatePlayer error {}", createPlayer, e);
             addTaskResponse(connection, ErrorResponse.toDto(e));
         }
     }
 
-    public void actionWantPlay(final WantPlayRequest wantPlay, final ClientConnection connection) throws InterruptedException {
+    public synchronized void actionWantPlay(final WantPlayRequest wantPlay, final ClientConnection connection) throws InterruptedException {
         try {
-            log.info("action wantPlay {}", wantPlay);
             PlayerService.canPlayerSearchGame(connection);
-            waiting.put(connection);
+            waiting.putLast(connection);
             addTaskResponse(connection, new MessageResponse("Search game"));
-            log.info("player put in waiting {}", connection.getPlayer());
+            log.debug("player put in waiting {}", connection.getPlayer());
         } catch (GameException e) {
-            log.info("action wantPlay error {}", wantPlay, e);
+            log.warn("action wantPlay error {}", wantPlay);
             addTaskResponse(connection, ErrorResponse.toDto(e));
         }
     }
 
-    public void actionMovePlayer(final MovePlayerRequest movePlayer, final ClientConnection connection) throws InterruptedException {
+    public synchronized void actionMovePlayer(final MovePlayerRequest movePlayer, final ClientConnection connection) throws InterruptedException {
+
         try {
             log.debug("action movePlayer {}", movePlayer);
             Game game = GameService.makePlayerMove(movePlayer, connection);
-            addTaskResponse(game.getWhitePlayer(), GameBoardResponse.toDto(game));
+
             addTaskResponse(game.getBlackPlayer(), GameBoardResponse.toDto(game));
+            addTaskResponse(game.getWhitePlayer(), GameBoardResponse.toDto(game));
         } catch (GameException e) {
+            log.warn("action movePlayer {} {}", connection.getSocket().getPort(), movePlayer);
             addTaskResponse(connection, ErrorResponse.toDto(e));
         }
     }
 
-    private void addTaskResponse(final Player player, final GameResponse response) throws InterruptedException, GameException {
+    private void addTaskResponse(final Player player, final GameResponse response) throws GameException {
         addTaskResponse(PlayerService.getConnectionByPlayer(player), response);
     }
 
-    private void addTaskResponse(final Player player, final List<GameResponse> response) throws InterruptedException, GameException {
-        addTaskResponse(PlayerService.getConnectionByPlayer(player), response);
-    }
-
-    private void addTaskResponse(final ClientConnection connection, final List<GameResponse> response) throws InterruptedException {
-        responses.put(new TaskResponse(connection, response));
-    }
-
-    private void addTaskResponse(final ClientConnection connection, final GameResponse response) throws InterruptedException {
-        responses.put(new TaskResponse(connection, response));
+    private void addTaskResponse(final ClientConnection connection, final GameResponse response) {
+        responses.addLast(TaskResponse.create(connection, response));
     }
 }

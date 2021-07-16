@@ -4,6 +4,7 @@ import dto.request.player.CreatePlayerRequest;
 import exception.GameErrorCode;
 import exception.GameException;
 import models.ClientConnection;
+import models.base.PlayerColor;
 import models.base.PlayerState;
 import models.player.Player;
 
@@ -21,7 +22,7 @@ public class PlayerService extends BaseService {
     }
 
 
-    public static ClientConnection getConnectionById(final int id) throws GameException {
+    public static ClientConnection getConnectionById(final int id) {
         return connects.get(id);
     }
 
@@ -30,11 +31,6 @@ public class PlayerService extends BaseService {
         ClientConnection connection = connects.get(player.getId());
         connectionIsNotNullAndConnected(connection);
         return connection;
-    }
-
-    public static boolean isCanPlay(final Player player) throws GameException {
-        ClientConnection connection = PlayerService.getConnectionById(player.getId());
-        return isCanPlay(connection);
     }
 
     public static boolean isCanPlay(final ClientConnection connection) {
@@ -53,6 +49,7 @@ public class PlayerService extends BaseService {
     public static void setPlayerStateNone(final Player player) throws GameException {
         playerIsNotNull(player);
         player.setState(PlayerState.NONE);
+        player.setColor(PlayerColor.NONE);
     }
 
 

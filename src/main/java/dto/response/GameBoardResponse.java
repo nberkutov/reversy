@@ -13,10 +13,11 @@ import models.game.Game;
 @NoArgsConstructor
 @AllArgsConstructor
 public class GameBoardResponse extends GameResponse {
+    private int gameId;
     private GameState state;
     private Board board;
 
     public static GameBoardResponse toDto(final Game game) {
-        return new GameBoardResponse(game.getState(), game.getBoard());
+        return new GameBoardResponse(game.getId(), game.getState(), game.getBoard());
     }
 }

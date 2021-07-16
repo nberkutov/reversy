@@ -1,5 +1,6 @@
 package services;
 
+import dto.request.player.GetGameInfoRequest;
 import dto.request.player.MovePlayerRequest;
 import dto.request.server.CreateGameRequest;
 import exception.GameErrorCode;
@@ -29,6 +30,14 @@ public class GameService extends BaseService {
         return createGame(first, second);
     }
 
+    public static Game getGameInfo(GetGameInfoRequest getGame, ClientConnection connection) throws GameException {
+        requestIsNotNull(getGame);
+        connectionIsNotNullAndConnected(connection);
+        Game game = GameService.getGameById(getGame.getGameId());
+        gameIsNotNull(game);
+        return game;
+    }
+
     public static Game createGame(final Player first, final Player second) throws GameException {
         playerIsNotNull(first);
         playerIsNotNull(second);
@@ -46,40 +55,56 @@ public class GameService extends BaseService {
         requestIsNotNull(movePlayer);
         connectionIsNotNullAndConnected(connection);
         Player player = connection.getPlayer();
-        playerIsNotNull(player);
         Game game = GameService.getGameById(movePlayer.getGameId());
         return makePlayerMove(game, movePlayer.getPoint(), player);
     }
 
     public static Game makePlayerMove(final Game game, final Point point, final Player player) throws GameException {
+        gameIsNotNull(game);
         gameIsNotEnd(game);
+        playerIsNotNull(player);
         playerValidMove(game, player);
+
         BoardService.makeMove(game, point, player.getColor());
-        switch (game.getState()) {
-            case BLACK_MOVE:
-                if (BoardService.hasPossibleMove(game.getBoard(), game.getWhitePlayer())) {
-                    game.setState(GameState.WHITE_MOVE);
-                }
-                break;
-            case WHITE_MOVE:
-                if (BoardService.hasPossibleMove(game.getBoard(), game.getBlackPlayer())) {
-                    game.setState(GameState.BLACK_MOVE);
-                }
-                break;
+
+        boolean blackCanMove = BoardService.hasPossibleMove(game.getBoard(), game.getBlackPlayer());
+        boolean whiteCanMove = BoardService.hasPossibleMove(game.getBoard(), game.getWhitePlayer());
+        if (game.getState() == GameState.BLACK_MOVE && whiteCanMove) {
+            game.setState(GameState.WHITE_MOVE);
+        } else if (game.getState() == GameState.WHITE_MOVE && blackCanMove) {
+            game.setState(GameState.BLACK_MOVE);
+        } else if (game.getState() == GameState.BLACK_MOVE && blackCanMove) {
+            game.setState(GameState.BLACK_MOVE);
+        } else if (game.getState() == GameState.WHITE_MOVE && whiteCanMove) {
+            game.setState(GameState.WHITE_MOVE);
+        } else {
+            game.setState(GameState.END);
         }
-        if (isGameEnd(game)) {
+//        switch (game.getState()) {
+//            case BLACK_MOVE:
+//                if (BoardService.hasPossibleMove(game.getBoard(), game.getWhitePlayer())) {
+//                    game.setState(GameState.WHITE_MOVE);
+//                }
+//                break;
+//            case WHITE_MOVE:
+//                if (BoardService.hasPossibleMove(game.getBoard(), game.getBlackPlayer())) {
+//                    game.setState(GameState.BLACK_MOVE);
+//                }
+//                break;
+//        }
+
+        if (game.isFinished()) {
             log.info("GameEnd {} \n{}", game, game.getBoard().getVisualString());
             game.setState(GameState.END);
             PlayerService.setPlayerStateNone(game.getBlackPlayer());
             PlayerService.setPlayerStateNone(game.getWhitePlayer());
         }
+
         return game;
     }
 
-    public static Game getGameById(final int gameId) throws GameException {
-        Game game = games.get(gameId);
-        gameIsNotNull(game);
-        return game;
+    public static Game getGameById(final int gameId) {
+        return games.get(gameId);
     }
 
     /**
@@ -101,8 +126,6 @@ public class GameService extends BaseService {
                 }
                 game.setState(GameState.BLACK_MOVE);
                 break;
-            case END:
-                break;
         }
         if (GameService.isGameEnd(game)) {
             game.setState(GameState.END);
@@ -116,9 +139,11 @@ public class GameService extends BaseService {
      * @return boolean
      */
     public static boolean isGameEnd(final Game game) throws GameException {
-        return BoardService.getCountEmpty(game.getBoard()) == 0 ||
-                (!BoardService.hasPossibleMove(game.getBoard(), game.getBlackPlayer())
-                        && !BoardService.hasPossibleMove(game.getBoard(), game.getWhitePlayer()));
+        if (BoardService.getCountEmpty(game.getBoard()) == 0) {
+            return true;
+        }
+        return !BoardService.hasPossibleMove(game.getBoard(), game.getBlackPlayer())
+                && !BoardService.hasPossibleMove(game.getBoard(), game.getWhitePlayer());
     }
 
     /**
@@ -142,18 +167,25 @@ public class GameService extends BaseService {
     }
 
     private static void gameIsNotEnd(final Game game) throws GameException {
-        if (game.isFinished()) {
+        if (game.isFinished() || game.getBoard().getCountEmpty() == 0) {
             throw new GameException(GameErrorCode.GAME_ENDED);
         }
     }
 
     private static void playerValidMove(final Game game, final Player player) throws GameException {
-        if (
-                (game.getState() == GameState.BLACK_MOVE && game.getBlackPlayer().equals(player))
-                        || (game.getState() == GameState.WHITE_MOVE && game.getWhitePlayer().equals(player))
-        ) {
-            return;
+        if (!whatPlayerMoveNow(game).equals(player)) {
+            throw new GameException(GameErrorCode.ILLEGAL_REQUEST);
         }
-        throw new GameException(GameErrorCode.INVALID_REQUEST);
     }
+
+    public static Player whatPlayerMoveNow(Game game) throws GameException {
+        if (game.getState() == GameState.BLACK_MOVE) {
+            return game.getBlackPlayer();
+        }
+        if (game.getState() == GameState.WHITE_MOVE) {
+            return game.getWhitePlayer();
+        }
+        throw new GameException(GameErrorCode.GAME_ENDED);
+    }
+
 }

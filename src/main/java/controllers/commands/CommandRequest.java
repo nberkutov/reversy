@@ -1,20 +1,17 @@
 package controllers.commands;
 
-import dto.request.player.CreatePlayerRequest;
-import dto.request.player.GameRequest;
-import dto.request.player.MovePlayerRequest;
-import dto.request.player.WantPlayRequest;
+import dto.request.player.*;
 import dto.request.server.CreateGameRequest;
 import exception.GameErrorCode;
 import exception.GameException;
-
-import static services.BaseService.GSON;
+import services.JsonService;
 
 public enum CommandRequest {
     CREATE_PLAYER("create_player", CreatePlayerRequest.class),
     WANT_PLAY("want_play", WantPlayRequest.class),
     PRIVATE_CREATE_GAME("create_private_game", CreateGameRequest.class),
-    PLAYING_MOVE("playing_move", MovePlayerRequest.class);
+    PLAYING_MOVE("playing_move", MovePlayerRequest.class),
+    GET_GAME_INFO("get_game_info", GetGameInfoRequest.class);
 
     private final String commandName;
     private final Class request;
@@ -58,7 +55,7 @@ public enum CommandRequest {
                 StringBuilder builder = new StringBuilder();
                 builder.append(commandRequest.commandName);
                 builder.append(" ");
-                builder.append(GSON.toJson(request));
+                builder.append(JsonService.toJson(request));
                 return builder.toString();
             }
         }
@@ -67,11 +64,11 @@ public enum CommandRequest {
     }
 
     public static GameRequest getRequestFromJson(String msg) throws GameException {
-        String[] splits = msg.split(" ", 2);
+        String[] splits = msg.split(" ");
         for (final CommandRequest commandRequest : values()) {
             if (commandRequest.equalCommand(splits[0])) {
                 String json = msg.substring(splits[0].length() + 1);
-                return (GameRequest) GSON.fromJson(json, commandRequest.getRequest());
+                return (GameRequest) JsonService.fromJson(json, commandRequest.getRequest());
             }
         }
         throw new GameException(GameErrorCode.INVALID_REQUEST);
