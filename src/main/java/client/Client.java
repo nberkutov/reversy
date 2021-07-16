@@ -10,6 +10,7 @@ import dto.response.*;
 import dto.response.player.CreatePlayerResponse;
 import exception.GameErrorCode;
 import exception.GameException;
+import gui.WindowGUI;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import models.ClientConnection;
@@ -31,6 +32,7 @@ public class Client implements Runnable {
     private int gameId;
     private PlayerColor color;
     private final ClientConnection connection;
+    private WindowGUI gui;
 
     public Client(final String ip, final int port) throws IOException {
         this(new Socket(ip, port));
@@ -42,6 +44,7 @@ public class Client implements Runnable {
 
     public Client(final ClientConnection connection) {
         this.connection = connection;
+        gui = new WindowGUI();
     }
 
     private static boolean nowMoveByMe(PlayerColor color, GameState state) {
@@ -67,13 +70,13 @@ public class Client implements Runnable {
                 GameResponse response = getRequest(connection);
                 actionByResponseFromServer(response);
             }
-        } catch (IOException | GameException e) {
+        } catch (IOException | GameException | InterruptedException e) {
             connection.close();
             log.error("Error", e);
         }
     }
 
-    private void actionByResponseFromServer(final GameResponse gameResponse) throws GameException, IOException {
+    private void actionByResponseFromServer(final GameResponse gameResponse) throws GameException, IOException, InterruptedException {
 
         switch (CommandResponse.getCommandByResponse(gameResponse)) {
             case ERROR:
@@ -109,12 +112,13 @@ public class Client implements Runnable {
         log.error("actionError {}", response);
     }
 
-    private void actionPlaying(final GameBoardResponse response) throws GameException, IOException {
+    private void actionPlaying(final GameBoardResponse response) throws GameException, IOException, InterruptedException {
         log.debug("actionPlaying {}", response);
         if (response.getState() != GameState.END) {
-
+            gui.update(response.getBoard());
             if (nowMoveByMe(color, response.getState())) {
                 Board board = response.getBoard();
+                Thread.sleep(1000);
                 List<Point> points = BoardService.getAvailableMoves(board, color);
                 Point move = points.get(new Random().nextInt(points.size()));
                 sendRequest(connection, MovePlayerRequest.toDto(gameId, move));
