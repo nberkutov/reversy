@@ -1,7 +1,5 @@
 package services;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import dto.request.player.GameRequest;
 import exception.GameErrorCode;
 import exception.GameException;
@@ -27,10 +25,6 @@ public class BaseService {
     protected static final Map<Integer, Player> players = new ConcurrentHashMap<>();
     protected static final Map<Integer, ClientConnection> connects = new ConcurrentHashMap<>();
     //BD ---
-    public static final Gson GSON = new GsonBuilder()
-            .enableComplexMapKeySerialization()
-            .create();
-
 
     protected static synchronized int getPlayerId() {
         return playerIncrement++;

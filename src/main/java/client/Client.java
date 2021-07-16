@@ -27,7 +27,6 @@ import java.util.Random;
 @Slf4j
 @Data
 public class Client implements Runnable {
-    private int playerId;
     private int gameId;
     private PlayerColor color;
     private final ClientConnection connection;
@@ -51,25 +50,10 @@ public class Client implements Runnable {
         return color == PlayerColor.BLACK && state == GameState.BLACK_MOVE;
     }
 
-    @Override
-    public void run() {
-        log.debug("Debug connect {}", connection);
-        new Thread(() -> {
-            try {
-                Thread.sleep(1000);
-                sendRequest(connection, new CreatePlayerRequest("Bot"));
-            } catch (InterruptedException | IOException | GameException e) {
-                e.printStackTrace();
-            }
-        }).start();
-        try {
-            while (connection.isConnected()) {
-                GameResponse response = getRequest(connection);
-                actionByResponseFromServer(response);
-            }
-        } catch (IOException | GameException e) {
-            connection.close();
-            log.error("Error", e);
+    private static void sendRequest(final ClientConnection server, final GameRequest request) throws IOException, GameException {
+        if (server.isConnected()) {
+            log.debug("sendRequest {} {}", server.getSocket().getLocalPort(), request);
+            server.send(CommandRequest.toJsonParser(request));
         }
     }
 
@@ -105,45 +89,63 @@ public class Client implements Runnable {
         log.info("actionMessage {}", response);
     }
 
-    private void actionError(final ErrorResponse response) {
-        log.error("actionError {}", response);
-    }
-
-    private void actionPlaying(final GameBoardResponse response) throws GameException, IOException {
-        log.debug("actionPlaying {}", response);
-        if (response.getState() != GameState.END) {
-
-            if (nowMoveByMe(color, response.getState())) {
-                Board board = response.getBoard();
-                List<Point> points = BoardService.getAvailableMoves(board, color);
-                Point move = points.get(new Random().nextInt(points.size()));
-                sendRequest(connection, MovePlayerRequest.toDto(gameId, move));
-            }
-        } else {
-            gameId = -1;
-            color = null;
-            sendRequest(connection, new WantPlayRequest());
-        }
-    }
-
-    private void actionCreatePlayer(final CreatePlayerResponse response) throws IOException, GameException {
-        //log.info("actionCreatePlayer {}", response);
-        playerId = response.getId();
-        sendRequest(connection, new WantPlayRequest());
-    }
-
-    private static void sendRequest(final ClientConnection server, final GameRequest request) throws IOException, GameException {
-        if (server.isConnected()) {
-            server.send(CommandRequest.toJsonParser(request));
-        }
-    }
-
     private static GameResponse getRequest(final ClientConnection server) throws GameException, IOException {
         if (!server.isConnected()) {
             throw new GameException(GameErrorCode.CONNECTION_LOST);
         }
-        String msg = server.getIn().readUTF();
+
+        String msg = server.readMsg();
+        log.debug("Client getRequest {} {}", server.getSocket().getLocalPort(), msg);
         return CommandResponse.getResponseFromJson(msg);
+    }
+
+    @Override
+    public void run() {
+        log.info("Debug connect {}", connection);
+        new Thread(() -> {
+            try {
+                Thread.sleep(1000);
+                sendRequest(connection, new CreatePlayerRequest("Bot"));
+            } catch (InterruptedException | IOException | GameException e) {
+                e.printStackTrace();
+            }
+        }).start();
+
+        while (connection.isConnected()) {
+            try {
+                GameResponse response = getRequest(connection);
+                actionByResponseFromServer(response);
+            } catch (GameException | IOException e) {
+                log.error("Error {}", connection.getSocket(), e);
+            }
+        }
+
+    }
+
+    private void actionCreatePlayer(final CreatePlayerResponse response) throws IOException, GameException {
+        //log.info("actionCreatePlayer {}", response);
+        sendRequest(connection, new WantPlayRequest());
+    }
+
+    private void actionError(final ErrorResponse response) {
+        log.warn("actionError {}", response);
+    }
+
+    private void actionPlaying(final GameBoardResponse response) throws GameException, IOException {
+        log.debug("actionPlaying {} {}", connection.getSocket().getLocalPort(), response);
+
+        if (response.getState() != GameState.END) {
+            if (nowMoveByMe(color, response.getState())) {
+                Board board = response.getBoard();
+                List<Point> points = BoardService.getAvailableMoves(board, color);
+                Point move = points.get(new Random().nextInt(points.size()));
+                sendRequest(connection, MovePlayerRequest.toDto(response.getGameId(), move));
+            }
+        } else {
+            gameId = -1;
+            color = PlayerColor.NONE;
+            sendRequest(connection, new WantPlayRequest());
+        }
     }
 
     private void actionStartGame(final SearchGameResponse response) {

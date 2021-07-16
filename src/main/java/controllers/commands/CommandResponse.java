@@ -4,8 +4,7 @@ import dto.response.*;
 import dto.response.player.CreatePlayerResponse;
 import exception.GameErrorCode;
 import exception.GameException;
-
-import static services.BaseService.GSON;
+import services.JsonService;
 
 public enum CommandResponse {
     ERROR("error", ErrorResponse.class),
@@ -49,13 +48,13 @@ public enum CommandResponse {
         throw new GameException(GameErrorCode.INVALID_REQUEST);
     }
 
-    public static String toJsonParser(GameResponse response) throws GameException {
+    public synchronized static String toJsonParser(GameResponse response) throws GameException {
         for (final CommandResponse commandResponse : values()) {
             if (commandResponse.getResponse().equals(response.getClass())) {
                 StringBuilder builder = new StringBuilder();
                 builder.append(commandResponse.commandName);
                 builder.append(" ");
-                builder.append(GSON.toJson(response));
+                builder.append(JsonService.toJson(response));
                 return builder.toString();
             }
         }
@@ -63,12 +62,12 @@ public enum CommandResponse {
         throw new GameException(GameErrorCode.INVALID_REQUEST);
     }
 
-    public static GameResponse getResponseFromJson(String msg) throws GameException {
+    public synchronized static GameResponse getResponseFromJson(String msg) throws GameException {
         String[] splits = msg.split(" ");
         for (final CommandResponse commandResponse : values()) {
             if (commandResponse.equalCommand(splits[0])) {
                 String json = msg.substring(splits[0].length() + 1);
-                return (GameResponse) GSON.fromJson(json, commandResponse.getResponse());
+                return (GameResponse) JsonService.fromJson(json, commandResponse.getResponse());
             }
         }
         //TODO

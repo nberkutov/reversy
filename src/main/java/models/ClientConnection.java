@@ -10,14 +10,13 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
-import java.util.concurrent.Delayed;
-import java.util.concurrent.TimeUnit;
+import java.util.Objects;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Slf4j
-public class ClientConnection implements AutoCloseable, Delayed {
+public class ClientConnection implements AutoCloseable {
     private Socket socket;
     private DataInputStream in;
     private DataOutputStream out;
@@ -35,6 +34,10 @@ public class ClientConnection implements AutoCloseable, Delayed {
 
     public boolean isConnected() {
         return socket != null && socket.isConnected();
+    }
+
+    public String readMsg() throws IOException {
+        return in.readUTF();
     }
 
     public void send(String msg) throws IOException {
@@ -56,12 +59,16 @@ public class ClientConnection implements AutoCloseable, Delayed {
     }
 
     @Override
-    public long getDelay(TimeUnit unit) {
-        return 0;
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ClientConnection that = (ClientConnection) o;
+        return Objects.equals(socket, that.socket);
     }
 
     @Override
-    public int compareTo(Delayed o) {
-        return 0;
+    public int hashCode() {
+        return Objects.hash(socket);
     }
+
 }

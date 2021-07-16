@@ -46,6 +46,7 @@ public class Game {
         this.board = board;
     }
 
+
     public boolean isFinished() {
         return state == GameState.END;
     }
