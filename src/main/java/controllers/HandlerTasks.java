@@ -1,6 +1,5 @@
 package controllers;
 
-import controllers.commands.CommandRequest;
 import dto.request.TaskRequest;
 import dto.request.player.*;
 import dto.request.server.CreateGameRequest;
@@ -13,6 +12,7 @@ import models.ClientConnection;
 import models.game.Game;
 import models.player.Player;
 import services.GameService;
+import services.JsonService;
 import services.PlayerService;
 
 import java.util.concurrent.LinkedBlockingDeque;
@@ -31,7 +31,7 @@ public class HandlerTasks extends Thread {
             try {
                 TaskRequest task = requests.takeFirst();
                 GameRequest request = task.getRequest();
-                switch (CommandRequest.getCommandByRequest(request)) {
+                switch (JsonService.getCommandByRequest(request)) {
                     case CREATE_PLAYER:
                         CreatePlayerRequest createPlayer = (CreatePlayerRequest) request;
                         actionCreatePlayer(createPlayer, task.getClient());

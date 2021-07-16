@@ -1,15 +1,15 @@
 package dto.response;
 
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 import models.base.PlayerColor;
 import models.game.Game;
 import models.player.Player;
 
-@Getter
-@ToString
+@Data
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
 public class SearchGameResponse extends GameResponse {

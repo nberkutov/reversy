@@ -3,6 +3,7 @@ package services;
 import dto.request.player.GameRequest;
 import exception.GameErrorCode;
 import exception.GameException;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import models.ClientConnection;
 import models.base.PlayerState;
@@ -16,15 +17,15 @@ import java.util.concurrent.ConcurrentHashMap;
 import static models.board.Board.BOARD_SIZE;
 
 @Slf4j
+@NoArgsConstructor
 public class BaseService {
-    //BD coming +++
+    //MiniBD
     protected static int gameIncrement = 0;
     protected static final Map<Integer, Game> games = new ConcurrentHashMap<>();
-
     protected static int playerIncrement = 0;
     protected static final Map<Integer, Player> players = new ConcurrentHashMap<>();
     protected static final Map<Integer, ClientConnection> connects = new ConcurrentHashMap<>();
-    //BD ---
+
 
     protected static synchronized int getPlayerId() {
         return playerIncrement++;
@@ -85,12 +86,6 @@ public class BaseService {
     protected static void checkPlayerConnection(final Player player) throws GameException {
         ClientConnection connection = PlayerService.getConnectionById(player.getId());
         connectionIsNotNullAndConnected(connection);
-    }
-
-    protected static void validateConnection(ClientConnection one, ClientConnection two) throws GameException {
-        if (!one.equals(two)) {
-            throw new GameException(GameErrorCode.ILLEGAL_REQUEST);
-        }
     }
 
     protected static void connectionIsNotNullAndConnected(ClientConnection connection) throws GameException {

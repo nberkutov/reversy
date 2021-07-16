@@ -1,6 +1,7 @@
 package services;
 
 import controllers.ServerController;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -9,10 +10,15 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 @Slf4j
+@Data
 public class Server {
-    public static final int PORT = 8081;
+    private final int PORT;
     private final ServerController controller = new ServerController();
     private final BaseService baseService = new BaseService();
+
+    public Server(int PORT) {
+        this.PORT = PORT;
+    }
 
     public void Start() throws IOException {
         try (final ServerSocket serverSocket = new ServerSocket(PORT)) {
@@ -31,8 +37,4 @@ public class Server {
         controller.createControllerForPlayer(socket);
     }
 
-    public static void main(String[] args) throws IOException {
-        Server server = new Server();
-        server.Start();
-    }
 }

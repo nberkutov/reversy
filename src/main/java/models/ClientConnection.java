@@ -9,6 +9,7 @@ import models.player.Player;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.Socket;
 import java.util.Objects;
 
@@ -16,7 +17,7 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 @Slf4j
-public class ClientConnection implements AutoCloseable {
+public class ClientConnection implements AutoCloseable, Serializable {
     private Socket socket;
     private DataInputStream in;
     private DataOutputStream out;

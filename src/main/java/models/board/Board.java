@@ -177,7 +177,6 @@ public class Board implements Serializable, GameBoard {
     public void reverseCell(final Point point) throws GameException {
         Cell cell = getCell(point);
         if (cell == Cell.EMPTY) {
-            log.error("Bad reverseCell {}, {}", point, cell, new GameException(GameErrorCode.CELL_IS_EMPTY));
             throw new GameException(GameErrorCode.CELL_IS_EMPTY);
         }
         if (cell == Cell.WHITE) {

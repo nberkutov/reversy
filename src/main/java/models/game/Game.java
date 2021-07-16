@@ -9,12 +9,13 @@ import models.base.PlayerColor;
 import models.board.Board;
 import models.player.Player;
 
+import java.io.Serializable;
 import java.util.Random;
 
 @Data
 @Slf4j
 @AllArgsConstructor
-public class Game {
+public class Game implements Serializable {
     private int id;
     private final Player blackPlayer;
     private final Player whitePlayer;

@@ -1,11 +1,11 @@
 package dto.response;
 
-import controllers.commands.CommandResponse;
 import exception.GameException;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import models.ClientConnection;
+import services.JsonService;
 
 import java.io.IOException;
 
@@ -22,7 +22,7 @@ public class TaskResponse {
 
     public void sendJson() throws IOException, GameException {
         if (client.isConnected()) {
-            client.send(CommandResponse.toJsonParser(response));
+            client.send(JsonService.toJsonParser(response));
         }
     }
 

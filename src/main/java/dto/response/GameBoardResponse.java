@@ -2,17 +2,17 @@ package dto.response;
 
 import exception.GameException;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 import models.base.GameState;
 import models.board.Board;
 import models.game.Game;
 import services.BoardEncoder;
 import services.BoardService;
 
-@Getter
-@ToString
+@Data
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
 public class GameBoardResponse extends GameResponse {

@@ -107,6 +107,8 @@ public class GameServicesTest {
 
     @Test
     void testMoveException() throws GameException, IOException {
+        final int PORT = 8083;
+        final String IP = "127.0.0.1";
         try {
             GameService.makePlayerMove(null, null);
             fail();
@@ -123,9 +125,6 @@ public class GameServicesTest {
 
         Game game = GameService.createGame(new Player(), new Player());
 
-
-        final int PORT = 8081;
-        final String IP = "127.0.0.1";
         ServerSocket socket = new ServerSocket(PORT);
 
         Socket client = new Socket(IP, PORT);
@@ -135,7 +134,7 @@ public class GameServicesTest {
             GameService.makePlayerMove(new MovePlayerRequest(game.getId(), new Point()), connection);
             fail();
         } catch (GameException e) {
-            assertEquals(e.getErrorCode(), GameErrorCode.INVALID_REQUEST);
+            assertEquals(e.getErrorCode(), GameErrorCode.ILLEGAL_REQUEST);
         }
 
         try {

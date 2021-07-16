@@ -8,10 +8,13 @@ import models.base.PlayerColor;
 import models.base.PlayerState;
 import models.game.Game;
 
+import java.io.Serializable;
+
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Player {
+public class Player implements Serializable {
     private int id;
     private PlayerState state;
     protected PlayerColor color;

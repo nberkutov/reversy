@@ -2,13 +2,13 @@ package dto.response.player;
 
 import dto.response.GameResponse;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 import models.player.Player;
 
-@Getter
-@ToString
+@Data
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreatePlayerResponse extends GameResponse {

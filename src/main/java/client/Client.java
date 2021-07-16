@@ -20,6 +20,7 @@ import models.base.PlayerColor;
 import models.board.Board;
 import models.board.Point;
 import services.BoardService;
+import services.JsonService;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -54,17 +55,17 @@ public class Client implements Runnable {
         return color == PlayerColor.BLACK && state == GameState.BLACK_MOVE;
     }
 
-
     private static void sendRequest(final ClientConnection server, final GameRequest request) throws IOException, GameException {
         if (server.isConnected()) {
             log.debug("sendRequest {} {}", server.getSocket().getLocalPort(), request);
-            server.send(CommandRequest.toJsonParser(request));
+            server.send(JsonService.toJsonParser(request));
         }
     }
 
-    private void actionByResponseFromServer(final GameResponse gameResponse) throws GameException, IOException, InterruptedException {
 
-        switch (CommandResponse.getCommandByResponse(gameResponse)) {
+    private void actionByResponseFromServer(final GameResponse gameResponse) throws GameException, IOException {
+
+        switch (JsonService.getCommandByResponse(gameResponse)) {
             case ERROR:
                 ErrorResponse error = (ErrorResponse) gameResponse;
                 actionError(error);
@@ -101,9 +102,8 @@ public class Client implements Runnable {
 
         String msg = server.readMsg();
         log.debug("Client getRequest {} {}", server.getSocket().getLocalPort(), msg);
-        return CommandResponse.getResponseFromJson(msg);
+        return JsonService.getResponseFromJson(msg);
     }
-
 
     @Override
     public void run() {

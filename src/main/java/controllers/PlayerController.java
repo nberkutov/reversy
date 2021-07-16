@@ -1,12 +1,12 @@
 package controllers;
 
-import controllers.commands.CommandRequest;
 import dto.request.TaskRequest;
 import dto.request.player.GameRequest;
 import exception.GameException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import models.ClientConnection;
+import services.JsonService;
 
 import java.io.IOException;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -29,7 +29,7 @@ public class PlayerController extends Thread {
         while (connection.isConnected()) {
             try {
                 String msg = connection.readMsg();
-                GameRequest request = CommandRequest.getRequestFromJson(msg);
+                GameRequest request = JsonService.getRequestFromJson(msg);
                 requests.putLast(TaskRequest.create(connection, request));
             } catch (GameException | IOException | InterruptedException e) {
                 connection.close();

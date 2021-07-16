@@ -20,6 +20,9 @@ public class PlayerServicesTest {
 
     @Test
     void testIsPlayerCanSearchGameException() throws IOException, GameException {
+        final int PORT = 8082;
+        final String IP = "127.0.0.1";
+
         try {
             PlayerService.canPlayerSearchGame((ClientConnection) null);
             fail();
@@ -41,8 +44,6 @@ public class PlayerServicesTest {
             assertEquals(e.getErrorCode(), GameErrorCode.CONNECTION_LOST);
         }
 
-        final int PORT = 8081;
-        final String IP = "127.0.0.1";
         ServerSocket socket = new ServerSocket(PORT);
         Socket client = new Socket(IP, PORT);
         ClientConnection connection = new ClientConnection(client);
