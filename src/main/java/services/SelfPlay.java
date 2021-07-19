@@ -3,6 +3,7 @@ package services;
 import exception.GameException;
 
 import lombok.extern.slf4j.Slf4j;
+import models.base.GameBoard;
 import models.board.Board;
 import models.game.Game;
 import models.game.GameResult;
@@ -17,7 +18,7 @@ public class SelfPlay {
     public SelfPlay(final Player first, final Player second) {
         this.first = first;
         this.second = second;
-        Board board = new Board();
+        GameBoard board = new Board();
         game = new Game(board, first, second);
     }
 
@@ -28,7 +29,7 @@ public class SelfPlay {
             GameService.playNext(game);
         }
 
-        log.debug("DEBUG finish \n{}", game.getResult().getBoard().getVisualString());
+        log.debug("DEBUG finish \n{}", BoardService.getVisualString(game.getBoard()));
         return GameService.getGameResult(game);
     }
 }

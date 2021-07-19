@@ -2,48 +2,71 @@ package gui;
 
 import exception.GameException;
 import models.base.Cell;
+import models.base.GameBoard;
+import models.base.GameState;
 import models.board.Board;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.Line2D;
-import java.awt.geom.Rectangle2D;
-import java.util.ArrayList;
 
 public class WindowGUI extends JFrame {
-    private static final int CELL_SIZE = 100;
+    private static final int CELL_SIZE = 50;
     private static final int OFFSET = 50;
-    private JLabel[] cells;
-    private Board board;
+    private final JLabel stateInfoLabel;
+    private final JLabel countBlackLabel;
+    private final JLabel countWhiteLabel;
+    private GameBoard board;
 
     public WindowGUI() {
         super("Reversi Client");
         board = new Board();
         int xSize = CELL_SIZE * Board.BOARD_SIZE + 2 * OFFSET;
-        int ySize = xSize;
-        cells = new JLabel[Board.BOARD_SIZE * Board.BOARD_SIZE];
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(xSize, ySize);
-        setVisible(true);
+        setSize(xSize, xSize);
         setBackground(Color.GREEN);
         setLocationRelativeTo(null);
+        setLayout(null);
+        stateInfoLabel = new JLabel();
+        stateInfoLabel.setBounds(OFFSET, 0, 200, 30);
+        stateInfoLabel.setText("НАЧАЛО ИГРЫ");
+
+        countBlackLabel = new JLabel();
+        countBlackLabel.setBounds(xSize - OFFSET - 200, 0, xSize - OFFSET - 120, 30);
+        countBlackLabel.setText(String.format("ЧЕРНЫЕ: %d", board.getCountBlackCells()));
+
+        countWhiteLabel = new JLabel();
+        countWhiteLabel.setBounds(xSize - OFFSET - 80, 0, xSize - OFFSET, 30);
+        countWhiteLabel.setText(String.format("БЕЛЫЕ: %d", board.getCountWhiteCells()));
+
+        add(stateInfoLabel);
+        add(countBlackLabel);
+        add(countWhiteLabel);
+
+        setVisible(true);
     }
 
-    public void update(Board board) throws GameException {
-        this.board = board;
-        repaint();
-    }
-
-    private String mapCellToChar(Cell cell) {
-        switch (cell) {
-            case EMPTY:
-                return "_";
-            case WHITE:
-                return "◯";//return "⚪";
-            case BLACK:
-                return "⬤";
+    public void updateGUI(GameBoard board, GameState gameState) {
+        String stateText;
+        switch (gameState) {
+            case BLACK_MOVE:
+                stateText = "ХОД ЧЕРНЫХ";
+                break;
+            case WHITE_MOVE:
+                stateText = "ХОД БЕЛЫХ";
+                break;
+            case END:
+                stateText = "КОНЕЦ ИГРЫ";
+                break;
+            default:
+                throw new NotImplementedException();
         }
-        return "";
+        stateInfoLabel.setText(stateText);
+        this.board = board;
+        countBlackLabel.setText(String.format("ЧЕРНЫЕ: %d", board.getCountBlackCells()));
+        countWhiteLabel.setText(String.format("БЕЛЫЕ: %d", board.getCountWhiteCells()));
+        repaint();
     }
 
     public void paint(Graphics g) {
@@ -64,8 +87,8 @@ public class WindowGUI extends JFrame {
             g2.draw(horizontalLine);
         }
 
-        for (int y = 0; y < Board.BOARD_SIZE; y++) {
-            for (int x = 0; x < Board.BOARD_SIZE; x++) {
+        for (int y = 0; y < board.getSize(); y++) {
+            for (int x = 0; x < board.getSize(); x++) {
                 try {
                     Cell cell = board.getCell(x, y);
                     if (cell == Cell.EMPTY) {

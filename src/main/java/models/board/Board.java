@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 import models.base.Cell;
+import models.base.GameBoard;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -18,17 +19,18 @@ import java.util.Map;
 @Data
 @Slf4j
 @EqualsAndHashCode
-public class Board implements Serializable {
+public class Board implements Serializable, GameBoard {
     public static final int BOARD_SIZE = 8;
 
-    private final Map<Cell, String> tiles;
     private final Map<Point, Cell> cells;
+    private int size;
     private int countBlackCells = 0;
     private int countWhiteCells = 0;
     private int countEmpty;
 
 
     public Board() {
+        size = BOARD_SIZE;
         countEmpty = BOARD_SIZE * BOARD_SIZE;
         cells = new HashMap<>();
         for (int i = 0; i < BOARD_SIZE; i++) {
@@ -36,14 +38,10 @@ public class Board implements Serializable {
                 cells.put(new Point(i, j), Cell.EMPTY);
             }
         }
-        tiles = new HashMap<>();
         init();
     }
 
     private void init() {
-        tiles.put(Cell.EMPTY, "_");
-        tiles.put(Cell.BLACK, "#");
-        tiles.put(Cell.WHITE, "O");
         cells.put(new Point(3, 3), Cell.WHITE);
         cells.put(new Point(3, 4), Cell.BLACK);
         cells.put(new Point(4, 3), Cell.BLACK);
@@ -51,6 +49,33 @@ public class Board implements Serializable {
         countBlackCells = 2;
         countWhiteCells = 2;
         countEmpty = 60;
+    }
+
+    public Board(String boardString) throws GameException {
+        this();
+        int k = 0;
+        for (int i = 0; i < boardString.length(); i++) {
+            int x = k % size;
+            int y = k / size;
+            switch (boardString.charAt(i)) {
+                case '0':
+                    setCell(x, y, Cell.EMPTY);
+                    k++;
+                    break;
+                case 'b':
+                    setCell(x, y, Cell.BLACK);
+                    k++;
+                    break;
+                case 'w':
+                    setCell(x, y, Cell.WHITE);
+                    k++;
+                    break;
+                case ' ':
+                    break;
+                default:
+                    throw new RuntimeException();
+            }
+        }
     }
 
     /**
@@ -168,7 +193,7 @@ public class Board implements Serializable {
      * @param points массив позиций доски для переворота.
      * @throws GameException
      */
-    public void reverseCellAll(final Collection<Point> points) throws GameException {
+    public void reverseCells(final Collection<Point> points) throws GameException {
         if (points == null) {
             throw new GameException(GameErrorCode.POINTS_NOT_FOUND);
         }
@@ -200,21 +225,6 @@ public class Board implements Serializable {
                 && point.getY() >= 0
                 && point.getX() < BOARD_SIZE
                 && point.getY() < BOARD_SIZE;
-    }
-
-    /**
-     * @return Возвращает представление игровой доски в виде строки.
-     * @throws GameException
-     */
-    public String getVisualString() throws GameException {
-        StringBuilder boardBuilder = new StringBuilder();
-        for (int i = 0; i < BOARD_SIZE; i++) {
-            for (int j = 0; j < BOARD_SIZE; j++) {
-                boardBuilder.append(tiles.get(getCell(j, i))).append(" ");
-            }
-            boardBuilder.append("\n");
-        }
-        return boardBuilder.toString();
     }
 
     @Override

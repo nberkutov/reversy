@@ -7,6 +7,8 @@ import exception.GameErrorCode;
 import exception.GameException;
 import lombok.extern.slf4j.Slf4j;
 import models.ClientConnection;
+import models.base.Cell;
+import models.base.GameBoard;
 import models.base.GameState;
 import models.base.PlayerState;
 import models.board.Board;
@@ -65,7 +67,7 @@ public class GameService extends BaseService {
         playerIsNotNull(player);
         playerValidMove(game, player);
 
-        BoardService.makeMove(game, point, player.getColor());
+        BoardService.makeMove(game.getBoard(), point, Cell.valueOf(player.getColor()));
 
         boolean blackCanMove = BoardService.hasPossibleMove(game.getBoard(), game.getBlackPlayer());
         boolean whiteCanMove = BoardService.hasPossibleMove(game.getBoard(), game.getWhitePlayer());
@@ -80,26 +82,13 @@ public class GameService extends BaseService {
         } else {
             game.setState(GameState.END);
         }
-//        switch (game.getState()) {
-//            case BLACK_MOVE:
-//                if (BoardService.hasPossibleMove(game.getBoard(), game.getWhitePlayer())) {
-//                    game.setState(GameState.WHITE_MOVE);
-//                }
-//                break;
-//            case WHITE_MOVE:
-//                if (BoardService.hasPossibleMove(game.getBoard(), game.getBlackPlayer())) {
-//                    game.setState(GameState.BLACK_MOVE);
-//                }
-//                break;
-//        }
 
         if (game.isFinished()) {
-            log.info("GameEnd {} \n{}", game, game.getBoard().getVisualString());
+            log.info("GameEnd {} \n{}", game, BoardService.getVisualString(game.getBoard()));
             game.setState(GameState.END);
             PlayerService.setPlayerStateNone(game.getBlackPlayer());
             PlayerService.setPlayerStateNone(game.getWhitePlayer());
         }
-
         return game;
     }
 
@@ -156,7 +145,7 @@ public class GameService extends BaseService {
         if (game.getState() != GameState.END) {
             throw new GameException(GameErrorCode.GAME_NOT_FINISHED);
         }
-        Board board = game.getBoard();
+        GameBoard board = game.getBoard();
         long blackCells = BoardService.getCountBlack(board);
         long whiteCells = BoardService.getCountWhite(board);
         if (blackCells <= whiteCells) {

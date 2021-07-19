@@ -28,7 +28,6 @@ public class StartClient {
         } catch (InterruptedException | IOException e) {
             log.error("ERROR", e);
         }
-
     }
 
 }

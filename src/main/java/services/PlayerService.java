@@ -10,7 +10,7 @@ import models.player.Player;
 
 public class PlayerService extends BaseService {
 
-    public static Player createPlayer(final CreatePlayerRequest createPlayerRequest, ClientConnection connection) throws GameException {
+    public static Player createPlayer(final CreatePlayerRequest createPlayerRequest, final ClientConnection connection) throws GameException {
         requestIsNotNull(createPlayerRequest);
         connectionIsNotNullAndConnected(connection);
         int id = getPlayerId();
@@ -33,7 +33,7 @@ public class PlayerService extends BaseService {
         return connection;
     }
 
-    public static boolean isCanPlay(final ClientConnection connection) {
+    public static boolean canPlay(final ClientConnection connection) {
         if (connection == null) {
             return false;
         }
@@ -53,7 +53,7 @@ public class PlayerService extends BaseService {
     }
 
 
-    public static Player canPlayerSearchGame(ClientConnection clientConnection) throws GameException {
+    public static Player canPlayerSearchGame(final ClientConnection clientConnection) throws GameException {
         connectionIsNotNullAndConnected(clientConnection);
         Player player = clientConnection.getPlayer();
         return canPlayerSearchGame(player);

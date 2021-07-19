@@ -24,13 +24,13 @@ public class GameSearcher extends Thread {
                 ClientConnection first = waiting.takeFirst();
                 ClientConnection second = waiting.takeFirst();
                 log.debug("GameSearcher {}, {}", first, second);
-                if (!PlayerService.isCanPlay(first)) {
+                if (!PlayerService.canPlay(first)) {
                     log.info("Player cant play {}", first);
                     waiting.putFirst(second);
                     PlayerService.setPlayerStateNone(first);
                     continue;
                 }
-                if (!PlayerService.isCanPlay(second)) {
+                if (!PlayerService.canPlay(second)) {
                     log.info("Player cant play {}", second);
                     PlayerService.setPlayerStateNone(second);
                     waiting.putFirst(first);

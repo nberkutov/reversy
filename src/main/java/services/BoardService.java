@@ -3,8 +3,7 @@ package services;
 import exception.GameErrorCode;
 import exception.GameException;
 import lombok.extern.slf4j.Slf4j;
-import models.board.Board;
-import models.game.Game;
+import models.base.GameBoard;
 import models.player.Player;
 import models.board.Point;
 import models.base.Cell;
@@ -15,24 +14,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static models.board.Board.BOARD_SIZE;
-
 @Slf4j
 public class BoardService extends BaseService {
-
-    /**
-     * Совершает ход на игровой доске.
-     *
-     * @param game  - Игра
-     * @param point - точка куда походил игрок
-     * @param color - цвет игрока
-     */
-    public static void makeMove(final Game game, final Point point, final PlayerColor color) throws GameException {
-        gameIsNotNull(game);
-        colorIsNotNull(color);
-        makeMove(game.getBoard(), point, Cell.valueOf(color));
-    }
-
     /**
      * Совершает ход на игровой доске.
      *
@@ -40,19 +23,7 @@ public class BoardService extends BaseService {
      * @param point - точка куда походил игрок
      * @param cell  - фишка
      */
-    public static void makeMove(final Board board, final Point point, final Cell cell) throws GameException {
-        makeMoveBoard(board, point, cell);
-    }
-
-    /**
-     * Функция ищет всевозможные ходы, а в последствиии переворчивает фишки
-     * Если нет возможных ходов, то выбрасывает GameException.
-     *
-     * @param board - Игровое поле
-     * @param point - точка куда походил игрок
-     * @param cell  - фишка
-     */
-    private static void makeMoveBoard(final Board board, final Point point, final Cell cell) throws GameException {
+    public static void makeMove(final GameBoard board, final Point point, final Cell cell) throws GameException {
         boardIsNotNull(board);
         checkPointIsInside(point);
         checkCellIsEmpty(cell);
@@ -66,8 +37,45 @@ public class BoardService extends BaseService {
         for (Point target : moves) {
             pointsForReverse.addAll(getPointsForReverse(point, target));
         }
-        board.reverseCellAll(pointsForReverse);
+        board.reverseCells(pointsForReverse);
         board.setCell(point, cell);
+    }
+
+    /**
+     * Функция ищет всевозможные ходы, а в последствиии переворчивает фишки
+     * Если нет возможных ходов, то выбрасывает GameException.
+     *
+     * @param board - Игровое поле
+     * @param point - точка куда походил игрок
+     * @param cell  - фишка
+     */
+    private static void makeMoveBoard(final GameBoard board, final Point point, final Cell cell) throws GameException {
+        boardIsNotNull(board);
+        checkPointIsInside(point);
+        checkCellIsEmpty(cell);
+        List<Point> moves = getCellInAllDirection(board, point, cell);
+
+        if (moves.isEmpty()) {
+            throw new GameException(GameErrorCode.INVALID_MOVE);
+        }
+
+        Set<Point> pointsForReverse = new HashSet<>();
+        for (Point target : moves) {
+            pointsForReverse.addAll(getPointsForReverse(point, target));
+        }
+        board.reverseCells(pointsForReverse);
+        board.setCell(point, cell);
+    }
+
+    public static String getVisualString(GameBoard board) throws GameException {
+        StringBuilder boardBuilder = new StringBuilder();
+        for (int y = 0; y < board.getSize(); y++) {
+            for (int x = 0; x < board.getSize(); x++) {
+                boardBuilder.append(board.getCell(x, y)).append(" ");
+            }
+            boardBuilder.append("\n");
+        }
+        return boardBuilder.toString();
     }
 
     /**
@@ -75,7 +83,7 @@ public class BoardService extends BaseService {
      *
      * @param board - Игровое поле
      */
-    public static int getCountWhite(final Board board) {
+    public static int getCountWhite(final GameBoard board) {
         return board.getCountWhiteCells();
     }
 
@@ -84,7 +92,7 @@ public class BoardService extends BaseService {
      *
      * @param board - Игровое поле
      */
-    public static int getCountBlack(final Board board) {
+    public static int getCountBlack(final GameBoard board) {
         return board.getCountBlackCells();
     }
 
@@ -94,7 +102,7 @@ public class BoardService extends BaseService {
      *
      * @param board - Игровое поле
      */
-    public static int getCountEmpty(final Board board) {
+    public static int getCountEmpty(final GameBoard board) {
         return board.getCountEmpty();
     }
 
@@ -105,7 +113,7 @@ public class BoardService extends BaseService {
      * @param board - Игровое поле
      * @return boolean
      */
-    public static boolean hasPossibleMove(final Board board, final Player player) throws GameException {
+    public static boolean hasPossibleMove(final GameBoard board, final Player player) throws GameException {
         playerIsNotNull(player);
         return !getAvailableMoves(board, player.getColor()).isEmpty();
     }
@@ -118,9 +126,20 @@ public class BoardService extends BaseService {
      * @param color - цвет игрока
      * @return List<Point>
      */
-    public static List<Point> getAvailableMoves(final Board board, final PlayerColor color) throws GameException {
+    public static List<Point> getAvailableMoves(final GameBoard board, final PlayerColor color) throws GameException {
         colorIsNotNull(color);
-        return getAvailableMoves(board, Cell.valueOf(color));
+        boardIsNotNull(board);
+        Set<Point> points = new HashSet<>();
+        for (int i = 0; i < board.getSize(); i++) {
+            for (int j = 0; j < board.getSize(); j++) {
+                Point checkPoint = new Point(i, j);
+                if (isCellEmpty(board, checkPoint)
+                        && !getCellInAllDirection(board, checkPoint, Cell.valueOf(color)).isEmpty()) {
+                    points.add(checkPoint);
+                }
+            }
+        }
+        return new ArrayList<>(points);
     }
 
     /**
@@ -131,12 +150,11 @@ public class BoardService extends BaseService {
      * @param cell  - цвец фишки
      * @return List<Point>
      */
-    public static List<Point> getAvailableMoves(final Board board, final Cell cell) throws GameException {
+    public static List<Point> getAvailableMoves(final GameBoard board, final Cell cell) throws GameException {
         boardIsNotNull(board);
-        checkCellIsEmpty(cell);
         Set<Point> points = new HashSet<>();
-        for (int i = 0; i < BOARD_SIZE; i++) {
-            for (int j = 0; j < BOARD_SIZE; j++) {
+        for (int i = 0; i < board.getSize(); i++) {
+            for (int j = 0; j < board.getSize(); j++) {
                 Point checkPoint = new Point(i, j);
                 if (isCellEmpty(board, checkPoint) && !getCellInAllDirection(board, checkPoint, cell).isEmpty()) {
                     points.add(checkPoint);
@@ -154,7 +172,7 @@ public class BoardService extends BaseService {
      * @param cell  - цвец фишки
      * @return List<Point>
      */
-    public static List<Point> getCellInAllDirection(final Board board, final Point point, final Cell cell) throws GameException {
+    public static List<Point> getCellInAllDirection(final GameBoard board, final Point point, final Cell cell) throws GameException {
         boardIsNotNull(board);
         checkPointIsInside(point);
         checkCellIsEmpty(cell);
@@ -215,7 +233,7 @@ public class BoardService extends BaseService {
      * @param cell  - цвец фишки
      * @return Point
      */
-    private static Point getPointInDirection(final Board board, final Point point, final Cell cell, final int difX, final int difY) throws GameException {
+    private static Point getPointInDirection(final GameBoard board, final Point point, final Cell cell, final int difX, final int difY) throws GameException {
         boardIsNotNull(board);
         checkPointIsInside(point);
         checkCellIsEmpty(cell);
@@ -263,7 +281,7 @@ public class BoardService extends BaseService {
      *
      * @param board - игровое поле
      */
-    private static void boardIsNotNull(final Board board) throws GameException {
+    private static void boardIsNotNull(final GameBoard board) throws GameException {
         if (board == null) {
             log.error("Bad checkBoard", new GameException(GameErrorCode.BOARD_NOT_FOUND));
             throw new GameException(GameErrorCode.BOARD_NOT_FOUND);
@@ -276,7 +294,7 @@ public class BoardService extends BaseService {
      * @param board - игровое поле
      * @param point - точка
      */
-    private static boolean isCellEmpty(final Board board, final Point point) throws GameException {
+    private static boolean isCellEmpty(final GameBoard board, final Point point) throws GameException {
         return isCellEmpty(board.getCell(point));
     }
 

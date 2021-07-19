@@ -14,6 +14,7 @@ import gui.WindowGUI;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import models.ClientConnection;
+import models.base.GameBoard;
 import models.base.GameState;
 import models.base.PlayerColor;
 import models.board.Board;
@@ -120,7 +121,7 @@ public class Client implements Runnable {
             try {
                 GameResponse response = getRequest(connection);
                 actionByResponseFromServer(response);
-            } catch (GameException | IOException e) {
+            } catch (GameException | IOException | InterruptedException e) {
                 log.error("Error {}", connection.getSocket(), e);
             }
         }
@@ -136,14 +137,12 @@ public class Client implements Runnable {
         log.warn("actionError {}", response);
     }
 
-    private void actionPlaying(final GameBoardResponse response) throws GameException, IOException {
+    private void actionPlaying(final GameBoardResponse response) throws GameException, IOException, InterruptedException {
         log.debug("actionPlaying {} {}", connection.getSocket().getLocalPort(), response);
-
+        GameBoard board = new Board(response.getBoardDto().getBoardData());
+        gui.updateGUI(board, response.getState());
         if (response.getState() != GameState.END) {
-            if (response.getState() != GameState.END) {
-            gui.update(response.getBoard());
             if (nowMoveByMe(color, response.getState())) {
-                Board board = response.getBoard();
                 Thread.sleep(1000);
                 List<Point> points = BoardService.getAvailableMoves(board, color);
                 Point move = points.get(new Random().nextInt(points.size()));
@@ -152,7 +151,7 @@ public class Client implements Runnable {
         } else {
             gameId = -1;
             color = PlayerColor.NONE;
-            sendRequest(connection, new WantPlayRequest());
+            //sendRequest(connection, new WantPlayRequest());
         }
     }
 

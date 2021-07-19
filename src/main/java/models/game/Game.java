@@ -3,6 +3,7 @@ package models.game;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import models.base.GameBoard;
 import models.base.GameState;
 import models.base.PlayerColor;
 import models.board.Board;
@@ -17,7 +18,7 @@ public class Game {
     private int id;
     private final Player blackPlayer;
     private final Player whitePlayer;
-    private final Board board;
+    private final GameBoard board;
 
     private GameState state;
     private GameResult result;
@@ -31,7 +32,7 @@ public class Game {
         this(new Board(), first, second);
     }
 
-    public Game(final Board board, final Player first, final Player second) {
+    public Game(final GameBoard board, final Player first, final Player second) {
         state = GameState.BLACK_MOVE;
         result = GameResult.playing(board);
         if (new Random().nextBoolean()) {

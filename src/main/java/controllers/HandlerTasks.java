@@ -59,7 +59,7 @@ public class HandlerTasks extends Thread {
         }
     }
 
-    private synchronized void actionGetGameInfo(GetGameInfoRequest getGame, ClientConnection connection) {
+    private synchronized void actionGetGameInfo(final GetGameInfoRequest getGame, final ClientConnection connection) {
         try {
             Game game = GameService.getGameInfo(getGame, connection);
             addTaskResponse(connection, GameBoardResponse.toDto(game));
@@ -69,7 +69,7 @@ public class HandlerTasks extends Thread {
         }
     }
 
-    private synchronized void actionCreateGame(CreateGameRequest createGame, ClientConnection connection) {
+    private synchronized void actionCreateGame(final CreateGameRequest createGame, final ClientConnection connection) {
         try {
             Game game = GameService.createGame(createGame, connection);
             sendInfoAboutGame(game, game.getBlackPlayer());
@@ -81,7 +81,7 @@ public class HandlerTasks extends Thread {
         }
     }
 
-    private synchronized void sendInfoAboutGame(final Game game, Player player) throws GameException {
+    private synchronized void sendInfoAboutGame(final Game game, final Player player) throws GameException {
         ClientConnection connection = PlayerService.getConnectionByPlayer(player);
         addTaskResponse(connection, SearchGameResponse.toDto(game, player));
         addTaskResponse(connection, GameBoardResponse.toDto(game));
