@@ -1,5 +1,8 @@
 package models.base;
 
-public interface GamePlayer {
+import exception.GameException;
+import models.board.Point;
 
+public interface GamePlayer {
+    Point move(GameBoard board) throws GameException;
 }

@@ -1,7 +1,7 @@
 package models;
 
 import exception.GameException;
-import models.player.RandomBotPlayer;
+import models.player.RandomBot;
 import org.junit.jupiter.api.Test;
 import services.SelfPlay;
 
@@ -9,8 +9,8 @@ class Bot10KGamesTest {
 
     @Test
     public void testGame() throws GameException {
-        RandomBotPlayer bot1 = new RandomBotPlayer(0);
-        RandomBotPlayer bot2 = new RandomBotPlayer(1);
+        RandomBot bot1 = new RandomBot(0);
+        RandomBot bot2 = new RandomBot(1);
         SelfPlay selfPlay = new SelfPlay(bot1,bot2);
         selfPlay.play();
     }
@@ -18,8 +18,8 @@ class Bot10KGamesTest {
     @Test
     void test10kGames() throws GameException {
         for (int i = 3000; i < 6000; i++) {
-            RandomBotPlayer bot1 = new RandomBotPlayer(0);
-            RandomBotPlayer bot2 = new RandomBotPlayer(1);
+            RandomBot bot1 = new RandomBot(0);
+            RandomBot bot2 = new RandomBot(1);
             SelfPlay selfPlay = new SelfPlay(bot1,bot2);
             selfPlay.play();
             System.out.println(i);
