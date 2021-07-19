@@ -10,6 +10,7 @@ public enum GameErrorCode {
     INVALID_PLAYER_COLOR("Invalid player color."),
     PLAYER_NOT_FOUND("Player not found."),
     ILLEGAL_REQUEST("Illegal request"),
+    INVALID_MESSAGE_DTO("Invalid message dto"),
     UNKNOWN_REQUEST("Unknown request"),
     UNKNOWN_RESPONSE("Unknown response"),
     PLAYER_ALREADY_PLAYING("Player already playing"),

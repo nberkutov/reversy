@@ -36,7 +36,7 @@ public class JsonService {
         throw new GameException(GameErrorCode.UNKNOWN_REQUEST);
     }
 
-    public static String toJsonParser(GameRequest request) throws GameException {
+    public static String toMsgParser(GameRequest request) throws GameException {
         requestIsNotNull(request);
         for (final CommandRequest commandRequest : CommandRequest.values()) {
             if (commandRequest.getRequest().equals(request.getClass())) {
@@ -50,7 +50,8 @@ public class JsonService {
         throw new GameException(GameErrorCode.UNKNOWN_REQUEST);
     }
 
-    public static GameRequest getRequestFromJson(String msg) throws GameException {
+    public static GameRequest getRequestFromMsg(String msg) throws GameException {
+        msgIsNotNullAndNotEmpty(msg);
         String[] command = msg.split(" ");
         for (final CommandRequest commandRequest : CommandRequest.values()) {
             if (commandRequest.equalCommand(command[0])) {
@@ -58,7 +59,7 @@ public class JsonService {
                 return (GameRequest) fromJson(json, (Class<?>) commandRequest.getRequest());
             }
         }
-        throw new GameException(GameErrorCode.INVALID_REQUEST);
+        throw new GameException(GameErrorCode.UNKNOWN_REQUEST);
     }
 
     public static CommandResponse getCommandByResponse(GameResponse response) throws GameException {
@@ -71,7 +72,7 @@ public class JsonService {
         throw new GameException(GameErrorCode.UNKNOWN_RESPONSE);
     }
 
-    public synchronized static String toJsonParser(GameResponse response) throws GameException {
+    public static String toMsgParser(GameResponse response) throws GameException {
         responseIsNotNull(response);
         for (final CommandResponse commandResponse : CommandResponse.values()) {
             if (commandResponse.getResponse().equals(response.getClass())) {
@@ -85,7 +86,8 @@ public class JsonService {
         throw new GameException(GameErrorCode.UNKNOWN_RESPONSE);
     }
 
-    public synchronized static GameResponse getResponseFromJson(String msg) throws GameException {
+    public static GameResponse getResponseFromMsg(String msg) throws GameException {
+        msgIsNotNullAndNotEmpty(msg);
         String[] command = msg.split(" ");
         for (final CommandResponse commandResponse : CommandResponse.values()) {
             if (commandResponse.equalCommand(command[0])) {
@@ -106,6 +108,12 @@ public class JsonService {
     private static void responseIsNotNull(GameResponse gameResponse) throws GameException {
         if (gameResponse == null) {
             throw new GameException(GameErrorCode.INVALID_RESPONSE);
+        }
+    }
+
+    private static void msgIsNotNullAndNotEmpty(String msg) throws GameException {
+        if (msg == null || msg.trim().isEmpty()) {
+            throw new GameException(GameErrorCode.INVALID_MESSAGE_DTO);
         }
     }
 }

@@ -2,33 +2,53 @@ package services;
 
 import controllers.ServerController;
 import lombok.Data;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
-import java.net.BindException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
 @Slf4j
 @Data
-public class Server {
+public class Server implements Runnable {
     private final int PORT;
-    private final ServerController controller = new ServerController();
-    private final BaseService baseService = new BaseService();
+    private final ServerController controller;
+    private final DataBaseService dataBaseService;
 
-    public Server(int PORT) {
+    public Server(int PORT, DataBaseService dataBaseService) {
         this.PORT = PORT;
+        this.dataBaseService = dataBaseService;
+        this.controller = new ServerController();
     }
 
-    public void Start() throws IOException {
+    public Server(int PORT) {
+        this(PORT, new DataBaseService());
+    }
+
+    public Server() {
+        this(8081);
+    }
+
+    @SneakyThrows
+    @Override
+    public void run() {
+        Start();
+    }
+
+    private void Start() {
         try (final ServerSocket serverSocket = new ServerSocket(PORT)) {
             log.debug("Server stated {}", serverSocket);
             while (true) {
-                final Socket socket = serverSocket.accept();
-                connect(socket);
+                try {
+                    final Socket socket = serverSocket.accept();
+                    connect(socket);
+                } catch (IOException e) {
+                    log.error("Error connection with socket", e);
+                }
             }
-        } catch (final BindException e) {
-            log.error("ERROR", e);
+        } catch (IOException e) {
+            log.error("Error server", e);
         }
     }
 
@@ -36,5 +56,6 @@ public class Server {
         log.debug("Found connect {}", socket);
         controller.createControllerForPlayer(socket);
     }
+
 
 }

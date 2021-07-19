@@ -29,7 +29,7 @@ public class PlayerController extends Thread {
         while (connection.isConnected()) {
             try {
                 String msg = connection.readMsg();
-                GameRequest request = JsonService.getRequestFromJson(msg);
+                GameRequest request = JsonService.getRequestFromMsg(msg);
                 requests.putLast(TaskRequest.create(connection, request));
             } catch (GameException | IOException | InterruptedException e) {
                 connection.close();

@@ -6,6 +6,7 @@ import exception.GameException;
 import models.ClientConnection;
 import models.base.PlayerState;
 import models.player.Player;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -16,7 +17,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class PlayerServicesTest {
-    private BaseService bs = new BaseService();
+    private static DataBaseService bs;
+
+    @BeforeAll
+    private static void clearDateBase() {
+        bs = new DataBaseService();
+        DataBaseService.clearAll();
+    }
 
     @Test
     void testIsPlayerCanSearchGameException() throws IOException, GameException {
@@ -75,7 +82,7 @@ public class PlayerServicesTest {
     }
 
     @Test
-    void setNoneStatePlayerException() throws GameException {
+    void setNoneStatePlayerException() {
         try {
             PlayerService.setPlayerStateNone((Player) null);
             fail();

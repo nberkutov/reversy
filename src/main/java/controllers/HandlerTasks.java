@@ -30,36 +30,41 @@ public class HandlerTasks extends Thread {
         while (true) {
             try {
                 TaskRequest task = requests.takeFirst();
-                GameRequest request = task.getRequest();
-                switch (JsonService.getCommandByRequest(request)) {
-                    case CREATE_PLAYER:
-                        CreatePlayerRequest createPlayer = (CreatePlayerRequest) request;
-                        actionCreatePlayer(createPlayer, task.getClient());
-                        break;
-                    case WANT_PLAY:
-                        WantPlayRequest wantPlay = (WantPlayRequest) request;
-                        actionWantPlay(wantPlay, task.getClient());
-                        break;
-                    case PLAYING_MOVE:
-                        MovePlayerRequest movePlayer = (MovePlayerRequest) request;
-                        actionMovePlayer(movePlayer, task.getClient());
-                        break;
-                    case GET_GAME_INFO:
-                        GetGameInfoRequest getGame = (GetGameInfoRequest) request;
-                        actionGetGameInfo(getGame, task.getClient());
-                        break;
-                    case PRIVATE_CREATE_GAME:
-                        CreateGameRequest createGame = (CreateGameRequest) request;
-                        actionCreateGame(createGame, task.getClient());
-                        break;
+                try {
+                    GameRequest request = task.getRequest();
+                    switch (JsonService.getCommandByRequest(request)) {
+                        case CREATE_PLAYER:
+                            CreatePlayerRequest createPlayer = (CreatePlayerRequest) request;
+                            actionCreatePlayer(createPlayer, task.getClient());
+                            break;
+                        case WANT_PLAY:
+                            WantPlayRequest wantPlay = (WantPlayRequest) request;
+                            actionWantPlay(wantPlay, task.getClient());
+                            break;
+                        case PLAYING_MOVE:
+                            MovePlayerRequest movePlayer = (MovePlayerRequest) request;
+                            actionMovePlayer(movePlayer, task.getClient());
+                            break;
+                        case GET_GAME_INFO:
+                            GetGameInfoRequest getGame = (GetGameInfoRequest) request;
+                            actionGetGameInfo(getGame, task.getClient());
+                            break;
+                        case PRIVATE_CREATE_GAME:
+                            CreateGameRequest createGame = (CreateGameRequest) request;
+                            actionCreateGame(createGame, task.getClient());
+                            break;
+                    }
+                } catch (GameException e) {
+                    log.warn("HandlerTasks ", e);
+                    addTaskResponse(task.getClient(), ErrorResponse.toDto(e));
                 }
-            } catch (InterruptedException | GameException e) {
-                log.error("HandlerTasks ", e);
+            } catch (InterruptedException e) {
+                log.error("Thread error ", e);
             }
         }
     }
 
-    private synchronized void actionGetGameInfo(final GetGameInfoRequest getGame, final ClientConnection connection) {
+    private void actionGetGameInfo(GetGameInfoRequest getGame, ClientConnection connection) throws InterruptedException {
         try {
             Game game = GameService.getGameInfo(getGame, connection);
             addTaskResponse(connection, GameBoardResponse.toDto(game));
@@ -69,7 +74,7 @@ public class HandlerTasks extends Thread {
         }
     }
 
-    private synchronized void actionCreateGame(final CreateGameRequest createGame, final ClientConnection connection) {
+    private void actionCreateGame(CreateGameRequest createGame, ClientConnection connection) throws InterruptedException {
         try {
             Game game = GameService.createGame(createGame, connection);
             sendInfoAboutGame(game, game.getBlackPlayer());
@@ -81,13 +86,13 @@ public class HandlerTasks extends Thread {
         }
     }
 
-    private synchronized void sendInfoAboutGame(final Game game, final Player player) throws GameException {
+    private void sendInfoAboutGame(final Game game, Player player) throws GameException, InterruptedException {
         ClientConnection connection = PlayerService.getConnectionByPlayer(player);
         addTaskResponse(connection, SearchGameResponse.toDto(game, player));
         addTaskResponse(connection, GameBoardResponse.toDto(game));
     }
 
-    public synchronized void actionCreatePlayer(final CreatePlayerRequest createPlayer, final ClientConnection connection) {
+    public void actionCreatePlayer(final CreatePlayerRequest createPlayer, final ClientConnection connection) throws InterruptedException {
         try {
             Player player = PlayerService.createPlayer(createPlayer, connection);
             log.debug("action createPlayer {} {}", connection.getSocket().getPort(), createPlayer);
@@ -98,7 +103,7 @@ public class HandlerTasks extends Thread {
         }
     }
 
-    public synchronized void actionWantPlay(final WantPlayRequest wantPlay, final ClientConnection connection) throws InterruptedException {
+    public void actionWantPlay(final WantPlayRequest wantPlay, final ClientConnection connection) throws InterruptedException {
         try {
             PlayerService.canPlayerSearchGame(connection);
             waiting.putLast(connection);
@@ -110,7 +115,7 @@ public class HandlerTasks extends Thread {
         }
     }
 
-    public synchronized void actionMovePlayer(final MovePlayerRequest movePlayer, final ClientConnection connection) throws InterruptedException {
+    public void actionMovePlayer(final MovePlayerRequest movePlayer, final ClientConnection connection) throws InterruptedException {
 
         try {
             log.debug("action movePlayer {}", movePlayer);
@@ -124,11 +129,11 @@ public class HandlerTasks extends Thread {
         }
     }
 
-    private void addTaskResponse(final Player player, final GameResponse response) throws GameException {
+    private void addTaskResponse(final Player player, final GameResponse response) throws GameException, InterruptedException {
         addTaskResponse(PlayerService.getConnectionByPlayer(player), response);
     }
 
-    private void addTaskResponse(final ClientConnection connection, final GameResponse response) {
-        responses.addLast(TaskResponse.create(connection, response));
+    private void addTaskResponse(final ClientConnection connection, final GameResponse response) throws InterruptedException {
+        responses.putLast(TaskResponse.create(connection, response));
     }
 }

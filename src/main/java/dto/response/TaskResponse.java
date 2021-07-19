@@ -20,9 +20,14 @@ public class TaskResponse {
         return new TaskResponse(connection, response);
     }
 
+    public static void createAndSend(ClientConnection connection, GameResponse response) throws IOException, GameException {
+        TaskResponse taskResponse = new TaskResponse(connection, response);
+        taskResponse.sendJson();
+    }
+
     public void sendJson() throws IOException, GameException {
         if (client.isConnected()) {
-            client.send(JsonService.toJsonParser(response));
+            client.send(JsonService.toMsgParser(response));
         }
     }
 

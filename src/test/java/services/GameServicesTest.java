@@ -13,6 +13,7 @@ import models.board.Point;
 import models.game.Game;
 import models.game.GameResult;
 import models.player.Player;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -23,7 +24,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class GameServicesTest {
-    private BaseService bs = new BaseService();
+    private static DataBaseService bs;
+
+    @BeforeAll
+    private static void clearDateBase() {
+        bs = new DataBaseService();
+        DataBaseService.clearAll();
+    }
 
     @Test
     void testDraw() throws GameException {
@@ -109,6 +116,7 @@ public class GameServicesTest {
     void testMoveException() throws GameException, IOException {
         final int PORT = 8083;
         final String IP = "127.0.0.1";
+
         try {
             GameService.makePlayerMove(null, null);
             fail();

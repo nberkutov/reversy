@@ -8,27 +8,23 @@ import models.base.PlayerColor;
 import models.base.PlayerState;
 import models.player.Player;
 
-public class PlayerService extends BaseService {
+public class PlayerService extends DataBaseService {
 
     public static Player createPlayer(final CreatePlayerRequest createPlayerRequest, final ClientConnection connection) throws GameException {
         requestIsNotNull(createPlayerRequest);
         connectionIsNotNullAndConnected(connection);
         int id = getPlayerId();
         Player player = new Player(id);
-        players.putIfAbsent(id, player);
-        connects.putIfAbsent(id, connection);
+        putPlayerIfAbsent(id, player);
+        putConnectionIfAbsent(id, connection);
         connection.initPlayer(player);
         return player;
     }
 
 
-    public static ClientConnection getConnectionById(final int id) {
-        return connects.get(id);
-    }
-
     public static ClientConnection getConnectionByPlayer(final Player player) throws GameException {
         playerIsNotNull(player);
-        ClientConnection connection = connects.get(player.getId());
+        ClientConnection connection = getConnectionById(player.getId());
         connectionIsNotNullAndConnected(connection);
         return connection;
     }

@@ -1,7 +1,5 @@
 package client;
 
-import controllers.commands.CommandRequest;
-import controllers.commands.CommandResponse;
 import dto.request.player.CreatePlayerRequest;
 import dto.request.player.GameRequest;
 import dto.request.player.MovePlayerRequest;
@@ -10,11 +8,9 @@ import dto.response.*;
 import dto.response.player.CreatePlayerResponse;
 import exception.GameErrorCode;
 import exception.GameException;
-import gui.WindowGUI;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import models.ClientConnection;
-import models.base.GameBoard;
 import models.base.GameState;
 import models.base.PlayerColor;
 import models.board.Board;
@@ -58,10 +54,9 @@ public class Client implements Runnable {
     private static void sendRequest(final ClientConnection server, final GameRequest request) throws IOException, GameException {
         if (server.isConnected()) {
             log.debug("sendRequest {} {}", server.getSocket().getLocalPort(), request);
-            server.send(JsonService.toJsonParser(request));
+            server.send(JsonService.toMsgParser(request));
         }
     }
-
 
     private void actionByResponseFromServer(final GameResponse gameResponse) throws GameException, IOException {
 
@@ -102,7 +97,7 @@ public class Client implements Runnable {
 
         String msg = server.readMsg();
         log.debug("Client getRequest {} {}", server.getSocket().getLocalPort(), msg);
-        return JsonService.getResponseFromJson(msg);
+        return JsonService.getResponseFromMsg(msg);
     }
 
     @Override
@@ -134,7 +129,7 @@ public class Client implements Runnable {
     }
 
     private void actionError(final ErrorResponse response) {
-        log.warn("actionError {}", response);
+        log.error("actionError {}", response);
     }
 
     private void actionPlaying(final GameBoardResponse response) throws GameException, IOException, InterruptedException {

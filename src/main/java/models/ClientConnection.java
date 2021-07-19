@@ -3,7 +3,6 @@ package models;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import models.player.Player;
 
 import java.io.DataInputStream;
@@ -16,7 +15,6 @@ import java.util.Objects;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Slf4j
 public class ClientConnection implements AutoCloseable, Serializable {
     private Socket socket;
     private DataInputStream in;

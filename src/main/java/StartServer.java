@@ -1,11 +1,10 @@
 import services.Server;
 
-import java.io.IOException;
-
 public class StartServer {
     public static final int PORT = 8081;
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         Server server = new Server(PORT);
-        server.Start();
+        Thread thread = new Thread(server);
+        thread.start();
     }
 }

@@ -11,6 +11,8 @@ import models.player.Player;
 
 import java.io.Serializable;
 import java.util.Random;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 @Data
 @Slf4j
@@ -23,6 +25,8 @@ public class Game implements Serializable {
 
     private GameState state;
     private GameResult result;
+
+    private transient final Lock lock = new ReentrantLock();
 
     public Game(final int id, final Player first, final Player second) {
         this(first, second);
@@ -48,9 +52,12 @@ public class Game implements Serializable {
         this.board = board;
     }
 
+    public void lock() {
+        lock.lock();
+    }
 
-    public boolean isFinished() {
-        return state == GameState.END;
+    public void unlock() {
+        lock.unlock();
     }
 
     @Override

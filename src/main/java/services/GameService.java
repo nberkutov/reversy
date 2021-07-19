@@ -16,14 +16,14 @@ import models.game.GameResult;
 import models.player.Player;
 
 @Slf4j
-public class GameService extends BaseService {
+public class GameService extends DataBaseService {
 
     public static Game createGame(final CreateGameRequest createGame, final ClientConnection connection) throws GameException {
         requestIsNotNull(createGame);
         connectionIsNotNullAndConnected(connection);
-        ClientConnection firstCon = PlayerService.getConnectionById(createGame.getFirstPlayerId());
+        ClientConnection firstCon = getConnectionById(createGame.getFirstPlayerId());
         connectionIsNotNullAndConnected(firstCon);
-        ClientConnection secondCon = PlayerService.getConnectionById(createGame.getSecondPlayerId());
+        ClientConnection secondCon = getConnectionById(createGame.getSecondPlayerId());
         connectionIsNotNullAndConnected(secondCon);
         Player first = firstCon.getPlayer();
         Player second = secondCon.getPlayer();
@@ -33,7 +33,7 @@ public class GameService extends BaseService {
     public static Game getGameInfo(GetGameInfoRequest getGame, ClientConnection connection) throws GameException {
         requestIsNotNull(getGame);
         connectionIsNotNullAndConnected(connection);
-        Game game = GameService.getGameById(getGame.getGameId());
+        Game game = getGameById(getGame.getGameId());
         gameIsNotNull(game);
         return game;
     }
@@ -45,7 +45,7 @@ public class GameService extends BaseService {
         playerIsNotPlaying(second);
         int gameId = getGameId();
         Game game = new Game(gameId, first, second);
-        games.putIfAbsent(gameId, game);
+        putGameIfAbsent(gameId, game);
         first.setState(PlayerState.PLAYING);
         second.setState(PlayerState.PLAYING);
         return game;
@@ -55,30 +55,34 @@ public class GameService extends BaseService {
         requestIsNotNull(movePlayer);
         connectionIsNotNullAndConnected(connection);
         Player player = connection.getPlayer();
-        Game game = GameService.getGameById(movePlayer.getGameId());
+        Game game = getGameById(movePlayer.getGameId());
         return makePlayerMove(game, movePlayer.getPoint(), player);
     }
 
     public static Game makePlayerMove(final Game game, final Point point, final Player player) throws GameException {
         gameIsNotNull(game);
-        gameIsNotEnd(game);
-        playerIsNotNull(player);
-        playerValidMove(game, player);
+        try {
+            game.lock();
+            gameIsNotEnd(game);
+            playerIsNotNull(player);
+            playerValidMove(game, player);
 
-        BoardService.makeMove(game, point, player.getColor());
-        choosingPlayerMove(game);
+            BoardService.makeMove(game, point, player.getColor());
+            choosingPlayerMove(game);
 
-        if (game.isFinished()) {
-            log.info("GameEnd {} \n{}", game, game.getBoard());
-            game.setState(GameState.END);
-            PlayerService.setPlayerStateNone(game.getBlackPlayer());
-            PlayerService.setPlayerStateNone(game.getWhitePlayer());
+            if (gameIsFinished(game)) {
+                log.info("GameEnd {} \n{}", game, game.getBoard());
+                game.setState(GameState.END);
+                game.getBlackPlayer().setState(PlayerState.NONE);
+                game.getWhitePlayer().setState(PlayerState.NONE);
+            }
+        } finally {
+            game.unlock();
         }
-
         return game;
     }
 
-    private static void choosingPlayerMove(Game game) throws GameException {
+    private static void choosingPlayerMove(final Game game) throws GameException {
         boolean blackCanMove = BoardService.hasPossibleMove(game.getBoard(), game.getBlackPlayer());
         boolean whiteCanMove = BoardService.hasPossibleMove(game.getBoard(), game.getWhitePlayer());
 
@@ -95,48 +99,6 @@ public class GameService extends BaseService {
         }
     }
 
-    public static Game getGameById(final int gameId) {
-        return games.get(gameId);
-    }
-
-    /**
-     * Функция делает ход игры
-     *
-     * @param game - Игра
-     */
-    public static void playNext(final Game game) throws GameException {
-        switch (game.getState()) {
-            case BLACK_MOVE:
-                if (BoardService.hasPossibleMove(game.getBoard(), game.getBlackPlayer())) {
-                    game.getBlackPlayer().nextMove(game);
-                }
-                game.setState(GameState.WHITE_MOVE);
-                break;
-            case WHITE_MOVE:
-                if (BoardService.hasPossibleMove(game.getBoard(), game.getWhitePlayer())) {
-                    game.getWhitePlayer().nextMove(game);
-                }
-                game.setState(GameState.BLACK_MOVE);
-                break;
-        }
-        if (GameService.isGameEnd(game)) {
-            game.setState(GameState.END);
-        }
-    }
-
-    /**
-     * Функция просчитывает и вовзвращает закончена ли игра
-     *
-     * @param game - Игра
-     * @return boolean
-     */
-    public static boolean isGameEnd(final Game game) throws GameException {
-        if (BoardService.getCountEmpty(game.getBoard()) == 0) {
-            return true;
-        }
-        return !BoardService.hasPossibleMove(game.getBoard(), game.getBlackPlayer())
-                && !BoardService.hasPossibleMove(game.getBoard(), game.getWhitePlayer());
-    }
 
     /**
      * Функция вовзвращает результат об окончании игры
@@ -159,7 +121,7 @@ public class GameService extends BaseService {
     }
 
     private static void gameIsNotEnd(final Game game) throws GameException {
-        if (game.isFinished() || game.getBoard().getCountEmpty() == 0) {
+        if (gameIsFinished(game) || game.getBoard().getCountEmpty() == 0) {
             throw new GameException(GameErrorCode.GAME_ENDED);
         }
     }
@@ -168,6 +130,10 @@ public class GameService extends BaseService {
         if (!whatPlayerMoveNow(game).equals(player)) {
             throw new GameException(GameErrorCode.ILLEGAL_REQUEST);
         }
+    }
+
+    private static boolean gameIsFinished(Game game) {
+        return game.getState() == GameState.END;
     }
 
     public static Player whatPlayerMoveNow(Game game) throws GameException {

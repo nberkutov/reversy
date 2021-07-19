@@ -22,13 +22,16 @@ public class ServerController {
         requests = new LinkedBlockingDeque<>();
         responses = new LinkedBlockingDeque<>();
         waiting = new LinkedBlockingDeque<>();
-        int nHandlers = 10;
-        ExecutorService serviceHandlerTasks = Executors.newFixedThreadPool(nHandlers);
 
-        HandlerTasks handlerTasks = new HandlerTasks(requests, responses, waiting);
+        ExecutorService serviceHandlerTasks = Executors.newFixedThreadPool(4);
+
+        for (int i = 0; i < 4; i++) {
+            serviceHandlerTasks.execute(new HandlerTasks(requests, responses, waiting));
+        }
+
         SenderTasks senderTasks = new SenderTasks(responses);
         GameSearcher gameSearcher = new GameSearcher(requests, waiting);
-        handlerTasks.start();
+
         senderTasks.start();
         gameSearcher.start();
     }
