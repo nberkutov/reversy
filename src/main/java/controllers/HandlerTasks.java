@@ -116,7 +116,6 @@ public class HandlerTasks extends Thread {
     }
 
     public void actionMovePlayer(final MovePlayerRequest movePlayer, final ClientConnection connection) throws InterruptedException {
-
         try {
             log.debug("action movePlayer {}", movePlayer);
             Game game = GameService.makePlayerMove(movePlayer, connection);

@@ -5,7 +5,7 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import lombok.SneakyThrows;
-import services.BoardEncoder;
+import services.BoardUtils;
 
 import java.lang.reflect.Type;
 
@@ -14,6 +14,6 @@ public class GameBoardSerializer implements JsonSerializer<GameBoard> {
     @SneakyThrows
     @Override
     public JsonElement serialize(GameBoard gameBoard, Type type, JsonSerializationContext jsonSerializationContext) {
-        return new JsonPrimitive(BoardEncoder.toString(gameBoard));
+        return new JsonPrimitive(BoardUtils.toString(gameBoard));
     }
 }

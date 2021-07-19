@@ -5,7 +5,7 @@ import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
 import lombok.SneakyThrows;
-import models.board.Board;
+import services.BoardUtils;
 
 import java.lang.reflect.Type;
 
@@ -13,6 +13,6 @@ public class GameBoardDeserializer implements JsonDeserializer<GameBoard> {
     @SneakyThrows
     @Override
     public GameBoard deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
-        return new Board(jsonElement.getAsString());
+        return BoardUtils.fromString(jsonElement.getAsString());
     }
 }

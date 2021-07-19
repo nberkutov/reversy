@@ -51,33 +51,6 @@ public class Board implements Serializable, GameBoard {
         countEmpty = 60;
     }
 
-    public Board(String boardString) throws GameException {
-        this();
-        int k = 0;
-        for (int i = 0; i < boardString.length(); i++) {
-            int x = k % size;
-            int y = k / size;
-            switch (boardString.charAt(i)) {
-                case '0':
-                    setCell(x, y, Cell.EMPTY);
-                    k++;
-                    break;
-                case 'b':
-                    setCell(x, y, Cell.BLACK);
-                    k++;
-                    break;
-                case 'w':
-                    setCell(x, y, Cell.WHITE);
-                    k++;
-                    break;
-                case ' ':
-                    break;
-                default:
-                    throw new RuntimeException();
-            }
-        }
-    }
-
     /**
      * Возвращает одно из трех состояний клетки игровой доски:
      * BLACK, WHITE, EMPTY.

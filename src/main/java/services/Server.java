@@ -26,10 +26,6 @@ public class Server implements Runnable {
         this(PORT, new DataBaseService());
     }
 
-    public Server() {
-        this(8081);
-    }
-
     @SneakyThrows
     @Override
     public void run() {
