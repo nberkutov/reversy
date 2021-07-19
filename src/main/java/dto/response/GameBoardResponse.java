@@ -1,15 +1,12 @@
 package dto.response;
 
-import exception.GameException;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import models.base.GameBoard;
 import models.base.GameState;
-import models.board.Board;
 import models.game.Game;
-import services.BoardEncoder;
-import services.BoardService;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -18,10 +15,9 @@ import services.BoardService;
 public class GameBoardResponse extends GameResponse {
     private int gameId;
     private GameState state;
-    private GameBoardDto boardDto;
+    private GameBoard board;
 
-    public static GameBoardResponse toDto(final Game game) throws GameException {
-        GameBoardDto dto = new GameBoardDto(BoardEncoder.toString(game.getBoard()));
-        return new GameBoardResponse(game.getId(), game.getState(), dto);
+    public static GameBoardResponse toDto(final Game game) {
+        return new GameBoardResponse(game.getId(), game.getState(), game.getBoard());
     }
 }

@@ -8,10 +8,15 @@ import dto.request.player.GameRequest;
 import dto.response.GameResponse;
 import exception.GameErrorCode;
 import exception.GameException;
+import models.base.GameBoard;
+import models.base.GameBoardDeserializer;
+import models.base.GameBoardSerializer;
 
 public class JsonService {
     private static final Gson GSON = new GsonBuilder()
             .enableComplexMapKeySerialization()
+            .registerTypeAdapter(GameBoard.class, new GameBoardSerializer())
+            .registerTypeAdapter(GameBoard.class, new GameBoardDeserializer())
             .create();
 
     public static <T> String toJson(T t) {

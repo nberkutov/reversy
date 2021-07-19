@@ -4,7 +4,6 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import models.base.GameBoard;
-import models.board.Board;
 import models.base.GameResultState;
 import models.player.Player;
 
@@ -24,15 +23,15 @@ public class GameResult implements Serializable {
         this.board = board;
     }
 
-    private GameResult(final Board board, final GameResultState resultState) {
+    private GameResult(final GameBoard board, final GameResultState resultState) {
         this(board, resultState, null);
     }
 
-    public static GameResult winner(final Board board, final Player player) {
+    public static GameResult winner(final GameBoard board, final Player player) {
         return new GameResult(board, GameResultState.WINNER_FOUND, player);
     }
 
-    public static GameResult playing(final Board board) {
+    public static GameResult playing(final GameBoard board) {
         return new GameResult(board, GameResultState.PLAYING);
     }
 

@@ -75,7 +75,7 @@ public class SelfPlay {
         if (game.getState() != GameState.END) {
             throw new GameException(GameErrorCode.GAME_NOT_FINISHED);
         }
-        Board board = game.getBoard();
+        GameBoard board = game.getBoard();
         long blackCells = BoardService.getCountBlack(board);
         long whiteCells = BoardService.getCountWhite(board);
         if (blackCells <= whiteCells) {

@@ -7,9 +7,9 @@ import exception.GameErrorCode;
 import exception.GameException;
 import lombok.extern.slf4j.Slf4j;
 import models.ClientConnection;
+import models.base.GameBoard;
 import models.base.GameState;
 import models.base.PlayerState;
-import models.board.Board;
 import models.board.Point;
 import models.game.Game;
 import models.game.GameResult;
@@ -110,7 +110,7 @@ public class GameService extends DataBaseService {
         if (game.getState() != GameState.END) {
             throw new GameException(GameErrorCode.GAME_NOT_FINISHED);
         }
-        Board board = game.getBoard();
+        GameBoard board = game.getBoard();
         long blackCells = BoardService.getCountBlack(board);
         long whiteCells = BoardService.getCountWhite(board);
         if (blackCells <= whiteCells) {

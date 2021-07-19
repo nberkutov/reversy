@@ -3,12 +3,12 @@ package services;
 import exception.GameErrorCode;
 import exception.GameException;
 import lombok.extern.slf4j.Slf4j;
-import models.board.Board;
+import models.base.Cell;
+import models.base.GameBoard;
+import models.base.PlayerColor;
+import models.board.Point;
 import models.game.Game;
 import models.player.Player;
-import models.board.Point;
-import models.base.Cell;
-import models.base.PlayerColor;
 
 import java.util.ArrayList;
 import java.util.HashSet;

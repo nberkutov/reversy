@@ -8,12 +8,13 @@ import dto.response.*;
 import dto.response.player.CreatePlayerResponse;
 import exception.GameErrorCode;
 import exception.GameException;
+import gui.WindowGUI;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import models.ClientConnection;
+import models.base.GameBoard;
 import models.base.GameState;
 import models.base.PlayerColor;
-import models.board.Board;
 import models.board.Point;
 import services.BoardService;
 import services.JsonService;
@@ -58,7 +59,7 @@ public class Client implements Runnable {
         }
     }
 
-    private void actionByResponseFromServer(final GameResponse gameResponse) throws GameException, IOException {
+    private void actionByResponseFromServer(final GameResponse gameResponse) throws GameException, IOException, InterruptedException {
 
         switch (JsonService.getCommandByResponse(gameResponse)) {
             case ERROR:
@@ -134,7 +135,7 @@ public class Client implements Runnable {
 
     private void actionPlaying(final GameBoardResponse response) throws GameException, IOException, InterruptedException {
         log.debug("actionPlaying {} {}", connection.getSocket().getLocalPort(), response);
-        GameBoard board = new Board(response.getBoardDto().getBoardData());
+        GameBoard board = response.getBoard();
         gui.updateGUI(board, response.getState());
         if (response.getState() != GameState.END) {
             if (nowMoveByMe(color, response.getState())) {
