@@ -58,8 +58,6 @@ class ServerTest {
         Thread thread = new Thread(server);
         thread.start();
 
-        assertTrue(DataBaseService.getAllPlayers().isEmpty());
-
         ClientConnection connectionBot1 = createConnection(IP, PORT, "Bot1");
 
         Player bot1 = DataBaseService.getAllPlayers().get(0);
