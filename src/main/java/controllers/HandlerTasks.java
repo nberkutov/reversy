@@ -94,9 +94,9 @@ public class HandlerTasks extends Thread {
 
     public void actionCreatePlayer(final CreatePlayerRequest createPlayer, final ClientConnection connection) throws InterruptedException {
         try {
-            Player player = PlayerService.createPlayer(createPlayer, connection);
+            PlayerService.createPlayer(createPlayer, connection);
             log.debug("action createPlayer {} {}", connection.getSocket().getPort(), createPlayer);
-            addTaskResponse(connection, CreatePlayerResponse.toDto(player));
+            addTaskResponse(connection, new CreatePlayerResponse());
         } catch (GameException e) {
             log.warn("action CreatePlayer error {}", createPlayer, e);
             addTaskResponse(connection, ErrorResponse.toDto(e));

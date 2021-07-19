@@ -1,6 +1,9 @@
 import dto.request.player.CreatePlayerRequest;
 import dto.request.player.GameRequest;
 import dto.request.player.WantPlayRequest;
+import dto.response.GameBoardResponse;
+import dto.response.GameResponse;
+import dto.response.SearchGameResponse;
 import exception.GameException;
 import models.ClientConnection;
 import models.base.PlayerState;
@@ -13,7 +16,9 @@ import services.Server;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.util.concurrent.LinkedBlockingDeque;
 
+import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -65,7 +70,6 @@ class ServerTest {
         assertEquals(DataBaseService.getAllPlayers().size(), 2);
         Player bot2 = DataBaseService.getAllPlayers().get(1);
 
-
         wantPlay(connectionBot1);
 
         assertEquals(bot1.getState(), PlayerState.SEARCH_GAME);
@@ -75,5 +79,75 @@ class ServerTest {
         wantPlay(connectionBot2);
 
         assertEquals(DataBaseService.getAllGames().size(), 1);
+    }
+
+    @Test
+    void createPlayOnServer() throws IOException, GameException, InterruptedException {
+        final int PORT = 8085;
+        final String IP = "127.0.0.1";
+        Server server = new Server(PORT, dataBaseService);
+        Thread thread = new Thread(server);
+        thread.start();
+
+        ClientConnection connectionBot1 = createConnection(IP, PORT, "Bot1");
+        ClientConnection connectionBot2 = createConnection(IP, PORT, "Bot2");
+
+        boolean gameIsNotFinish = true;
+        LinkedBlockingDeque<GameResponse> responsesBot1 = new LinkedBlockingDeque<>();
+        LinkedBlockingDeque<GameResponse> responsesBot2 = new LinkedBlockingDeque<>();
+
+        new Thread(() -> {
+            try {
+                while (gameIsNotFinish) {
+                    responsesBot1.putLast(JsonService.getResponseFromMsg(connectionBot1.readMsg()));
+                }
+            } catch (InterruptedException | GameException | IOException e) {
+                fail();
+            }
+        }).start();
+
+        new Thread(() -> {
+            try {
+                Player player;
+                while (gameIsNotFinish) {
+                    GameResponse response = responsesBot1.takeFirst();
+                    switch (JsonService.getCommandByResponse(response)) {
+                        case GAME_PLAYING:
+                            GameBoardResponse gameBoardresponse = (GameBoardResponse) response;
+                            actionPlaying(gameBoardresponse);
+                            break;
+                        case GAME_START:
+                            SearchGameResponse createGame = (SearchGameResponse) response;
+                            player = new Player(createGame.getColor());
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            } catch (InterruptedException | GameException e) {
+                fail();
+            }
+        }).start();
+
+        new Thread(() -> {
+            try {
+                while (gameIsNotFinish) {
+                    responsesBot2.putLast(JsonService.getResponseFromMsg(connectionBot2.readMsg()));
+                }
+            } catch (InterruptedException | GameException | IOException e) {
+                fail();
+            }
+        }).start();
+
+        wantPlay(connectionBot1);
+        wantPlay(connectionBot2);
+    }
+
+    private void actionPlaying(GameBoardResponse response) {
+    }
+
+
+    private void switchAction(ClientConnection connection, GameResponse response) throws GameException {
+
     }
 }

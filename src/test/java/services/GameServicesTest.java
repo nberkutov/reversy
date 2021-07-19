@@ -4,7 +4,6 @@ import dto.request.player.CreatePlayerRequest;
 import dto.request.player.MovePlayerRequest;
 import exception.GameErrorCode;
 import exception.GameException;
-import models.BoardUtilsTest;
 import models.ClientConnection;
 import models.base.GameResultState;
 import models.base.PlayerState;
@@ -43,7 +42,7 @@ public class GameServicesTest {
                 + "bbbbbbbb"
                 + "bbbbbbbb"
                 + "bbbbbbbb";
-        Board board = BoardUtilsTest.parse(s);
+        Board board = BoardUtils.fromString(s);
         Game game = new Game(board, new Player(), new Player());
         GameService.makePlayerMove(game, new Point(0, 4), game.getBlackPlayer());
         GameResult result = GameService.getGameResult(game);
@@ -62,7 +61,7 @@ public class GameServicesTest {
                 + "bbbbbbbb"
                 + "bbbbbbbb"
                 + "bbbbbbbb";
-        Board board = BoardUtilsTest.parse(s);
+        Board board = BoardUtils.fromString(s);
         Game game = new Game(board, new Player(), new Player());
         GameService.makePlayerMove(game, new Point(0, 4), game.getBlackPlayer());
         GameResult result = GameService.getGameResult(game);
@@ -81,7 +80,7 @@ public class GameServicesTest {
                 + "bbbbbbbb"
                 + "bbbbbbbb"
                 + "bbbbbbbw";
-        Board board = BoardUtilsTest.parse(s);
+        Board board = BoardUtils.fromString(s);
         Game game = new Game(board, new Player(), new Player());
         GameService.makePlayerMove(game, new Point(0, 4), game.getBlackPlayer());
         GameResult result = GameService.getGameResult(game);
@@ -100,7 +99,7 @@ public class GameServicesTest {
                 + "bbbbbbbb"
                 + "bbbbbbbb"
                 + "bbbbbbbw";
-        Board board = BoardUtilsTest.parse(s);
+        Board board = BoardUtils.fromString(s);
         Game game = new Game(board, new Player(), new Player());
         GameService.makePlayerMove(game, new Point(0, 4), game.getBlackPlayer());
 

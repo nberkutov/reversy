@@ -3,9 +3,11 @@ package services;
 import exception.GameErrorCode;
 import exception.GameException;
 import lombok.extern.slf4j.Slf4j;
+import models.base.Cell;
 import models.base.GameBoard;
 import models.base.GameState;
 import models.board.Board;
+import models.board.Point;
 import models.game.Game;
 import models.game.GameResult;
 import models.player.Player;
@@ -32,13 +34,15 @@ public class SelfPlay {
         switch (game.getState()) {
             case BLACK_MOVE:
                 if (BoardService.hasPossibleMove(game.getBoard(), game.getBlackPlayer())) {
-                    game.getBlackPlayer().nextMove(game);
+                    Point move = game.getBlackPlayer().move(game.getBoard());
+                    BoardService.makeMove(game.getBoard(), move, Cell.BLACK);
                 }
                 game.setState(GameState.WHITE_MOVE);
                 break;
             case WHITE_MOVE:
                 if (BoardService.hasPossibleMove(game.getBoard(), game.getWhitePlayer())) {
-                    game.getWhitePlayer().nextMove(game);
+                    Point move = game.getWhitePlayer().move(game.getBoard());
+                    BoardService.makeMove(game.getBoard(), move, Cell.WHITE);
                 }
                 game.setState(GameState.BLACK_MOVE);
                 break;

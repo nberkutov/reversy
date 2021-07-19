@@ -4,9 +4,11 @@ import exception.GameException;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import models.base.GameBoard;
+import models.base.GamePlayer;
 import models.base.PlayerColor;
 import models.base.PlayerState;
-import models.game.Game;
+import models.board.Point;
 
 import java.io.Serializable;
 
@@ -14,7 +16,7 @@ import java.io.Serializable;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Player implements Serializable {
+public class Player implements Serializable, GamePlayer {
     private int id;
     private PlayerState state;
     protected PlayerColor color;
@@ -24,12 +26,13 @@ public class Player implements Serializable {
         state = PlayerState.NONE;
     }
 
-    public Player(final int id, final PlayerColor color) {
-        this(id);
+    public Player(final PlayerColor color) {
         this.color = color;
     }
 
-    public void nextMove(final Game game) throws GameException {
+    @Override
+    public Point move(GameBoard board) throws GameException {
+        return null;
     }
 
     @Override
@@ -40,4 +43,6 @@ public class Player implements Serializable {
                 ", color=" + color +
                 '}';
     }
+
+
 }
