@@ -18,22 +18,26 @@ import java.util.concurrent.ConcurrentHashMap;
 public class DataBaseService {
     private static final Map<Integer, Game> games = new ConcurrentHashMap<>();
     private static final Map<Integer, Player> players = new ConcurrentHashMap<>();
+    private static final Map<String, Player> login_players = new ConcurrentHashMap<>();
+    private static final Map<String, ClientConnection> login_connects = new ConcurrentHashMap<>();
     private static final Map<Integer, ClientConnection> connects = new ConcurrentHashMap<>();
     //MiniBD
     private static int gameIncrement = 0;
     private static int playerIncrement = 0;
 
-    public static synchronized int getPlayerId() {
+    protected static synchronized int getPlayerId() {
         return playerIncrement++;
     }
 
-    public static synchronized int getGameId() {
+    protected static synchronized int getGameId() {
         return gameIncrement++;
     }
 
     public static void clearAll() {
         games.clear();
+        login_players.clear();
         players.clear();
+        login_connects.clear();
         connects.clear();
     }
 
@@ -41,16 +45,34 @@ public class DataBaseService {
         return games.get(gameId);
     }
 
-    public static Game putGameIfAbsent(final int id, final Game game) {
-        return games.putIfAbsent(id, game);
+    public static synchronized Game putGame(final int id, final Game game) {
+        return games.put(id, game);
     }
 
-    public static Player putPlayerIfAbsent(final int id, final Player player) {
-        return players.putIfAbsent(id, player);
+    protected static synchronized void nicknameIsUsedAlready(final String nickname) throws GameException {
+        if (login_players.get(nickname) != null || login_connects.get(nickname) != null) {
+            throw new GameException(GameErrorCode.NICKNAME_ALREADY_USED);
+        }
     }
 
-    public static ClientConnection putConnectionIfAbsent(final int id, final ClientConnection connection) {
-        return connects.putIfAbsent(id, connection);
+    public static synchronized Player putPlayer(final int id, final String nickname) {
+        Player player = new Player(id, nickname);
+        login_players.put(player.getNickname(), player);
+        players.put(id, player);
+        return player;
+    }
+
+    public static void putConnection(final int id, final String nickname, final ClientConnection connection) {
+        connects.put(id, connection);
+        putConnection(nickname, connection);
+    }
+
+    public static void putConnection(final String nickname, final ClientConnection connection) {
+        login_connects.put(nickname, connection);
+    }
+
+    public static Player getPlayerByNickname(final String nickname) {
+        return login_players.get(nickname);
     }
 
     public static List<Player> getAllPlayers() {
@@ -65,16 +87,21 @@ public class DataBaseService {
         return connects.get(id);
     }
 
-
     /**
      * Функция провероки
      * Если game равен null, то выбрасывает GameException.
      *
      * @param game - класс игры
      */
-    public static void gameIsNotNull(final Game game) throws GameException {
+    protected static void gameIsNotNull(final Game game) throws GameException {
         if (game == null) {
             throw new GameException(GameErrorCode.GAME_NOT_FOUND);
+        }
+    }
+
+    protected static void connectionIsAuthed(ClientConnection connection) throws GameException {
+        if (connection.getPlayer() != null) {
+            throw new GameException(GameErrorCode.PLAYER_IS_AUTH);
         }
     }
 
@@ -84,30 +111,30 @@ public class DataBaseService {
      *
      * @param player - класс игрока
      */
-    public static void playerIsNotNull(final Player player) throws GameException {
+    protected static void playerIsNotNull(final Player player) throws GameException {
         if (player == null) {
             throw new GameException(GameErrorCode.PLAYER_NOT_FOUND);
         }
     }
 
-    public static void playerIsNotPlaying(final Player player) throws GameException {
+    protected static void playerIsNotPlaying(final Player player) throws GameException {
         if (player.getState() == PlayerState.PLAYING) {
             throw new GameException(GameErrorCode.PLAYER_ALREADY_PLAYING);
         }
     }
 
-    public static void checkPlayerConnection(final Player player) throws GameException {
+    protected static void checkPlayerConnection(final Player player) throws GameException {
         ClientConnection connection = getConnectionById(player.getId());
         connectionIsNotNullAndConnected(connection);
     }
 
-    public static void connectionIsNotNullAndConnected(final ClientConnection connection) throws GameException {
+    protected static void connectionIsNotNullAndConnected(final ClientConnection connection) throws GameException {
         if (connection == null || !connection.isConnected()) {
             throw new GameException(GameErrorCode.CONNECTION_LOST);
         }
     }
 
-    public static void requestIsNotNull(final GameRequest request) throws GameException {
+    protected static void requestIsNotNull(final GameRequest request) throws GameException {
         if (request == null) {
             throw new GameException(GameErrorCode.INVALID_REQUEST);
         }

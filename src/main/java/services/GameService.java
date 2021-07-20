@@ -45,7 +45,7 @@ public class GameService extends DataBaseService {
         playerIsNotPlaying(second);
         int gameId = getGameId();
         Game game = new Game(gameId, first, second);
-        putGameIfAbsent(gameId, game);
+        putGame(gameId, game);
         first.setState(PlayerState.PLAYING);
         second.setState(PlayerState.PLAYING);
         return game;
@@ -75,11 +75,25 @@ public class GameService extends DataBaseService {
                 game.setState(GameState.END);
                 game.getBlackPlayer().setState(PlayerState.NONE);
                 game.getWhitePlayer().setState(PlayerState.NONE);
+                calculateStatistic(game);
             }
         } finally {
             game.unlock();
         }
         return game;
+    }
+
+    private static void calculateStatistic(final Game game) throws GameException {
+        GameResult gameResult = getGameResult(game);
+        gameResult.getWinner().getStatistics().incrementWin();
+        gameResult.getLoser().getStatistics().incrementLose();
+
+        game.getWhitePlayer().getStatistics().incrementPlayWhite();
+        game.getBlackPlayer().getStatistics().incrementPlayBlack();
+        game.getWhitePlayer().getStatistics().addGameResult(gameResult);
+        game.getBlackPlayer().getStatistics().addGameResult(gameResult);
+        log.info("CalculateStatistic {} {}", game.getBlackPlayer().getNickname(), game.getBlackPlayer().getStatistics());
+        log.info("CalculateStatistic {} {}", game.getWhitePlayer().getNickname(), game.getWhitePlayer().getStatistics());
     }
 
     private static void choosingPlayerMove(final Game game) throws GameException {
@@ -99,7 +113,6 @@ public class GameService extends DataBaseService {
         }
     }
 
-
     /**
      * Функция вовзвращает результат об окончании игры
      *
@@ -114,9 +127,9 @@ public class GameService extends DataBaseService {
         long blackCells = BoardService.getCountBlack(board);
         long whiteCells = BoardService.getCountWhite(board);
         if (blackCells <= whiteCells) {
-            return GameResult.winner(board, game.getWhitePlayer());
+            return GameResult.winner(board, game.getWhitePlayer(), game.getBlackPlayer());
         } else {
-            return GameResult.winner(board, game.getBlackPlayer());
+            return GameResult.winner(board, game.getBlackPlayer(), game.getWhitePlayer());
         }
     }
 

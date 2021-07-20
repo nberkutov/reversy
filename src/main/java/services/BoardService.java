@@ -15,7 +15,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static models.board.Board.BOARD_SIZE;
+import static models.GameProperties.BOARD_SIZE;
 
 @Slf4j
 public class BoardService {

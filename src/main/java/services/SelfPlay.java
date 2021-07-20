@@ -83,9 +83,9 @@ public class SelfPlay {
         long blackCells = BoardService.getCountBlack(board);
         long whiteCells = BoardService.getCountWhite(board);
         if (blackCells <= whiteCells) {
-            return GameResult.winner(board, game.getWhitePlayer());
+            return GameResult.winner(board, game.getWhitePlayer(), game.getBlackPlayer());
         } else {
-            return GameResult.winner(board, game.getBlackPlayer());
+            return GameResult.winner(board, game.getBlackPlayer(), game.getWhitePlayer());
         }
     }
 }

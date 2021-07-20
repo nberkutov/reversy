@@ -3,6 +3,7 @@ package models.player;
 import exception.GameException;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import models.base.PlayerColor;
 import models.base.PlayerState;
@@ -13,17 +14,25 @@ import models.board.Point;
 import java.io.Serializable;
 
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Player implements Serializable, GamePlayer {
-    private int id;
+public class Player extends User implements Serializable, GamePlayer {
     private PlayerState state;
     protected PlayerColor color;
 
     public Player(final int id) {
         this.id = id;
         state = PlayerState.NONE;
+    }
+
+    public Player(final int id, final String nickname) {
+        super(id, nickname);
+    }
+
+    public Player(final String nickname) {
+        super(nickname);
     }
 
     public Player(final PlayerColor color) {
@@ -39,10 +48,9 @@ public class Player implements Serializable, GamePlayer {
     public String toString() {
         return "Player{" +
                 "id=" + id +
-                ", state=" + state +
-                ", color=" + color +
+                ", nickname='" + nickname +
+                "', state=" + state +
+                ", color=" + color + +'\'' +
                 '}';
     }
-
-
 }

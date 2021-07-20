@@ -15,16 +15,14 @@ import models.base.interfaces.GameBoard;
 import models.board.Point;
 import models.game.Game;
 import models.player.Player;
+import models.player.RandomBot;
 import org.junit.jupiter.api.Test;
-import services.BoardService;
 import services.DataBaseService;
 import services.JsonService;
 import services.Server;
 
 import java.io.IOException;
 import java.net.Socket;
-import java.util.List;
-import java.util.Random;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -130,7 +128,7 @@ class ServerTest {
                             break;
                         case GAME_START:
                             SearchGameResponse createGame = (SearchGameResponse) response;
-                            player = new Player(createGame.getColor());
+                            player = new RandomBot(createGame.getColor());
                             break;
                         default:
                             break;
@@ -170,7 +168,7 @@ class ServerTest {
                             break;
                         case GAME_START:
                             SearchGameResponse createGame = (SearchGameResponse) response;
-                            player = new Player(createGame.getColor());
+                            player = new RandomBot(createGame.getColor());
                             break;
                         default:
                             break;
@@ -197,8 +195,7 @@ class ServerTest {
         try {
             if (nowMoveByMe(color, response.getState())) {
                 GameBoard board = response.getBoard();
-                List<Point> points = BoardService.getAvailableMoves(board, color);
-                Point move = points.get(new Random().nextInt(points.size()));
+                Point move = player.move(board);
                 sendRequest(connection, MovePlayerRequest.toDto(response.getGameId(), move));
             }
         } catch (IOException | GameException | InterruptedException e) {

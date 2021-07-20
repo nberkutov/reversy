@@ -1,9 +1,6 @@
 package controllers.commands;
 
-import dto.request.player.CreatePlayerRequest;
-import dto.request.player.GetGameInfoRequest;
-import dto.request.player.MovePlayerRequest;
-import dto.request.player.WantPlayRequest;
+import dto.request.player.*;
 import dto.request.server.CreateGameRequest;
 import lombok.Getter;
 
@@ -13,6 +10,8 @@ public enum CommandRequest {
     WANT_PLAY("want_play", WantPlayRequest.class),
     PRIVATE_CREATE_GAME("create_private_game", CreateGameRequest.class),
     PLAYING_MOVE("playing_move", MovePlayerRequest.class),
+    PLAYER_AUTH("player_auth", AuthPlayerRequest.class),
+    PLAYER_LOGOUT("player_logout", LogoutPlayerRequest.class),
     GET_GAME_INFO("get_game_info", GetGameInfoRequest.class);
 
     private final String commandName;

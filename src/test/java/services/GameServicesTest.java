@@ -43,7 +43,7 @@ public class GameServicesTest {
                 + "bbbbbbbb"
                 + "bbbbbbbb";
         Board board = BoardUtils.fromString(s);
-        Game game = new Game(board, new Player(), new Player());
+        Game game = new Game(board, new Player(0, "Test"), new Player(1, "Test1"));
         GameService.makePlayerMove(game, new Point(0, 4), game.getBlackPlayer());
         GameResult result = GameService.getGameResult(game);
         assertEquals(result.getResultState(), GameResultState.WINNER_FOUND);
@@ -62,7 +62,7 @@ public class GameServicesTest {
                 + "bbbbbbbb"
                 + "bbbbbbbb";
         Board board = BoardUtils.fromString(s);
-        Game game = new Game(board, new Player(), new Player());
+        Game game = new Game(board, new Player(0, "Test"), new Player(1, "Test1"));
         GameService.makePlayerMove(game, new Point(0, 4), game.getBlackPlayer());
         GameResult result = GameService.getGameResult(game);
         assertEquals(result.getResultState(), GameResultState.WINNER_FOUND);
@@ -81,7 +81,7 @@ public class GameServicesTest {
                 + "bbbbbbbb"
                 + "bbbbbbbw";
         Board board = BoardUtils.fromString(s);
-        Game game = new Game(board, new Player(), new Player());
+        Game game = new Game(board, new Player(0, "Test"), new Player(1, "Test1"));
         GameService.makePlayerMove(game, new Point(0, 4), game.getBlackPlayer());
         GameResult result = GameService.getGameResult(game);
         assertEquals(result.getResultState(), GameResultState.WINNER_FOUND);
@@ -100,7 +100,7 @@ public class GameServicesTest {
                 + "bbbbbbbb"
                 + "bbbbbbbw";
         Board board = BoardUtils.fromString(s);
-        Game game = new Game(board, new Player(), new Player());
+        Game game = new Game(board, new Player(0, "Test"), new Player(1, "Test1"));
         GameService.makePlayerMove(game, new Point(0, 4), game.getBlackPlayer());
 
         try {
@@ -113,6 +113,7 @@ public class GameServicesTest {
 
     @Test
     void testMoveException() throws GameException, IOException {
+        DataBaseService.clearAll();
         final int PORT = 8083;
         final String IP = "127.0.0.1";
 
@@ -136,7 +137,7 @@ public class GameServicesTest {
 
         Socket client = new Socket(IP, PORT);
         ClientConnection connection = new ClientConnection(client);
-        Player player = PlayerService.createPlayer(new CreatePlayerRequest(), connection);
+        Player player = PlayerService.createPlayer(new CreatePlayerRequest("Booot"), connection);
         try {
             GameService.makePlayerMove(new MovePlayerRequest(game.getId(), new Point()), connection);
             fail();

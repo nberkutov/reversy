@@ -89,7 +89,7 @@ public class Client implements Runnable {
         new Thread(() -> {
             try {
                 Thread.sleep(1000);
-                ClientController.sendRequest(connection, new CreatePlayerRequest("Bot"));
+                ClientController.sendRequest(connection, new CreatePlayerRequest(Thread.currentThread().getName()));
             } catch (InterruptedException | IOException | GameException e) {
                 e.printStackTrace();
             }
@@ -121,13 +121,13 @@ public class Client implements Runnable {
         gui.updateGUI(board, response.getState());
         if (response.getState() != GameState.END) {
             if (nowMoveByMe(player, response.getState())) {
-                Thread.sleep(1000);
+                Thread.sleep(10);
                 Point move = player.move(board);
                 ClientController.sendRequest(connection, MovePlayerRequest.toDto(response.getGameId(), move));
             }
         } else {
             player.setColor(PlayerColor.NONE);
-            //ClientController.sendRequest(connection, new WantPlayRequest());
+            ClientController.sendRequest(connection, new WantPlayRequest());
         }
     }
 

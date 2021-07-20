@@ -2,10 +2,7 @@ package controllers;
 
 import dto.request.GameRequest;
 import dto.request.TaskRequest;
-import dto.request.player.CreatePlayerRequest;
-import dto.request.player.GetGameInfoRequest;
-import dto.request.player.MovePlayerRequest;
-import dto.request.player.WantPlayRequest;
+import dto.request.player.*;
 import dto.request.server.CreateGameRequest;
 import dto.response.ErrorResponse;
 import dto.response.GameResponse;
@@ -46,6 +43,13 @@ public class HandlerTasks extends Thread {
                             CreatePlayerRequest createPlayer = (CreatePlayerRequest) request;
                             actionCreatePlayer(createPlayer, task.getClient());
                             break;
+                        case PLAYER_AUTH:
+                            AuthPlayerRequest authPlayer = (AuthPlayerRequest) request;
+                            actionAuthPlayer(authPlayer, task.getClient());
+                            break;
+                        case PLAYER_LOGOUT:
+                            LogoutPlayerRequest logoutPlayer = (LogoutPlayerRequest) request;
+                            actionLogoutPlayer(logoutPlayer, task.getClient());
                         case WANT_PLAY:
                             WantPlayRequest wantPlay = (WantPlayRequest) request;
                             actionWantPlay(wantPlay, task.getClient());
@@ -70,6 +74,39 @@ public class HandlerTasks extends Thread {
             } catch (InterruptedException e) {
                 log.error("Thread error ", e);
             }
+        }
+    }
+
+    private void actionCreatePlayer(final CreatePlayerRequest createPlayer, final ClientConnection connection) throws InterruptedException {
+        try {
+            Player player = PlayerService.createPlayer(createPlayer, connection);
+            log.debug("action createPlayer {} {}", connection.getSocket().getPort(), createPlayer);
+            addTaskResponse(connection, CreatePlayerResponse.toDto(player));
+        } catch (GameException e) {
+            log.warn("action CreatePlayer error {}", createPlayer, e);
+            addTaskResponse(connection, ErrorResponse.toDto(e));
+        }
+    }
+
+    private void actionAuthPlayer(AuthPlayerRequest authPlayer, ClientConnection connection) throws InterruptedException {
+        try {
+            Player player = PlayerService.authPlayer(authPlayer, connection);
+            log.debug("action authPlayer {} {}", connection.getSocket().getPort(), authPlayer);
+            addTaskResponse(connection, CreatePlayerResponse.toDto(player));
+        } catch (GameException e) {
+            log.warn("action authPlayer error {}", authPlayer, e);
+            addTaskResponse(connection, ErrorResponse.toDto(e));
+        }
+    }
+
+    private void actionLogoutPlayer(LogoutPlayerRequest logoutPlayer, ClientConnection connection) throws InterruptedException {
+        try {
+            PlayerService.logoutPlayer(logoutPlayer, connection);
+            log.debug("action logoutPlayer {} {}", connection.getSocket().getPort(), logoutPlayer);
+            addTaskResponse(connection, new MessageResponse("Logout player successfully"));
+        } catch (GameException e) {
+            log.warn("action authPlayer error {}", logoutPlayer, e);
+            addTaskResponse(connection, ErrorResponse.toDto(e));
         }
     }
 
@@ -101,16 +138,6 @@ public class HandlerTasks extends Thread {
         addTaskResponse(connection, GameBoardResponse.toDto(game));
     }
 
-    public void actionCreatePlayer(final CreatePlayerRequest createPlayer, final ClientConnection connection) throws InterruptedException {
-        try {
-            PlayerService.createPlayer(createPlayer, connection);
-            log.debug("action createPlayer {} {}", connection.getSocket().getPort(), createPlayer);
-            addTaskResponse(connection, new CreatePlayerResponse());
-        } catch (GameException e) {
-            log.warn("action CreatePlayer error {}", createPlayer, e);
-            addTaskResponse(connection, ErrorResponse.toDto(e));
-        }
-    }
 
     public void actionWantPlay(final WantPlayRequest wantPlay, final ClientConnection connection) throws InterruptedException {
         try {

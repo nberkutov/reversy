@@ -11,6 +11,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.Line2D;
 
+import static models.GameProperties.BOARD_SIZE;
+
 public class WindowGUI extends JFrame {
     private static final int CELL_SIZE = 50;
     private static final int OFFSET = 50;
@@ -22,7 +24,7 @@ public class WindowGUI extends JFrame {
     public WindowGUI() {
         super("Reversi Client");
         board = new Board();
-        int xSize = CELL_SIZE * Board.BOARD_SIZE + 2 * OFFSET;
+        int xSize = CELL_SIZE * BOARD_SIZE + 2 * OFFSET;
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(xSize, xSize);
         setBackground(Color.GREEN);
@@ -72,12 +74,12 @@ public class WindowGUI extends JFrame {
     public void paint(Graphics g) {
         super.paint(g);
         Graphics2D g2 = (Graphics2D) g;
-        float length = CELL_SIZE * Board.BOARD_SIZE;
+        float length = CELL_SIZE * BOARD_SIZE;
 
         g2.setColor(Color.decode("#187d47"));
         g2.fillRect(OFFSET, OFFSET, (int) (length), (int) (length));
         g2.setColor(Color.BLACK);
-        for (int i = 0; i < Board.BOARD_SIZE + 1; i++) {
+        for (int i = 0; i < BOARD_SIZE + 1; i++) {
             float coordinate = i * CELL_SIZE;
             Line2D verticalLine =
                     new Line2D.Float(coordinate + OFFSET, OFFSET, coordinate + OFFSET, length + OFFSET);
