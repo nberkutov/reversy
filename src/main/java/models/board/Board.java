@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 import models.base.Cell;
-import models.base.GameBoard;
+import models.base.interfaces.GameBoard;
 
 import java.io.Serializable;
 import java.util.Collection;

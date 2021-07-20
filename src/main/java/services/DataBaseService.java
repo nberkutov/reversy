@@ -1,6 +1,6 @@
 package services;
 
-import dto.request.player.GameRequest;
+import dto.request.GameRequest;
 import exception.GameErrorCode;
 import exception.GameException;
 import lombok.extern.slf4j.Slf4j;
@@ -41,15 +41,15 @@ public class DataBaseService {
         return games.get(gameId);
     }
 
-    public static Game putGameIfAbsent(int id, Game game) {
+    public static Game putGameIfAbsent(final int id, final Game game) {
         return games.putIfAbsent(id, game);
     }
 
-    public static Player putPlayerIfAbsent(int id, Player player) {
+    public static Player putPlayerIfAbsent(final int id, final Player player) {
         return players.putIfAbsent(id, player);
     }
 
-    public static ClientConnection putConnectionIfAbsent(int id, ClientConnection connection) {
+    public static ClientConnection putConnectionIfAbsent(final int id, final ClientConnection connection) {
         return connects.putIfAbsent(id, connection);
     }
 
@@ -101,13 +101,13 @@ public class DataBaseService {
         connectionIsNotNullAndConnected(connection);
     }
 
-    public static void connectionIsNotNullAndConnected(ClientConnection connection) throws GameException {
+    public static void connectionIsNotNullAndConnected(final ClientConnection connection) throws GameException {
         if (connection == null || !connection.isConnected()) {
             throw new GameException(GameErrorCode.CONNECTION_LOST);
         }
     }
 
-    public static void requestIsNotNull(GameRequest request) throws GameException {
+    public static void requestIsNotNull(final GameRequest request) throws GameException {
         if (request == null) {
             throw new GameException(GameErrorCode.INVALID_REQUEST);
         }

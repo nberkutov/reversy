@@ -1,13 +1,17 @@
-import dto.request.player.*;
-import dto.response.GameBoardResponse;
+import dto.request.GameRequest;
+import dto.request.player.CreatePlayerRequest;
+import dto.request.player.GetGameInfoRequest;
+import dto.request.player.MovePlayerRequest;
+import dto.request.player.WantPlayRequest;
 import dto.response.GameResponse;
-import dto.response.SearchGameResponse;
+import dto.response.player.GameBoardResponse;
+import dto.response.player.SearchGameResponse;
 import exception.GameException;
 import models.ClientConnection;
-import models.base.GameBoard;
 import models.base.GameState;
 import models.base.PlayerColor;
 import models.base.PlayerState;
+import models.base.interfaces.GameBoard;
 import models.board.Point;
 import models.game.Game;
 import models.player.Player;
@@ -185,7 +189,7 @@ class ServerTest {
         assertEquals(DataBaseService.getAllGames().get(0).getState(), GameState.END);
     }
 
-    private void actionPlaying(ClientConnection connection, Player player, GameBoardResponse response) {
+    private void actionPlaying(final ClientConnection connection, Player player, GameBoardResponse response) {
         if (player == null || connection == null || response == null) {
             fail();
         }

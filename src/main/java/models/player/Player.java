@@ -4,10 +4,10 @@ import exception.GameException;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import models.base.GameBoard;
-import models.base.GamePlayer;
 import models.base.PlayerColor;
 import models.base.PlayerState;
+import models.base.interfaces.GameBoard;
+import models.base.interfaces.GamePlayer;
 import models.board.Point;
 
 import java.io.Serializable;
@@ -31,7 +31,7 @@ public class Player implements Serializable, GamePlayer {
     }
 
     @Override
-    public Point move(GameBoard board) throws GameException {
+    public Point move(final GameBoard board) throws GameException {
         return null;
     }
 

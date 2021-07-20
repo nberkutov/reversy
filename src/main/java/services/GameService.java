@@ -7,9 +7,9 @@ import exception.GameErrorCode;
 import exception.GameException;
 import lombok.extern.slf4j.Slf4j;
 import models.ClientConnection;
-import models.base.GameBoard;
 import models.base.GameState;
 import models.base.PlayerState;
+import models.base.interfaces.GameBoard;
 import models.board.Point;
 import models.game.Game;
 import models.game.GameResult;
@@ -30,7 +30,7 @@ public class GameService extends DataBaseService {
         return createGame(first, second);
     }
 
-    public static Game getGameInfo(GetGameInfoRequest getGame, ClientConnection connection) throws GameException {
+    public static Game getGameInfo(final GetGameInfoRequest getGame, final ClientConnection connection) throws GameException {
         requestIsNotNull(getGame);
         connectionIsNotNullAndConnected(connection);
         Game game = getGameById(getGame.getGameId());
@@ -132,11 +132,11 @@ public class GameService extends DataBaseService {
         }
     }
 
-    private static boolean gameIsFinished(Game game) {
+    private static boolean gameIsFinished(final Game game) {
         return game.getState() == GameState.END;
     }
 
-    public static Player whatPlayerMoveNow(Game game) throws GameException {
+    public static Player whatPlayerMoveNow(final Game game) throws GameException {
         if (game.getState() == GameState.BLACK_MOVE) {
             return game.getBlackPlayer();
         }

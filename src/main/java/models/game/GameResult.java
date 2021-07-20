@@ -3,8 +3,8 @@ package models.game;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import models.base.GameBoard;
 import models.base.GameResultState;
+import models.base.interfaces.GameBoard;
 import models.player.Player;
 
 import java.io.Serializable;

@@ -1,7 +1,7 @@
 package services;
 
+import dto.request.GameRequest;
 import dto.request.player.CreatePlayerRequest;
-import dto.request.player.GameRequest;
 import models.board.Board;
 import models.game.Game;
 import models.player.Player;

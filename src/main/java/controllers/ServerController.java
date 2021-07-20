@@ -1,8 +1,8 @@
 package controllers;
 
 import dto.request.TaskRequest;
-import dto.response.MessageResponse;
 import dto.response.TaskResponse;
+import dto.response.player.MessageResponse;
 import lombok.extern.slf4j.Slf4j;
 import models.ClientConnection;
 

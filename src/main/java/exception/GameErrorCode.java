@@ -23,7 +23,7 @@ public enum GameErrorCode {
     CELL_IS_EMPTY("Cell is empty.");
     private final String message;
 
-    GameErrorCode(String message) {
+    GameErrorCode(final String message) {
         this.message = message;
     }
 

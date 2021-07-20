@@ -1,10 +1,11 @@
-package models.base;
+package models.base.modifiedSerializer;
 
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
 import lombok.SneakyThrows;
+import models.base.interfaces.GameBoard;
 import services.BoardUtils;
 
 import java.lang.reflect.Type;

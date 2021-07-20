@@ -2,7 +2,7 @@ package models.player;
 
 import exception.GameException;
 import lombok.NoArgsConstructor;
-import models.base.GameBoard;
+import models.base.interfaces.GameBoard;
 import models.board.Point;
 import services.BoardService;
 
@@ -17,7 +17,7 @@ public class RandomBot extends Player {
     }
 
     @Override
-    public Point move(GameBoard board) throws GameException {
+    public Point move(final GameBoard board) throws GameException {
         List<Point> points = BoardService.getAvailableMoves(board, color);
         return points.get(new Random().nextInt(points.size()));
     }

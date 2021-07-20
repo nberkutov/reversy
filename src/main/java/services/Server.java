@@ -16,13 +16,13 @@ public class Server implements Runnable {
     private final ServerController controller;
     private final DataBaseService dataBaseService;
 
-    public Server(int PORT, DataBaseService dataBaseService) {
+    public Server(final int PORT, final DataBaseService dataBaseService) {
         this.PORT = PORT;
         this.dataBaseService = dataBaseService;
         this.controller = new ServerController();
     }
 
-    public Server(int PORT) {
+    public Server(final int PORT) {
         this(PORT, new DataBaseService());
     }
 

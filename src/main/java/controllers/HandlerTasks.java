@@ -1,10 +1,19 @@
 package controllers;
 
+import dto.request.GameRequest;
 import dto.request.TaskRequest;
-import dto.request.player.*;
+import dto.request.player.CreatePlayerRequest;
+import dto.request.player.GetGameInfoRequest;
+import dto.request.player.MovePlayerRequest;
+import dto.request.player.WantPlayRequest;
 import dto.request.server.CreateGameRequest;
-import dto.response.*;
+import dto.response.ErrorResponse;
+import dto.response.GameResponse;
+import dto.response.TaskResponse;
 import dto.response.player.CreatePlayerResponse;
+import dto.response.player.GameBoardResponse;
+import dto.response.player.MessageResponse;
+import dto.response.player.SearchGameResponse;
 import exception.GameException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
