@@ -34,17 +34,6 @@ public class BoardService {
     }
 
     /**
-     * Совершает ход на игровой доске.
-     *
-     * @param board - Игровое поле
-     * @param point - точка куда походил игрок
-     * @param cell  - фишка
-     */
-    public static void makeMove(final GameBoard board, final Point point, final Cell cell) throws GameException {
-        makeMoveBoard(board, point, cell);
-    }
-
-    /**
      * Функция ищет всевозможные ходы, а в последствиии переворчивает фишки
      * Если нет возможных ходов, то выбрасывает GameException.
      *
@@ -52,7 +41,7 @@ public class BoardService {
      * @param point - точка куда походил игрок
      * @param cell  - фишка
      */
-    private static void makeMoveBoard(final GameBoard board, final Point point, final Cell cell) throws GameException {
+    public static void makeMove(final GameBoard board, final Point point, final Cell cell) throws GameException {
         boardIsNotNull(board);
         checkPointIsInside(point);
         checkCellIsEmpty(cell);
@@ -69,18 +58,6 @@ public class BoardService {
         board.reverseCells(pointsForReverse);
         board.setCell(point, cell);
     }
-
-    public static String getVisualString(final GameBoard board) throws GameException {
-        StringBuilder boardBuilder = new StringBuilder();
-        for (int y = 0; y < board.getSize(); y++) {
-            for (int x = 0; x < board.getSize(); x++) {
-                boardBuilder.append(board.getCell(x, y)).append(" ");
-            }
-            boardBuilder.append("\n");
-        }
-        return boardBuilder.toString();
-    }
-
 
     /**
      * Функция получения количества белых фишек
@@ -250,7 +227,7 @@ public class BoardService {
      * @param cell - фишка
      */
     private static void checkCellIsEmpty(final Cell cell) throws GameException {
-        if (cell == null || isCellEmpty(cell)) {
+        if (cell == null || cell == Cell.EMPTY) {
             log.error("Bad checkCellOnEmpty", new GameException(GameErrorCode.INVALID_CELL));
             throw new GameException(GameErrorCode.INVALID_CELL);
         }
@@ -289,18 +266,8 @@ public class BoardService {
      * @param point - точка
      */
     private static boolean isCellEmpty(final GameBoard board, final Point point) throws GameException {
-        return isCellEmpty(board.getCell(point));
+        return board.getCell(point) == Cell.EMPTY;
     }
-
-    /**
-     * Функция для определения поля на пустоту
-     *
-     * @param cell - фишка
-     */
-    private static boolean isCellEmpty(final Cell cell) {
-        return cell == Cell.EMPTY;
-    }
-
 
     /**
      * Функция провероки
