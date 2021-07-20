@@ -1,6 +1,7 @@
 package models.player;
 
 import exception.GameException;
+import lombok.NoArgsConstructor;
 import models.base.GameBoard;
 import models.board.Point;
 import services.BoardService;
@@ -8,6 +9,7 @@ import services.BoardService;
 import java.util.List;
 import java.util.Random;
 
+@NoArgsConstructor
 public class RandomBot extends Player {
 
     public RandomBot(final int id) {

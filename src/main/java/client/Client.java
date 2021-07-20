@@ -15,18 +15,16 @@ import models.base.GameState;
 import models.base.PlayerColor;
 import models.board.Point;
 import models.player.Player;
-import services.BoardService;
+import models.player.RandomBot;
 import services.JsonService;
 
 import java.io.IOException;
 import java.net.Socket;
-import java.util.List;
-import java.util.Random;
 
 @Slf4j
 @Data
 public class Client implements Runnable {
-    private Player player = new Player();
+    private Player player = new RandomBot();
     private final ClientConnection connection;
     private WindowGUI gui;
 
@@ -120,8 +118,7 @@ public class Client implements Runnable {
         if (response.getState() != GameState.END) {
             if (nowMoveByMe(player, response.getState())) {
                 Thread.sleep(1000);
-                List<Point> points = BoardService.getAvailableMoves(board, player.getColor());
-                Point move = points.get(new Random().nextInt(points.size()));
+                Point move = player.move(board);
                 ClientController.sendRequest(connection, MovePlayerRequest.toDto(response.getGameId(), move));
             }
         } else {
