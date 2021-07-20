@@ -6,6 +6,8 @@ public enum GameErrorCode {
     GAME_NOT_FINISHED("Game is not finished yet."),
     BAD_POINT("Bad point."),
     CONNECTION_LOST("Connection lost"),
+    INVALID_NICKNAME("Invalid nickname"),
+    NICKNAME_ALREADY_USED("Nickname already used"),
     INVALID_CELL("Invalid cell."),
     INVALID_PLAYER_COLOR("Invalid player color."),
     PLAYER_NOT_FOUND("Player not found."),
@@ -13,6 +15,7 @@ public enum GameErrorCode {
     INVALID_MESSAGE_DTO("Invalid message dto"),
     UNKNOWN_REQUEST("Unknown request"),
     UNKNOWN_RESPONSE("Unknown response"),
+    PLAYER_IS_AUTH("Player is authorized"),
     PLAYER_ALREADY_PLAYING("Player already playing"),
     PLAYER_CANNOT_FIND_GAME("The player cannot start searching for the game"),
     GAME_NOT_FOUND("Game not found"),
@@ -23,7 +26,7 @@ public enum GameErrorCode {
     CELL_IS_EMPTY("Cell is empty.");
     private final String message;
 
-    GameErrorCode(String message) {
+    GameErrorCode(final String message) {
         this.message = message;
     }
 

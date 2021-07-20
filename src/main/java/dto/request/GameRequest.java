@@ -1,4 +1,4 @@
-package dto.request.player;
+package dto.request;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;

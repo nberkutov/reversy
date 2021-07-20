@@ -21,13 +21,13 @@ public class ClientConnection implements AutoCloseable, Serializable {
     private DataOutputStream out;
     private Player player;
 
-    public ClientConnection(Socket socket) throws IOException {
+    public ClientConnection(final Socket socket) throws IOException {
         this.socket = socket;
         in = new DataInputStream(socket.getInputStream());
         out = new DataOutputStream(socket.getOutputStream());
     }
 
-    public void initPlayer(Player player) {
+    public void initPlayer(final Player player) {
         this.player = player;
     }
 
@@ -39,7 +39,7 @@ public class ClientConnection implements AutoCloseable, Serializable {
         return in.readUTF();
     }
 
-    public void send(String msg) throws IOException {
+    public void send(final String msg) throws IOException {
         out.writeUTF(msg);
         out.flush();
     }

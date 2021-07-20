@@ -1,6 +1,5 @@
 package dto.request.player;
 
-import dto.request.GameRequest;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -10,6 +9,6 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
-public class GetGameInfoRequest extends GameRequest {
-    int gameId;
+public class AuthPlayerRequest extends CreatePlayerRequest {
+    private String nickname;
 }

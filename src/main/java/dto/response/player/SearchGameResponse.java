@@ -1,5 +1,6 @@
-package dto.response;
+package dto.response.player;
 
+import dto.response.GameResponse;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -16,7 +17,7 @@ public class SearchGameResponse extends GameResponse {
     private int gameId;
     private PlayerColor color;
 
-    public static SearchGameResponse toDto(Game game, Player player) {
+    public static SearchGameResponse toDto(final Game game, final Player player) {
         return new SearchGameResponse(game.getId(), player.getColor());
     }
 }

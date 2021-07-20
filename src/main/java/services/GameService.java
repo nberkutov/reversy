@@ -7,9 +7,9 @@ import exception.GameErrorCode;
 import exception.GameException;
 import lombok.extern.slf4j.Slf4j;
 import models.ClientConnection;
-import models.base.GameBoard;
 import models.base.GameState;
 import models.base.PlayerState;
+import models.base.interfaces.GameBoard;
 import models.board.Point;
 import models.game.Game;
 import models.game.GameResult;
@@ -30,7 +30,7 @@ public class GameService extends DataBaseService {
         return createGame(first, second);
     }
 
-    public static Game getGameInfo(GetGameInfoRequest getGame, ClientConnection connection) throws GameException {
+    public static Game getGameInfo(final GetGameInfoRequest getGame, final ClientConnection connection) throws GameException {
         requestIsNotNull(getGame);
         connectionIsNotNullAndConnected(connection);
         Game game = getGameById(getGame.getGameId());
@@ -45,7 +45,7 @@ public class GameService extends DataBaseService {
         playerIsNotPlaying(second);
         int gameId = getGameId();
         Game game = new Game(gameId, first, second);
-        putGameIfAbsent(gameId, game);
+        putGame(gameId, game);
         first.setState(PlayerState.PLAYING);
         second.setState(PlayerState.PLAYING);
         return game;
@@ -75,11 +75,25 @@ public class GameService extends DataBaseService {
                 game.setState(GameState.END);
                 game.getBlackPlayer().setState(PlayerState.NONE);
                 game.getWhitePlayer().setState(PlayerState.NONE);
+                calculateStatistic(game);
             }
         } finally {
             game.unlock();
         }
         return game;
+    }
+
+    private static void calculateStatistic(final Game game) throws GameException {
+        GameResult gameResult = getGameResult(game);
+        gameResult.getWinner().getStatistics().incrementWin();
+        gameResult.getLoser().getStatistics().incrementLose();
+
+        game.getWhitePlayer().getStatistics().incrementPlayWhite();
+        game.getBlackPlayer().getStatistics().incrementPlayBlack();
+        game.getWhitePlayer().getStatistics().addGameResult(gameResult);
+        game.getBlackPlayer().getStatistics().addGameResult(gameResult);
+        log.info("CalculateStatistic {} {}", game.getBlackPlayer().getNickname(), game.getBlackPlayer().getStatistics());
+        log.info("CalculateStatistic {} {}", game.getWhitePlayer().getNickname(), game.getWhitePlayer().getStatistics());
     }
 
     private static void choosingPlayerMove(final Game game) throws GameException {
@@ -99,7 +113,6 @@ public class GameService extends DataBaseService {
         }
     }
 
-
     /**
      * Функция вовзвращает результат об окончании игры
      *
@@ -114,9 +127,9 @@ public class GameService extends DataBaseService {
         long blackCells = BoardService.getCountBlack(board);
         long whiteCells = BoardService.getCountWhite(board);
         if (blackCells <= whiteCells) {
-            return GameResult.winner(board, game.getWhitePlayer());
+            return GameResult.winner(board, game.getWhitePlayer(), game.getBlackPlayer());
         } else {
-            return GameResult.winner(board, game.getBlackPlayer());
+            return GameResult.winner(board, game.getBlackPlayer(), game.getWhitePlayer());
         }
     }
 
@@ -132,11 +145,11 @@ public class GameService extends DataBaseService {
         }
     }
 
-    private static boolean gameIsFinished(Game game) {
+    private static boolean gameIsFinished(final Game game) {
         return game.getState() == GameState.END;
     }
 
-    public static Player whatPlayerMoveNow(Game game) throws GameException {
+    public static Player whatPlayerMoveNow(final Game game) throws GameException {
         if (game.getState() == GameState.BLACK_MOVE) {
             return game.getBlackPlayer();
         }

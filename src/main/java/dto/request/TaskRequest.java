@@ -1,6 +1,5 @@
 package dto.request;
 
-import dto.request.player.GameRequest;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

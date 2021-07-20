@@ -2,10 +2,15 @@ package services;
 
 import controllers.commands.CommandRequest;
 import controllers.commands.CommandResponse;
+import dto.request.GameRequest;
 import dto.request.player.*;
 import dto.request.server.CreateGameRequest;
-import dto.response.*;
+import dto.response.ErrorResponse;
+import dto.response.GameResponse;
 import dto.response.player.CreatePlayerResponse;
+import dto.response.player.GameBoardResponse;
+import dto.response.player.MessageResponse;
+import dto.response.player.SearchGameResponse;
 import exception.GameErrorCode;
 import exception.GameException;
 import models.base.PlayerColor;
@@ -31,6 +36,8 @@ class JsonServiceCommandTest {
                 Arguments.of(WANT_PLAY, new WantPlayRequest()),
                 Arguments.of(PRIVATE_CREATE_GAME, new CreateGameRequest()),
                 Arguments.of(PLAYING_MOVE, new MovePlayerRequest()),
+                Arguments.of(PLAYER_AUTH, new AuthPlayerRequest()),
+                Arguments.of(PLAYER_LOGOUT, new LogoutPlayerRequest()),
                 Arguments.of(GET_GAME_INFO, new GetGameInfoRequest())
         );
     }

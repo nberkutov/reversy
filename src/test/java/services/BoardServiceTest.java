@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static models.board.Board.BOARD_SIZE;
+import static models.GameProperties.BOARD_SIZE;
 import static org.junit.jupiter.api.Assertions.*;
 
 class BoardServiceTest {

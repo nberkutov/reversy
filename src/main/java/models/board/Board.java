@@ -6,12 +6,14 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 import models.base.Cell;
-import models.base.GameBoard;
+import models.base.interfaces.GameBoard;
 
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+
+import static models.GameProperties.BOARD_SIZE;
 
 /**
  * Стандартная игровая доска. с двумя черными и двумя белыми фишками в середине.
@@ -20,8 +22,6 @@ import java.util.Map;
 @Slf4j
 @EqualsAndHashCode
 public class Board implements Serializable, GameBoard {
-    public static final int BOARD_SIZE = 8;
-
     private final Map<Point, Cell> cells;
     private int size;
     private int countBlackCells = 0;

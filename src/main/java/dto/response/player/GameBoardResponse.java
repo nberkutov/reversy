@@ -1,11 +1,12 @@
-package dto.response;
+package dto.response.player;
 
+import dto.response.GameResponse;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import models.base.GameBoard;
 import models.base.GameState;
+import models.base.interfaces.GameBoard;
 import models.game.Game;
 
 @Data

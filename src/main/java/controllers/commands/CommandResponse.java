@@ -1,10 +1,10 @@
 package controllers.commands;
 
 import dto.response.ErrorResponse;
-import dto.response.GameBoardResponse;
-import dto.response.MessageResponse;
-import dto.response.SearchGameResponse;
 import dto.response.player.CreatePlayerResponse;
+import dto.response.player.GameBoardResponse;
+import dto.response.player.MessageResponse;
+import dto.response.player.SearchGameResponse;
 import lombok.Getter;
 
 @Getter

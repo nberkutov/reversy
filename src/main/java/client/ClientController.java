@@ -1,6 +1,6 @@
 package client;
 
-import dto.request.player.GameRequest;
+import dto.request.GameRequest;
 import dto.response.GameResponse;
 import exception.GameErrorCode;
 import exception.GameException;

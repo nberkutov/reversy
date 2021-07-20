@@ -3,16 +3,20 @@ package client;
 import dto.request.player.CreatePlayerRequest;
 import dto.request.player.MovePlayerRequest;
 import dto.request.player.WantPlayRequest;
-import dto.response.*;
+import dto.response.ErrorResponse;
+import dto.response.GameResponse;
 import dto.response.player.CreatePlayerResponse;
+import dto.response.player.GameBoardResponse;
+import dto.response.player.MessageResponse;
+import dto.response.player.SearchGameResponse;
 import exception.GameException;
 import gui.WindowGUI;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import models.ClientConnection;
-import models.base.GameBoard;
 import models.base.GameState;
 import models.base.PlayerColor;
+import models.base.interfaces.GameBoard;
 import models.board.Point;
 import models.player.Player;
 import models.player.RandomBot;
@@ -85,7 +89,7 @@ public class Client implements Runnable {
         new Thread(() -> {
             try {
                 Thread.sleep(1000);
-                ClientController.sendRequest(connection, new CreatePlayerRequest("Bot"));
+                ClientController.sendRequest(connection, new CreatePlayerRequest(Thread.currentThread().getName()));
             } catch (InterruptedException | IOException | GameException e) {
                 e.printStackTrace();
             }
@@ -117,13 +121,13 @@ public class Client implements Runnable {
         gui.updateGUI(board, response.getState());
         if (response.getState() != GameState.END) {
             if (nowMoveByMe(player, response.getState())) {
-                Thread.sleep(1000);
+                Thread.sleep(10);
                 Point move = player.move(board);
                 ClientController.sendRequest(connection, MovePlayerRequest.toDto(response.getGameId(), move));
             }
         } else {
             player.setColor(PlayerColor.NONE);
-            //ClientController.sendRequest(connection, new WantPlayRequest());
+            ClientController.sendRequest(connection, new WantPlayRequest());
         }
     }
 

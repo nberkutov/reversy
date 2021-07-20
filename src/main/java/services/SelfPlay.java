@@ -4,8 +4,8 @@ import exception.GameErrorCode;
 import exception.GameException;
 import lombok.extern.slf4j.Slf4j;
 import models.base.Cell;
-import models.base.GameBoard;
 import models.base.GameState;
+import models.base.interfaces.GameBoard;
 import models.board.Board;
 import models.board.Point;
 import models.game.Game;
@@ -83,9 +83,9 @@ public class SelfPlay {
         long blackCells = BoardService.getCountBlack(board);
         long whiteCells = BoardService.getCountWhite(board);
         if (blackCells <= whiteCells) {
-            return GameResult.winner(board, game.getWhitePlayer());
+            return GameResult.winner(board, game.getWhitePlayer(), game.getBlackPlayer());
         } else {
-            return GameResult.winner(board, game.getBlackPlayer());
+            return GameResult.winner(board, game.getBlackPlayer(), game.getWhitePlayer());
         }
     }
 }

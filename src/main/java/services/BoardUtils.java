@@ -2,11 +2,11 @@ package services;
 
 import exception.GameException;
 import models.base.Cell;
-import models.base.GameBoard;
+import models.base.interfaces.GameBoard;
 import models.board.Board;
 
 public class BoardUtils {
-    public static String toString(GameBoard board) throws GameException {
+    public static String toString(final GameBoard board) throws GameException {
         StringBuilder boardBuilder = new StringBuilder();
         for (int y = 0; y < board.getSize(); y++) {
             for (int x = 0; x < board.getSize(); x++) {
@@ -27,7 +27,7 @@ public class BoardUtils {
         return boardBuilder.toString();
     }
 
-    public static Board fromString(String string) throws GameException {
+    public static Board fromString(final String string) throws GameException {
         Board board = new Board();
         int k = 0;
         for (int i = 0; i < string.length(); i++) {

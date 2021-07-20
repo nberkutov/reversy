@@ -1,7 +1,7 @@
 package controllers;
 
+import dto.request.GameRequest;
 import dto.request.TaskRequest;
-import dto.request.player.GameRequest;
 import exception.GameException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +18,7 @@ public class PlayerController extends Thread {
     private final ClientConnection connection;
     private final LinkedBlockingDeque<TaskRequest> requests;
 
-    public static void initPlayerController(ClientConnection connection, LinkedBlockingDeque<TaskRequest> requests) {
+    public static void initPlayerController(final ClientConnection connection, final LinkedBlockingDeque<TaskRequest> requests) {
         PlayerController controller = new PlayerController(connection, requests);
         controller.start();
     }
