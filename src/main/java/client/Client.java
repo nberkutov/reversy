@@ -1,12 +1,10 @@
 package client;
 
 import dto.request.player.CreatePlayerRequest;
-import dto.request.player.GameRequest;
 import dto.request.player.MovePlayerRequest;
 import dto.request.player.WantPlayRequest;
 import dto.response.*;
 import dto.response.player.CreatePlayerResponse;
-import exception.GameErrorCode;
 import exception.GameException;
 import gui.WindowGUI;
 import lombok.Data;
@@ -16,6 +14,7 @@ import models.base.GameBoard;
 import models.base.GameState;
 import models.base.PlayerColor;
 import models.board.Point;
+import models.player.Player;
 import services.BoardService;
 import services.JsonService;
 
@@ -27,8 +26,7 @@ import java.util.Random;
 @Slf4j
 @Data
 public class Client implements Runnable {
-    private int gameId;
-    private PlayerColor color;
+    private Player player = new Player();
     private final ClientConnection connection;
     private WindowGUI gui;
 
@@ -45,22 +43,7 @@ public class Client implements Runnable {
         gui = new WindowGUI();
     }
 
-    private static boolean nowMoveByMe(PlayerColor color, GameState state) {
-        if (color == PlayerColor.WHITE && state == GameState.WHITE_MOVE) {
-            return true;
-        }
-        return color == PlayerColor.BLACK && state == GameState.BLACK_MOVE;
-    }
-
-    private static void sendRequest(final ClientConnection server, final GameRequest request) throws IOException, GameException {
-        if (server.isConnected()) {
-            log.debug("sendRequest {} {}", server.getSocket().getLocalPort(), request);
-            server.send(JsonService.toMsgParser(request));
-        }
-    }
-
     private void actionByResponseFromServer(final GameResponse gameResponse) throws GameException, IOException, InterruptedException {
-
         switch (JsonService.getCommandByResponse(gameResponse)) {
             case ERROR:
                 ErrorResponse error = (ErrorResponse) gameResponse;
@@ -91,14 +74,11 @@ public class Client implements Runnable {
         log.info("actionMessage {}", response);
     }
 
-    private static GameResponse getRequest(final ClientConnection server) throws GameException, IOException {
-        if (!server.isConnected()) {
-            throw new GameException(GameErrorCode.CONNECTION_LOST);
+    private static boolean nowMoveByMe(Player player, GameState state) {
+        if (player.getColor() == PlayerColor.WHITE && state == GameState.WHITE_MOVE) {
+            return true;
         }
-
-        String msg = server.readMsg();
-        log.debug("Client getRequest {} {}", server.getSocket().getLocalPort(), msg);
-        return JsonService.getResponseFromMsg(msg);
+        return player.getColor() == PlayerColor.BLACK && state == GameState.BLACK_MOVE;
     }
 
     @Override
@@ -107,7 +87,7 @@ public class Client implements Runnable {
         new Thread(() -> {
             try {
                 Thread.sleep(1000);
-                sendRequest(connection, new CreatePlayerRequest("Bot"));
+                ClientController.sendRequest(connection, new CreatePlayerRequest("Bot"));
             } catch (InterruptedException | IOException | GameException e) {
                 e.printStackTrace();
             }
@@ -115,7 +95,7 @@ public class Client implements Runnable {
 
         while (connection.isConnected()) {
             try {
-                GameResponse response = getRequest(connection);
+                GameResponse response = ClientController.getRequest(connection);
                 actionByResponseFromServer(response);
             } catch (GameException | IOException | InterruptedException e) {
                 log.error("Error {}", connection.getSocket(), e);
@@ -124,13 +104,13 @@ public class Client implements Runnable {
 
     }
 
-    private void actionCreatePlayer(final CreatePlayerResponse response) throws IOException, GameException {
-        //log.info("actionCreatePlayer {}", response);
-        sendRequest(connection, new WantPlayRequest());
-    }
-
     private void actionError(final ErrorResponse response) {
         log.error("actionError {}", response);
+    }
+
+    private void actionCreatePlayer(final CreatePlayerResponse response) throws IOException, GameException {
+        log.debug("actionCreatePlayer {}", response);
+        ClientController.sendRequest(connection, new WantPlayRequest());
     }
 
     private void actionPlaying(final GameBoardResponse response) throws GameException, IOException, InterruptedException {
@@ -138,22 +118,20 @@ public class Client implements Runnable {
         GameBoard board = response.getBoard();
         gui.updateGUI(board, response.getState());
         if (response.getState() != GameState.END) {
-            if (nowMoveByMe(color, response.getState())) {
+            if (nowMoveByMe(player, response.getState())) {
                 Thread.sleep(1000);
-                List<Point> points = BoardService.getAvailableMoves(board, color);
+                List<Point> points = BoardService.getAvailableMoves(board, player.getColor());
                 Point move = points.get(new Random().nextInt(points.size()));
-                sendRequest(connection, MovePlayerRequest.toDto(gameId, move));
+                ClientController.sendRequest(connection, MovePlayerRequest.toDto(response.getGameId(), move));
             }
         } else {
-            gameId = -1;
-            color = PlayerColor.NONE;
-            //sendRequest(connection, new WantPlayRequest());
+            player.setColor(PlayerColor.NONE);
+            //ClientController.sendRequest(connection, new WantPlayRequest());
         }
     }
 
     private void actionStartGame(final SearchGameResponse response) {
-        log.info("actionStartGame {}", response);
-        gameId = response.getGameId();
-        color = response.getColor();
+        log.debug("actionStartGame {}", response);
+        player.setColor(response.getColor());
     }
 }

@@ -1,41 +1,32 @@
 package client;
 
-import dto.response.*;
-import dto.response.player.CreatePlayerResponse;
+import dto.request.player.GameRequest;
+import dto.response.GameResponse;
+import exception.GameErrorCode;
 import exception.GameException;
+import lombok.extern.slf4j.Slf4j;
+import models.ClientConnection;
 import services.JsonService;
 
 import java.io.IOException;
 
+@Slf4j
 public class ClientController {
 
-    public static void actionByResponseFromServer(final GameResponse gameResponse) throws GameException, IOException, InterruptedException {
-
-        switch (JsonService.getCommandByResponse(gameResponse)) {
-            case ERROR:
-                ErrorResponse error = (ErrorResponse) gameResponse;
-//                actionError(error);
-                break;
-            case GAME_PLAYING:
-                GameBoardResponse response = (GameBoardResponse) gameResponse;
-//                actionPlaying(response);
-                break;
-            case CREATE_PLAYER:
-                CreatePlayerResponse createPlayer = (CreatePlayerResponse) gameResponse;
-//                actionCreatePlayer(createPlayer);
-                break;
-            case GAME_START:
-                SearchGameResponse createGame = (SearchGameResponse) gameResponse;
-//                actionStartGame(createGame);
-                break;
-            case MESSAGE:
-                MessageResponse message = (MessageResponse) gameResponse;
-//                actionMessage(message);
-                break;
-            default:
-//                log.error("Unknown response {}", gameResponse);
+    public static void sendRequest(final ClientConnection server, final GameRequest request) throws IOException, GameException {
+        if (server.isConnected()) {
+            log.debug("sendRequest {} {}", server.getSocket().getLocalPort(), request);
+            server.send(JsonService.toMsgParser(request));
         }
     }
 
+    public static GameResponse getRequest(final ClientConnection server) throws GameException, IOException {
+        if (!server.isConnected()) {
+            throw new GameException(GameErrorCode.CONNECTION_LOST);
+        }
 
+        String msg = server.readMsg();
+        log.debug("Client getRequest {} {}", server.getSocket().getLocalPort(), msg);
+        return JsonService.getResponseFromMsg(msg);
+    }
 }
