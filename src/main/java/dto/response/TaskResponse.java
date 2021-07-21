@@ -1,42 +1,34 @@
 package dto.response;
 
-import com.google.gson.Gson;
+import exception.GameException;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import models.ClientConnection;
+import services.JsonService;
 
 import java.io.IOException;
-import java.util.concurrent.Delayed;
-import java.util.concurrent.TimeUnit;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-public class TaskResponse implements Delayed {
-    private Gson gson = new Gson();
+@AllArgsConstructor
+public class TaskResponse {
     private ClientConnection client;
     private GameResponse response;
 
-    public TaskResponse(ClientConnection client, GameResponse response) {
-        this.client = client;
-        this.response = response;
+    public static TaskResponse create(final ClientConnection connection, final GameResponse response) {
+        return new TaskResponse(connection, response);
     }
 
-    public void sendJson() throws IOException {
+    public static void createAndSend(final ClientConnection connection, final GameResponse response) throws IOException, GameException {
+        TaskResponse taskResponse = new TaskResponse(connection, response);
+        taskResponse.sendJson();
+    }
 
+    public void sendJson() throws IOException, GameException {
         if (client.isConnected()) {
-            client.send(gson.toJson(response));
+            client.send(JsonService.toMsgParser(response));
         }
     }
 
-    @Override
-    public long getDelay(TimeUnit unit) {
-        return 0;
-    }
-
-    @Override
-    public int compareTo(Delayed o) {
-        return 0;
-    }
 }

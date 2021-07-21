@@ -1,10 +1,10 @@
+import models.GameProperties;
 import services.Server;
 
-import java.io.IOException;
-
 public class StartServer {
-    public static void main(String[] args) throws IOException {
-        Server server = new Server();
-        server.Start();
+    public static void main(String[] args) {
+        Server server = new Server(GameProperties.PORT);
+        Thread thread = new Thread(server);
+        thread.start();
     }
 }
