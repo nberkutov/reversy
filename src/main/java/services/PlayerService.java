@@ -13,7 +13,8 @@ import models.player.Player;
 
 public class PlayerService extends DataBaseService {
 
-    public static synchronized Player createPlayer(final CreatePlayerRequest createPlayerRequest, final ClientConnection connection) throws GameException {
+    public static synchronized Player createPlayer(
+            final CreatePlayerRequest createPlayerRequest, final ClientConnection connection) throws GameException {
         requestIsNotNull(createPlayerRequest);
         nicknameIsNotNull(createPlayerRequest);
         validateNickname(createPlayerRequest);
@@ -28,7 +29,8 @@ public class PlayerService extends DataBaseService {
         return player;
     }
 
-    public static synchronized Player authPlayer(final AuthPlayerRequest createPlayerRequest, final ClientConnection connection) throws GameException {
+    public static synchronized Player authPlayer(
+            final AuthPlayerRequest createPlayerRequest, final ClientConnection connection) throws GameException {
         requestIsNotNull(createPlayerRequest);
         nicknameIsNotNull(createPlayerRequest);
         validateNickname(createPlayerRequest);
@@ -42,7 +44,8 @@ public class PlayerService extends DataBaseService {
         return player;
     }
 
-    public static synchronized Player logoutPlayer(final LogoutPlayerRequest logoutPlayerRequest, final ClientConnection connection) throws GameException {
+    public static synchronized Player logoutPlayer(
+            final LogoutPlayerRequest logoutPlayerRequest, final ClientConnection connection) throws GameException {
         requestIsNotNull(logoutPlayerRequest);
         connectionIsNotNullAndConnected(connection);
         Player player = connection.getPlayer();

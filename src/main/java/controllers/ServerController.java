@@ -16,11 +16,10 @@ import java.util.concurrent.LinkedBlockingDeque;
 @Slf4j
 public class ServerController {
     private final LinkedBlockingDeque<TaskRequest> requests;
-    private final LinkedBlockingDeque<ClientConnection> waiting;
 
     public ServerController() {
         requests = new LinkedBlockingDeque<>();
-        waiting = new LinkedBlockingDeque<>();
+        LinkedBlockingDeque<ClientConnection> waiting = new LinkedBlockingDeque<>();
 
         ExecutorService serviceHandlerTasks = Executors.newFixedThreadPool(4);
 

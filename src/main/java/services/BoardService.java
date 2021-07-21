@@ -143,7 +143,8 @@ public class BoardService {
      * @param cell  - цвец фишки
      * @return List<Point>
      */
-    public static List<Point> getCellInAllDirection(final GameBoard board, final Point point, final Cell cell) throws GameException {
+    public static List<Point> getCellInAllDirection(final GameBoard board, final Point point, final Cell cell)
+            throws GameException {
         boardIsNotNull(board);
         checkPointIsInside(point);
         checkCellIsEmpty(cell);
@@ -204,7 +205,8 @@ public class BoardService {
      * @param cell  - цвец фишки
      * @return Point
      */
-    private static Point getPointInDirection(final GameBoard board, final Point point, final Cell cell, final int difX, final int difY) throws GameException {
+    private static Point getPointInDirection(
+            final GameBoard board, final Point point, final Cell cell, final int difX, final int difY) throws GameException {
         boardIsNotNull(board);
         checkPointIsInside(point);
         checkCellIsEmpty(cell);

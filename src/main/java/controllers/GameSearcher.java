@@ -43,8 +43,12 @@ public class GameSearcher extends Thread {
         }
     }
 
-    private void linkPlayersForGame(final ClientConnection first, final ClientConnection second) throws InterruptedException {
-        requests.putLast(new TaskRequest(PlayerService.getConnectionById(first.getPlayer().getId()), CreateGameRequest.toDto(first.getPlayer(), second.getPlayer())));
+    private void linkPlayersForGame(final ClientConnection first, final ClientConnection second)
+            throws InterruptedException {
+        requests.putLast(
+                new TaskRequest(PlayerService.getConnectionById(first.getPlayer().getId()),
+                        CreateGameRequest.toDto(first.getPlayer(), second.getPlayer()))
+        );
     }
 
 }

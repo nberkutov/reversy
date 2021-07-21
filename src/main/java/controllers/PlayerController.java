@@ -18,7 +18,9 @@ public class PlayerController extends Thread {
     private final ClientConnection connection;
     private final LinkedBlockingDeque<TaskRequest> requests;
 
-    public static void initPlayerController(final ClientConnection connection, final LinkedBlockingDeque<TaskRequest> requests) {
+    public static void initPlayerController(
+            final ClientConnection connection,
+            final LinkedBlockingDeque<TaskRequest> requests) {
         PlayerController controller = new PlayerController(connection, requests);
         controller.start();
     }

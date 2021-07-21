@@ -13,7 +13,8 @@ import java.awt.geom.Line2D;
 
 import static models.GameProperties.BOARD_SIZE;
 
-public class WindowGUI extends JFrame {
+public class WindowGUI extends JFrame implements GameGUI {
+    private static final Color BACKGROUND_COLOR = Color.decode("#187d47");
     private static final int CELL_SIZE = 50;
     private static final int OFFSET = 50;
     private final JLabel stateInfoLabel;
@@ -76,7 +77,7 @@ public class WindowGUI extends JFrame {
         Graphics2D g2 = (Graphics2D) g;
         float length = CELL_SIZE * BOARD_SIZE;
 
-        g2.setColor(Color.decode("#187d47"));
+        g2.setColor(BACKGROUND_COLOR);
         g2.fillRect(OFFSET, OFFSET, (int) (length), (int) (length));
         g2.setColor(Color.BLACK);
         for (int i = 0; i < BOARD_SIZE + 1; i++) {
@@ -113,9 +114,5 @@ public class WindowGUI extends JFrame {
                 }
             }
         }
-    }
-
-    public static void main(String[] args) {
-        new WindowGUI();
     }
 }

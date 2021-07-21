@@ -24,10 +24,6 @@ public class User {
         this.statistics = new Statistics();
     }
 
-    public User(final String nickname) {
-        this.nickname = nickname;
-    }
-
     public void lock() {
         lock.lock();
     }

@@ -77,7 +77,8 @@ public class TasksHandler extends Thread {
         }
     }
 
-    private void actionCreatePlayer(final CreatePlayerRequest createPlayer, final ClientConnection connection) throws IOException, GameException {
+    private void actionCreatePlayer(final CreatePlayerRequest createPlayer, final ClientConnection connection)
+            throws IOException, GameException {
         try {
             Player player = PlayerService.createPlayer(createPlayer, connection);
             log.debug("action createPlayer {} {}", connection.getSocket().getPort(), createPlayer);
@@ -88,7 +89,8 @@ public class TasksHandler extends Thread {
         }
     }
 
-    private void actionAuthPlayer(AuthPlayerRequest authPlayer, ClientConnection connection) throws IOException, GameException {
+    private void actionAuthPlayer(AuthPlayerRequest authPlayer, ClientConnection connection)
+            throws IOException, GameException {
         try {
             Player player = PlayerService.authPlayer(authPlayer, connection);
             log.debug("action authPlayer {} {}", connection.getSocket().getPort(), authPlayer);
@@ -99,7 +101,8 @@ public class TasksHandler extends Thread {
         }
     }
 
-    private void actionLogoutPlayer(LogoutPlayerRequest logoutPlayer, ClientConnection connection) throws IOException, GameException {
+    private void actionLogoutPlayer(LogoutPlayerRequest logoutPlayer, ClientConnection connection)
+            throws IOException, GameException {
         try {
             PlayerService.logoutPlayer(logoutPlayer, connection);
             log.debug("action logoutPlayer {} {}", connection.getSocket().getPort(), logoutPlayer);
@@ -110,7 +113,8 @@ public class TasksHandler extends Thread {
         }
     }
 
-    private void actionGetGameInfo(GetGameInfoRequest getGame, ClientConnection connection) throws IOException, GameException {
+    private void actionGetGameInfo(GetGameInfoRequest getGame, ClientConnection connection)
+            throws IOException, GameException {
         try {
             Game game = GameService.getGameInfo(getGame, connection);
             sendResponse(connection, GameBoardResponse.toDto(game));
@@ -120,7 +124,8 @@ public class TasksHandler extends Thread {
         }
     }
 
-    private void actionCreateGame(CreateGameRequest createGame, ClientConnection connection) throws InterruptedException, IOException, GameException {
+    private void actionCreateGame(CreateGameRequest createGame, ClientConnection connection)
+            throws InterruptedException, IOException, GameException {
         try {
             Game game = GameService.createGame(createGame, connection);
             sendInfoAboutGame(game, game.getBlackPlayer());
@@ -139,7 +144,8 @@ public class TasksHandler extends Thread {
     }
 
 
-    public void actionWantPlay(final WantPlayRequest wantPlay, final ClientConnection connection) throws InterruptedException, IOException, GameException {
+    public void actionWantPlay(final WantPlayRequest wantPlay, final ClientConnection connection)
+            throws InterruptedException, IOException, GameException {
         try {
             PlayerService.canPlayerSearchGame(connection);
             waiting.putLast(connection);
@@ -151,7 +157,8 @@ public class TasksHandler extends Thread {
         }
     }
 
-    public void actionMovePlayer(final MovePlayerRequest movePlayer, final ClientConnection connection) throws IOException, GameException {
+    public void actionMovePlayer(final MovePlayerRequest movePlayer, final ClientConnection connection)
+            throws IOException, GameException {
         Game game = null;
         try {
             log.debug("action movePlayer {}", movePlayer);
@@ -173,7 +180,8 @@ public class TasksHandler extends Thread {
         sendResponse(PlayerService.getConnectionByPlayer(player), response);
     }
 
-    private void sendResponse(final ClientConnection connection, final GameResponse response) throws IOException, GameException {
+    private void sendResponse(final ClientConnection connection, final GameResponse response)
+            throws IOException, GameException {
         TaskResponse.createAndSend(connection, response);
     }
 }

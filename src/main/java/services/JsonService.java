@@ -41,11 +41,9 @@ public class JsonService {
         requestIsNotNull(request);
         for (final CommandRequest commandRequest : CommandRequest.values()) {
             if (commandRequest.getRequest().equals(request.getClass())) {
-                StringBuilder builder = new StringBuilder();
-                builder.append(commandRequest.getCommandName());
-                builder.append(" ");
-                builder.append(toJson(request));
-                return builder.toString();
+                return commandRequest.getCommandName() +
+                        " " +
+                        toJson(request);
             }
         }
         throw new GameException(GameErrorCode.UNKNOWN_REQUEST);
@@ -77,11 +75,9 @@ public class JsonService {
         responseIsNotNull(response);
         for (final CommandResponse commandResponse : CommandResponse.values()) {
             if (commandResponse.getResponse().equals(response.getClass())) {
-                StringBuilder builder = new StringBuilder();
-                builder.append(commandResponse.getCommandName());
-                builder.append(" ");
-                builder.append(JsonService.toJson(response));
-                return builder.toString();
+                return commandResponse.getCommandName() +
+                        " " +
+                        JsonService.toJson(response);
             }
         }
         throw new GameException(GameErrorCode.UNKNOWN_RESPONSE);

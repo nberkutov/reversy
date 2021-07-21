@@ -55,7 +55,8 @@ public class GameService extends DataBaseService {
         return game;
     }
 
-    public static Game makePlayerMove(final MovePlayerRequest movePlayer, final ClientConnection connection) throws GameException {
+    public static Game makePlayerMove(final MovePlayerRequest movePlayer, final ClientConnection connection)
+            throws GameException {
         requestIsNotNull(movePlayer);
         connectionIsNotNullAndConnected(connection);
         Player player = connection.getPlayer();

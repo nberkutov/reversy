@@ -4,9 +4,9 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 @Getter
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = true)
 public class GameException extends Exception {
-    private GameErrorCode errorCode;
+    private final GameErrorCode errorCode;
 
     public GameException(final GameErrorCode errorCode) {
         this.errorCode = errorCode;

@@ -13,7 +13,8 @@ import java.lang.reflect.Type;
 public class GameBoardDeserializer implements JsonDeserializer<GameBoard> {
     @SneakyThrows
     @Override
-    public GameBoard deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
+    public GameBoard deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext)
+            throws JsonParseException {
         return BoardUtils.fromString(jsonElement.getAsString());
     }
 }

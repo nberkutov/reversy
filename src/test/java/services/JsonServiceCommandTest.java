@@ -104,7 +104,8 @@ class JsonServiceCommandTest {
     @Test
     void fromMsgParserRequest() throws GameException {
         String json = JsonService.toJson(new CreatePlayerRequest("Player_Test"));
-        CreatePlayerRequest request = (CreatePlayerRequest) JsonService.getRequestFromMsg(CommandRequest.CREATE_PLAYER.getCommandName() + " " + json);
+        CreatePlayerRequest request = (CreatePlayerRequest) JsonService
+                        .getRequestFromMsg(CommandRequest.CREATE_PLAYER.getCommandName() + " " + json);
         assertEquals(request.getNickname(), "Player_Test");
     }
 
@@ -136,7 +137,8 @@ class JsonServiceCommandTest {
     @Test
     void fromMsgParserResponse() throws GameException {
         String json = JsonService.toJson(new SearchGameResponse(1001, PlayerColor.BLACK));
-        SearchGameResponse response = (SearchGameResponse) JsonService.getResponseFromMsg(CommandResponse.GAME_START.getCommandName() + " " + json);
+        SearchGameResponse response = (SearchGameResponse) JsonService
+                .getResponseFromMsg(CommandResponse.GAME_START.getCommandName() + " " + json);
         assertEquals(response.getGameId(), 1001);
         assertEquals(response.getColor(), PlayerColor.BLACK);
     }
