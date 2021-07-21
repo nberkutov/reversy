@@ -20,15 +20,11 @@ public class JsonService {
             .create();
 
     public static <T> String toJson(final T t) {
-        synchronized (GSON) {
-            return GSON.toJson(t);
-        }
+        return GSON.toJson(t);
     }
 
     public static <T> T fromJson(final String msg, Class<T> nameClass) {
-        synchronized (GSON) {
-            return GSON.fromJson(msg, nameClass);
-        }
+        return GSON.fromJson(msg.trim(), nameClass);
     }
 
     public static CommandRequest getCommandByRequest(final GameRequest request) throws GameException {

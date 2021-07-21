@@ -23,6 +23,8 @@ import services.Server;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -44,9 +46,10 @@ class ServerTest {
     private static void sendRequest(final ClientConnection connection, final GameRequest request) throws IOException, GameException, InterruptedException {
         if (connection.isConnected()) {
             connection.send(JsonService.toMsgParser(request));
-            Thread.sleep(100);
+            Thread.sleep(10);
         }
     }
+
 
     private static void wantPlay(final ClientConnection connection) throws IOException, GameException, InterruptedException {
         sendRequest(connection, new WantPlayRequest());
@@ -187,6 +190,89 @@ class ServerTest {
         assertEquals(DataBaseService.getAllGames().get(0).getState(), GameState.END);
     }
 
+    private static void fastSendRequest(final ClientConnection connection, final GameRequest request) throws IOException, GameException, InterruptedException {
+        if (connection.isConnected()) {
+            connection.send(JsonService.toMsgParser(request));
+        }
+    }
+
+    @Test
+    void play10players1000GamesOnServer() throws IOException, GameException, InterruptedException {
+        DataBaseService.clearAll();
+        final int PORT = 8085;
+        final String IP = "127.0.0.1";
+        final int needPlayGames = 1000;
+        Server server = new Server(PORT, dataBaseService);
+        Thread thread = new Thread(server);
+        thread.start();
+        List<Thread> threads = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            threads.add(createClientForPlay(PORT, IP, i, needPlayGames));
+        }
+        for (Thread th : threads) {
+            th.join();
+        }
+        for (Game game : DataBaseService.getAllGames()) {
+            assertEquals(game.getState(), GameState.END);
+        }
+
+    }
+
+    private Thread createClientForPlay(final int PORT, String IP, int i, int needPlayGames) throws GameException, InterruptedException, IOException {
+        ClientConnection connection = createConnection(IP, PORT, "Bot" + i);
+        AtomicBoolean play = new AtomicBoolean(true);
+        LinkedBlockingDeque<GameResponse> responsesBot = new LinkedBlockingDeque<>();
+
+        //get
+        new Thread(() -> {
+            try {
+                while (play.get()) {
+                    responsesBot.putLast(JsonService.getResponseFromMsg(connection.readMsg()));
+                }
+            } catch (InterruptedException | GameException | IOException e) {
+                fail();
+            }
+        }).start();
+        //handler
+        Thread thread = new Thread(() -> {
+            try {
+                Player player = null;
+                while (play.get()) {
+                    GameResponse response = responsesBot.takeFirst();
+                    switch (JsonService.getCommandByResponse(response)) {
+                        case ERROR:
+                            fail();
+                            break;
+                        case GAME_PLAYING:
+                            GameBoardResponse gameBoardresponse = (GameBoardResponse) response;
+                            if (gameBoardresponse.getState() != GameState.END) {
+                                actionPlaying(connection, player, gameBoardresponse);
+                            } else {
+                                if (DataBaseService.getAllGames().size() > needPlayGames) {
+                                    play.set(false);
+                                } else {
+                                    wantPlay(connection);
+                                }
+                            }
+                            break;
+                        case GAME_START:
+                            SearchGameResponse createGame = (SearchGameResponse) response;
+                            player = new RandomBot(createGame.getColor());
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            } catch (InterruptedException | GameException | IOException e) {
+                fail();
+            }
+        });
+        thread.start();
+
+        wantPlay(connection);
+        return thread;
+    }
+
     private void actionPlaying(final ClientConnection connection, Player player, GameBoardResponse response) {
         if (player == null || connection == null || response == null) {
             fail();
@@ -196,7 +282,7 @@ class ServerTest {
             if (nowMoveByMe(color, response.getState())) {
                 GameBoard board = response.getBoard();
                 Point move = player.move(board);
-                sendRequest(connection, MovePlayerRequest.toDto(response.getGameId(), move));
+                fastSendRequest(connection, MovePlayerRequest.toDto(response.getGameId(), move));
             }
         } catch (IOException | GameException | InterruptedException e) {
             fail();

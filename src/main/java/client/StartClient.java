@@ -1,9 +1,8 @@
 package client;
 
+import exception.GameException;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.IOException;
-import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,7 +15,7 @@ public class StartClient {
         try {
             List<Thread> list = new ArrayList<>();
             for (int i = 0; i < 2; i++) {
-                Client client = new Client(new Socket(IP, PORT));
+                Client client = new Client(IP, PORT);
                 Thread thread = new Thread(client);
                 thread.start();
                 list.add(thread);
@@ -25,8 +24,8 @@ public class StartClient {
             for (Thread thread : list) {
                 thread.join();
             }
-        } catch (InterruptedException | IOException e) {
-            log.error("ERROR", e);
+        } catch (InterruptedException | GameException e) {
+            log.error("ERROR {}", e.getMessage());
         }
     }
 

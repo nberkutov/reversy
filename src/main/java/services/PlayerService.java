@@ -24,11 +24,11 @@ public class PlayerService extends DataBaseService {
         int id = getPlayerId();
         Player player = putPlayer(id, nickname);
         putConnection(id, nickname, connection);
-        connection.initPlayer(player);
+        connection.setPlayer(player);
         return player;
     }
 
-    public static Player authPlayer(final AuthPlayerRequest createPlayerRequest, final ClientConnection connection) throws GameException {
+    public static synchronized Player authPlayer(final AuthPlayerRequest createPlayerRequest, final ClientConnection connection) throws GameException {
         requestIsNotNull(createPlayerRequest);
         nicknameIsNotNull(createPlayerRequest);
         validateNickname(createPlayerRequest);
@@ -38,17 +38,17 @@ public class PlayerService extends DataBaseService {
         Player player = getPlayerByNickname(nickname);
         playerIsNotNull(player);
         putConnection(nickname, connection);
-        connection.initPlayer(player);
+        connection.setPlayer(player);
         return player;
     }
 
-    public static Player logoutPlayer(final LogoutPlayerRequest logoutPlayerRequest, final ClientConnection connection) throws GameException {
+    public static synchronized Player logoutPlayer(final LogoutPlayerRequest logoutPlayerRequest, final ClientConnection connection) throws GameException {
         requestIsNotNull(logoutPlayerRequest);
         connectionIsNotNullAndConnected(connection);
         Player player = connection.getPlayer();
         playerIsNotNull(player);
         putConnection(player.getId(), player.getNickname(), null);
-        connection.initPlayer(null);
+        connection.setPlayer(null);
         return player;
     }
 
@@ -75,8 +75,10 @@ public class PlayerService extends DataBaseService {
 
     public static void setPlayerStateNone(final Player player) throws GameException {
         playerIsNotNull(player);
+        player.lock();
         player.setState(PlayerState.NONE);
         player.setColor(PlayerColor.NONE);
+        player.unlock();
     }
 
 
@@ -88,8 +90,13 @@ public class PlayerService extends DataBaseService {
 
     public static Player canPlayerSearchGame(final Player player) throws GameException {
         playerIsNotNull(player);
-        checkPlayerCanFindGame(player);
-        player.setState(PlayerState.SEARCH_GAME);
+        try {
+            player.lock();
+            checkPlayerCanFindGame(player);
+            player.setState(PlayerState.SEARCH_GAME);
+        } finally {
+            player.unlock();
+        }
         return player;
     }
 

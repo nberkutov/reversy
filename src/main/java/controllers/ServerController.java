@@ -3,6 +3,7 @@ package controllers;
 import dto.request.TaskRequest;
 import dto.response.TaskResponse;
 import dto.response.player.MessageResponse;
+import exception.GameException;
 import lombok.extern.slf4j.Slf4j;
 import models.ClientConnection;
 
@@ -15,24 +16,19 @@ import java.util.concurrent.LinkedBlockingDeque;
 @Slf4j
 public class ServerController {
     private final LinkedBlockingDeque<TaskRequest> requests;
-    private final LinkedBlockingDeque<TaskResponse> responses;
     private final LinkedBlockingDeque<ClientConnection> waiting;
 
     public ServerController() {
         requests = new LinkedBlockingDeque<>();
-        responses = new LinkedBlockingDeque<>();
         waiting = new LinkedBlockingDeque<>();
 
         ExecutorService serviceHandlerTasks = Executors.newFixedThreadPool(4);
 
         for (int i = 0; i < 4; i++) {
-            serviceHandlerTasks.execute(new HandlerTasks(requests, responses, waiting));
+            serviceHandlerTasks.execute(new TasksHandler(requests, waiting));
         }
 
-        SenderTasks senderTasks = new SenderTasks(responses);
         GameSearcher gameSearcher = new GameSearcher(requests, waiting);
-
-        senderTasks.start();
         gameSearcher.start();
     }
 
@@ -41,14 +37,14 @@ public class ServerController {
             ClientConnection connection = new ClientConnection(socket);
             motdForPlayer(connection);
             PlayerController.initPlayerController(connection, requests);
-        } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
+        } catch (IOException | GameException e) {
+            log.error("CreatePlayerController", e);
         }
 
     }
 
-    private void motdForPlayer(final ClientConnection connection) throws InterruptedException {
-        responses.putLast(TaskResponse.create(connection, new MessageResponse("Welcome to our server")));
-        responses.putLast(TaskResponse.create(connection, new MessageResponse("Whats you name?")));
+    private void motdForPlayer(final ClientConnection connection) throws IOException, GameException {
+        TaskResponse.createAndSend(connection, new MessageResponse("Welcome to our server"));
+        TaskResponse.createAndSend(connection, new MessageResponse("Whats you name?"));
     }
 }

@@ -9,6 +9,7 @@ import dto.response.player.CreatePlayerResponse;
 import dto.response.player.GameBoardResponse;
 import dto.response.player.MessageResponse;
 import dto.response.player.SearchGameResponse;
+import exception.GameErrorCode;
 import exception.GameException;
 import gui.WindowGUI;
 import lombok.Data;
@@ -29,20 +30,17 @@ import java.net.Socket;
 @Data
 public class Client implements Runnable {
     private Player player = new RandomBot();
-    private final ClientConnection connection;
+    private ClientConnection connection;
     private WindowGUI gui;
 
-    public Client(final String ip, final int port) throws IOException {
-        this(new Socket(ip, port));
-    }
-
-    public Client(final Socket socket) throws IOException {
-        this(new ClientConnection(socket));
-    }
-
-    public Client(final ClientConnection connection) {
-        this.connection = connection;
-        gui = new WindowGUI();
+    public Client(final String ip, final int port) throws GameException {
+        try {
+            Socket socket = new Socket(ip, port);
+            this.connection = new ClientConnection(socket);
+            gui = new WindowGUI();
+        } catch (IOException e) {
+            throw new GameException(GameErrorCode.SERVER_NOT_STARTED);
+        }
     }
 
     private void actionByResponseFromServer(final GameResponse gameResponse) throws GameException, IOException, InterruptedException {

@@ -10,10 +10,14 @@ import models.base.PlayerState;
 import models.player.Player;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -25,6 +29,35 @@ public class PlayerServicesTest {
     private static void clearDateBase() {
         bs = new DataBaseService();
         DataBaseService.clearAll();
+    }
+
+    private static Stream<Arguments> getCreatePlayerByNickname() {
+        return Stream.of(
+                Arguments.of(new CreatePlayerRequest("a")),
+                Arguments.of(new CreatePlayerRequest("      ")),
+                Arguments.of(new CreatePlayerRequest("a     ")),
+                Arguments.of(new CreatePlayerRequest("aaaaaaaaaaaaaaaaaaaaa")),
+                Arguments.of(new CreatePlayerRequest("")),
+                Arguments.of(new CreatePlayerRequest("                      "))
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("getCreatePlayerByNickname")
+    void testValidateNickname(CreatePlayerRequest request) throws IOException {
+        final int PORT = 8086;
+        final String IP = "127.0.0.1";
+        DataBaseService.clearAll();
+        ServerSocket socket = new ServerSocket(PORT);
+        Socket client = new Socket(IP, PORT);
+        ClientConnection connection = new ClientConnection(client);
+        try {
+            PlayerService.createPlayer(request, connection);
+        } catch (GameException e) {
+            assertEquals(e.getErrorCode(), GameErrorCode.INVALID_NICKNAME);
+        }
+        client.close();
+        socket.close();
     }
 
     @Test

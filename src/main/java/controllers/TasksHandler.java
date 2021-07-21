@@ -21,13 +21,13 @@ import services.GameService;
 import services.JsonService;
 import services.PlayerService;
 
+import java.io.IOException;
 import java.util.concurrent.LinkedBlockingDeque;
 
 @AllArgsConstructor
 @Slf4j
-public class HandlerTasks extends Thread {
+public class TasksHandler extends Thread {
     private final LinkedBlockingDeque<TaskRequest> requests;
-    private final LinkedBlockingDeque<TaskResponse> responses;
     private final LinkedBlockingDeque<ClientConnection> waiting;
 
     @Override
@@ -69,58 +69,58 @@ public class HandlerTasks extends Thread {
                     }
                 } catch (GameException e) {
                     log.warn("HandlerTasks ", e);
-                    addTaskResponse(task.getClient(), ErrorResponse.toDto(e));
+                    sendResponse(task.getClient(), ErrorResponse.toDto(e));
                 }
-            } catch (InterruptedException e) {
+            } catch (InterruptedException | IOException | GameException e) {
                 log.error("Thread error ", e);
             }
         }
     }
 
-    private void actionCreatePlayer(final CreatePlayerRequest createPlayer, final ClientConnection connection) throws InterruptedException {
+    private void actionCreatePlayer(final CreatePlayerRequest createPlayer, final ClientConnection connection) throws IOException, GameException {
         try {
             Player player = PlayerService.createPlayer(createPlayer, connection);
             log.debug("action createPlayer {} {}", connection.getSocket().getPort(), createPlayer);
-            addTaskResponse(connection, CreatePlayerResponse.toDto(player));
+            sendResponse(connection, CreatePlayerResponse.toDto(player));
         } catch (GameException e) {
             log.warn("action CreatePlayer error {}", createPlayer, e);
-            addTaskResponse(connection, ErrorResponse.toDto(e));
+            sendResponse(connection, ErrorResponse.toDto(e));
         }
     }
 
-    private void actionAuthPlayer(AuthPlayerRequest authPlayer, ClientConnection connection) throws InterruptedException {
+    private void actionAuthPlayer(AuthPlayerRequest authPlayer, ClientConnection connection) throws IOException, GameException {
         try {
             Player player = PlayerService.authPlayer(authPlayer, connection);
             log.debug("action authPlayer {} {}", connection.getSocket().getPort(), authPlayer);
-            addTaskResponse(connection, CreatePlayerResponse.toDto(player));
+            sendResponse(connection, CreatePlayerResponse.toDto(player));
         } catch (GameException e) {
             log.warn("action authPlayer error {}", authPlayer, e);
-            addTaskResponse(connection, ErrorResponse.toDto(e));
+            sendResponse(connection, ErrorResponse.toDto(e));
         }
     }
 
-    private void actionLogoutPlayer(LogoutPlayerRequest logoutPlayer, ClientConnection connection) throws InterruptedException {
+    private void actionLogoutPlayer(LogoutPlayerRequest logoutPlayer, ClientConnection connection) throws IOException, GameException {
         try {
             PlayerService.logoutPlayer(logoutPlayer, connection);
             log.debug("action logoutPlayer {} {}", connection.getSocket().getPort(), logoutPlayer);
-            addTaskResponse(connection, new MessageResponse("Logout player successfully"));
+            sendResponse(connection, new MessageResponse("Logout player successfully"));
         } catch (GameException e) {
             log.warn("action authPlayer error {}", logoutPlayer, e);
-            addTaskResponse(connection, ErrorResponse.toDto(e));
+            sendResponse(connection, ErrorResponse.toDto(e));
         }
     }
 
-    private void actionGetGameInfo(GetGameInfoRequest getGame, ClientConnection connection) throws InterruptedException {
+    private void actionGetGameInfo(GetGameInfoRequest getGame, ClientConnection connection) throws IOException, GameException {
         try {
             Game game = GameService.getGameInfo(getGame, connection);
-            addTaskResponse(connection, GameBoardResponse.toDto(game));
+            sendResponse(connection, GameBoardResponse.toDto(game));
             log.info("getGameInfo, {}", game);
         } catch (GameException e) {
-            addTaskResponse(connection, ErrorResponse.toDto(e));
+            sendResponse(connection, ErrorResponse.toDto(e));
         }
     }
 
-    private void actionCreateGame(CreateGameRequest createGame, ClientConnection connection) throws InterruptedException {
+    private void actionCreateGame(CreateGameRequest createGame, ClientConnection connection) throws InterruptedException, IOException, GameException {
         try {
             Game game = GameService.createGame(createGame, connection);
             sendInfoAboutGame(game, game.getBlackPlayer());
@@ -128,47 +128,52 @@ public class HandlerTasks extends Thread {
             log.info("Game created, {}", game);
         } catch (GameException e) {
             log.warn("action CreateGame error {}", createGame, e);
-            addTaskResponse(connection, ErrorResponse.toDto(e));
+            sendResponse(connection, ErrorResponse.toDto(e));
         }
     }
 
-    private void sendInfoAboutGame(final Game game, Player player) throws GameException, InterruptedException {
+    private void sendInfoAboutGame(final Game game, Player player) throws GameException, IOException {
         ClientConnection connection = PlayerService.getConnectionByPlayer(player);
-        addTaskResponse(connection, SearchGameResponse.toDto(game, player));
-        addTaskResponse(connection, GameBoardResponse.toDto(game));
+        sendResponse(connection, SearchGameResponse.toDto(game, player));
+        sendResponse(connection, GameBoardResponse.toDto(game));
     }
 
 
-    public void actionWantPlay(final WantPlayRequest wantPlay, final ClientConnection connection) throws InterruptedException {
+    public void actionWantPlay(final WantPlayRequest wantPlay, final ClientConnection connection) throws InterruptedException, IOException, GameException {
         try {
             PlayerService.canPlayerSearchGame(connection);
             waiting.putLast(connection);
-            addTaskResponse(connection, new MessageResponse("Search game"));
+            sendResponse(connection, new MessageResponse("Search game"));
             log.debug("player put in waiting {}", connection.getPlayer());
         } catch (GameException e) {
             log.warn("action wantPlay error {}", wantPlay);
-            addTaskResponse(connection, ErrorResponse.toDto(e));
+            sendResponse(connection, ErrorResponse.toDto(e));
         }
     }
 
-    public void actionMovePlayer(final MovePlayerRequest movePlayer, final ClientConnection connection) throws InterruptedException {
+    public void actionMovePlayer(final MovePlayerRequest movePlayer, final ClientConnection connection) throws IOException, GameException {
+        Game game = null;
         try {
             log.debug("action movePlayer {}", movePlayer);
-            Game game = GameService.makePlayerMove(movePlayer, connection);
+            game = GameService.makePlayerMove(movePlayer, connection);
 
-            addTaskResponse(game.getBlackPlayer(), GameBoardResponse.toDto(game));
-            addTaskResponse(game.getWhitePlayer(), GameBoardResponse.toDto(game));
+            sendResponse(game.getBlackPlayer(), GameBoardResponse.toDto(game));
+            sendResponse(game.getWhitePlayer(), GameBoardResponse.toDto(game));
         } catch (GameException e) {
             log.warn("action movePlayer {} {}", connection.getSocket().getPort(), movePlayer);
-            addTaskResponse(connection, ErrorResponse.toDto(e));
+            sendResponse(connection, ErrorResponse.toDto(e));
+        } finally {
+            if (game != null) {
+                game.unlock();
+            }
         }
     }
 
-    private void addTaskResponse(final Player player, final GameResponse response) throws GameException, InterruptedException {
-        addTaskResponse(PlayerService.getConnectionByPlayer(player), response);
+    private void sendResponse(final Player player, final GameResponse response) throws GameException, IOException {
+        sendResponse(PlayerService.getConnectionByPlayer(player), response);
     }
 
-    private void addTaskResponse(final ClientConnection connection, final GameResponse response) throws InterruptedException {
-        responses.putLast(TaskResponse.create(connection, response));
+    private void sendResponse(final ClientConnection connection, final GameResponse response) throws IOException, GameException {
+        TaskResponse.createAndSend(connection, response);
     }
 }

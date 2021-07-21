@@ -41,6 +41,8 @@ public class GameService extends DataBaseService {
     public static Game createGame(final Player first, final Player second) throws GameException {
         playerIsNotNull(first);
         playerIsNotNull(second);
+        first.lock();
+        second.lock();
         playerIsNotPlaying(first);
         playerIsNotPlaying(second);
         int gameId = getGameId();
@@ -48,6 +50,8 @@ public class GameService extends DataBaseService {
         putGame(gameId, game);
         first.setState(PlayerState.PLAYING);
         second.setState(PlayerState.PLAYING);
+        second.unlock();
+        first.unlock();
         return game;
     }
 
@@ -61,25 +65,22 @@ public class GameService extends DataBaseService {
 
     public static Game makePlayerMove(final Game game, final Point point, final Player player) throws GameException {
         gameIsNotNull(game);
-        try {
-            game.lock();
-            gameIsNotEnd(game);
-            playerIsNotNull(player);
-            playerValidMove(game, player);
+        game.lock();
+        gameIsNotEnd(game);
+        playerIsNotNull(player);
+        playerValidMove(game, player);
 
-            BoardService.makeMove(game, point, player.getColor());
-            choosingPlayerMove(game);
+        BoardService.makeMove(game, point, player.getColor());
+        choosingPlayerMove(game);
 
-            if (gameIsFinished(game)) {
-                log.info("GameEnd {} \n{}", game, game.getBoard());
-                game.setState(GameState.END);
-                game.getBlackPlayer().setState(PlayerState.NONE);
-                game.getWhitePlayer().setState(PlayerState.NONE);
-                calculateStatistic(game);
-            }
-        } finally {
-            game.unlock();
+        if (gameIsFinished(game)) {
+            log.info("GameEnd {} \n{}", game, game.getBoard());
+            game.setState(GameState.END);
+            PlayerService.setPlayerStateNone(game.getBlackPlayer());
+            PlayerService.setPlayerStateNone(game.getWhitePlayer());
+            calculateStatistic(game);
         }
+
         return game;
     }
 

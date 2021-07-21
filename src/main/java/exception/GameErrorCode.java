@@ -1,6 +1,7 @@
 package exception;
 
 public enum GameErrorCode {
+    SERVER_NOT_STARTED("Server not started"),
     POINTS_NOT_FOUND("Points not found"),
     GAME_ENDED("The game is already completed"),
     GAME_NOT_FINISHED("Game is not finished yet."),

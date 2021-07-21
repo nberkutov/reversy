@@ -31,10 +31,6 @@ public class Player extends User implements Serializable, GamePlayer {
         super(id, nickname);
     }
 
-    public Player(final String nickname) {
-        super(nickname);
-    }
-
     public Player(final PlayerColor color) {
         this.color = color;
     }

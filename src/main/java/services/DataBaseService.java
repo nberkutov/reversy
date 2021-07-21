@@ -21,7 +21,7 @@ public class DataBaseService {
     private static final Map<String, Player> login_players = new ConcurrentHashMap<>();
     private static final Map<String, ClientConnection> login_connects = new ConcurrentHashMap<>();
     private static final Map<Integer, ClientConnection> connects = new ConcurrentHashMap<>();
-    //MiniBD
+
     private static int gameIncrement = 0;
     private static int playerIncrement = 0;
 

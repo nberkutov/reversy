@@ -11,6 +11,8 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.net.Socket;
 import java.util.Objects;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 @Data
 @NoArgsConstructor
@@ -21,14 +23,12 @@ public class ClientConnection implements AutoCloseable, Serializable {
     private DataOutputStream out;
     private Player player;
 
+    private final Lock lock = new ReentrantLock();
+
     public ClientConnection(final Socket socket) throws IOException {
         this.socket = socket;
         in = new DataInputStream(socket.getInputStream());
         out = new DataOutputStream(socket.getOutputStream());
-    }
-
-    public void initPlayer(final Player player) {
-        this.player = player;
     }
 
     public boolean isConnected() {
@@ -40,8 +40,10 @@ public class ClientConnection implements AutoCloseable, Serializable {
     }
 
     public void send(final String msg) throws IOException {
+        lock.lock();
         out.writeUTF(msg);
         out.flush();
+        lock.unlock();
     }
 
     @Override
