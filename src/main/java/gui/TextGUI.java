@@ -2,14 +2,16 @@ package gui;
 
 import exception.GameException;
 import models.base.Cell;
-import models.base.GameBoard;
 import models.base.GameState;
+import models.base.interfaces.GameBoard;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.BiConsumer;
 
-public class TextGUI {
+public class TextGUI implements GameGUI {
     private final Map<Cell, String> tiles;
+    private BiConsumer<Integer, Integer> callback;
     //private final GameBoard board;
 
     public TextGUI() {
@@ -20,7 +22,7 @@ public class TextGUI {
         tiles.put(Cell.WHITE, "◯");
     }
 
-    public void update(GameBoard board, GameState gameState) throws GameException {
+    public void updateGUI(GameBoard board, GameState gameState) throws GameException {
         StringBuilder boardBuilder = new StringBuilder();
         switch (gameState) {
             case BLACK_MOVE:
@@ -41,6 +43,6 @@ public class TextGUI {
             }
             boardBuilder.append("\n");
         }
-        System.out.println(boardBuilder.toString());
+        System.out.println(boardBuilder);
     }
 }

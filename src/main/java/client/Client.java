@@ -43,7 +43,8 @@ public class Client implements Runnable {
         }
     }
 
-    private void actionByResponseFromServer(final GameResponse gameResponse) throws GameException, IOException, InterruptedException {
+    private void actionByResponseFromServer(final GameResponse gameResponse)
+            throws GameException, IOException, InterruptedException {
         switch (JsonService.getCommandByResponse(gameResponse)) {
             case ERROR:
                 ErrorResponse error = (ErrorResponse) gameResponse;
@@ -119,13 +120,13 @@ public class Client implements Runnable {
         gui.updateGUI(board, response.getState());
         if (response.getState() != GameState.END) {
             if (nowMoveByMe(player, response.getState())) {
-                Thread.sleep(10);
+                Thread.sleep(1000);
                 Point move = player.move(board);
                 ClientController.sendRequest(connection, MovePlayerRequest.toDto(response.getGameId(), move));
             }
         } else {
             player.setColor(PlayerColor.NONE);
-            ClientController.sendRequest(connection, new WantPlayRequest());
+            //ClientController.sendRequest(connection, new WantPlayRequest());
         }
     }
 
