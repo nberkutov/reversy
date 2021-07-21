@@ -24,13 +24,13 @@ public class PlayerController {
         sendResponse(connection, CreatePlayerResponse.toDto(player));
     }
 
-    public static void actionAuthPlayer(AuthPlayerRequest authPlayer, ClientConnection connection) throws IOException, GameException {
+    public static void actionAuthPlayer(final AuthPlayerRequest authPlayer, final ClientConnection connection) throws IOException, GameException {
         Player player = PlayerService.authPlayer(authPlayer, connection);
         log.debug("action authPlayer {} {}", connection.getSocket().getPort(), authPlayer);
         sendResponse(connection, CreatePlayerResponse.toDto(player));
     }
 
-    public static void actionLogoutPlayer(LogoutPlayerRequest logoutPlayer, ClientConnection connection) throws IOException, GameException {
+    public static void actionLogoutPlayer(final LogoutPlayerRequest logoutPlayer, final ClientConnection connection) throws IOException, GameException {
         PlayerService.logoutPlayer(logoutPlayer, connection);
         log.debug("action logoutPlayer {} {}", connection.getSocket().getPort(), logoutPlayer);
         sendResponse(connection, new MessageResponse("Logout player successfully"));

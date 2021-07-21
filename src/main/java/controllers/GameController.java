@@ -35,13 +35,13 @@ public class GameController {
         }
     }
 
-    public static void actionGetGameInfo(GetGameInfoRequest getGame, ClientConnection connection) throws IOException, GameException {
+    public static void actionGetGameInfo(final GetGameInfoRequest getGame, final ClientConnection connection) throws IOException, GameException {
         Game game = GameService.getGameInfo(getGame, connection);
         sendResponse(connection, GameBoardResponse.toDto(game));
         log.info("getGameInfo, {}", game);
     }
 
-    public static void actionCreateGame(CreateGameRequest createGame, ClientConnection connection) throws IOException, GameException {
+    public static void actionCreateGame(final CreateGameRequest createGame, final ClientConnection connection) throws IOException, GameException {
         Game game = GameService.createGameBySearch(createGame, connection);
         sendInfoAboutGame(game, game.getBlackPlayer());
         sendInfoAboutGame(game, game.getWhitePlayer());

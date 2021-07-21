@@ -110,7 +110,7 @@ public class PlayerService extends DataBaseService {
         }
     }
 
-    private static void validateNickname(CreatePlayerRequest createPlayerRequest) throws GameException {
+    private static void validateNickname(final CreatePlayerRequest createPlayerRequest) throws GameException {
         String nickname = createPlayerRequest.getNickname().trim().toLowerCase();
         if (nickname.isEmpty()
                 || nickname.length() < GameProperties.MIN_SIZE_NICKNAME

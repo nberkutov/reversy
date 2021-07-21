@@ -18,7 +18,7 @@ import java.util.Random;
 
 public class RoomService extends DataBaseService {
 
-    public static Room createRoom(CreateRoomRequest createRoom, ClientConnection connection) throws GameException {
+    public static Room createRoom(final CreateRoomRequest createRoom, final ClientConnection connection) throws GameException {
         checkRequestAndConnection(createRoom, connection);
         Player player = connection.getPlayer();
         playerIsNotNull(player);
@@ -35,7 +35,7 @@ public class RoomService extends DataBaseService {
         }
     }
 
-    public static Game joinRoom(JoinRoomRequest joinRoom, ClientConnection connection) throws GameException {
+    public static Game joinRoom(final JoinRoomRequest joinRoom, final ClientConnection connection) throws GameException {
         checkRequestAndConnection(joinRoom, connection);
         Player player = connection.getPlayer();
         playerIsNotNull(player);
@@ -53,7 +53,7 @@ public class RoomService extends DataBaseService {
         }
     }
 
-    public static List<Room> getRooms(GetRoomsRequest getRooms, ClientConnection connection) throws GameException {
+    public static List<Room> getRooms(final GetRoomsRequest getRooms, final ClientConnection connection) throws GameException {
         checkRequestAndConnection(getRooms, connection);
         validateRequest(getRooms);
         boolean needClose = getRooms.isNeedClose();
@@ -61,14 +61,14 @@ public class RoomService extends DataBaseService {
         return DataBaseService.getRooms(needClose, limit);
     }
 
-    private static void validateRequest(GetRoomsRequest getRooms) throws GameException {
+    private static void validateRequest(final GetRoomsRequest getRooms) throws GameException {
         if (getRooms.getLimit() <= 0) {
             throw new GameException(GameErrorCode.INVALID_REQUEST);
         }
     }
 
 
-    private static void setPlayerInRoom(Room room, Player player, PlayerColor needColor) {
+    private static void setPlayerInRoom(final Room room, final Player player, final PlayerColor needColor) {
         switch (needColor) {
             case BLACK:
                 room.setBlackPlayer(player);
@@ -91,7 +91,7 @@ public class RoomService extends DataBaseService {
         }
     }
 
-    private static void takeFreeColorInRoom(Room room, Player player) {
+    private static void takeFreeColorInRoom(final Room room, final Player player) {
         if (room.getBlackPlayer() == null) {
             room.setBlackPlayer(player);
         }

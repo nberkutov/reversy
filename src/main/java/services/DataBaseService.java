@@ -60,7 +60,7 @@ public class DataBaseService {
     }
 
     public static synchronized Game putGame(final Player first, final Player second) {
-        int id = getRoomId();
+        int id = getGameId();
         Game game = new Game(id, first, second);
         games.put(id, game);
         return game;
