@@ -60,8 +60,12 @@ public class PlayerService extends DataBaseService {
         return connection;
     }
 
-    public static boolean canPlay(final ClientConnection connection) {
+    public static boolean canSearchGame(final ClientConnection connection) {
         if (connection == null) {
+            return false;
+        }
+        Player player = connection.getPlayer();
+        if (player == null || player.getState() != PlayerState.SEARCH_GAME) {
             return false;
         }
         return connection.isConnected();
@@ -92,18 +96,12 @@ public class PlayerService extends DataBaseService {
         playerIsNotNull(player);
         try {
             player.lock();
-            checkPlayerCanFindGame(player);
+            playerIsNotStateNone(player);
             player.setState(PlayerState.SEARCH_GAME);
         } finally {
             player.unlock();
         }
         return player;
-    }
-
-    private static void checkPlayerCanFindGame(final Player player) throws GameException {
-        if (player.getState() == PlayerState.PLAYING || player.getState() == PlayerState.SEARCH_GAME) {
-            throw new GameException(GameErrorCode.PLAYER_CANNOT_FIND_GAME);
-        }
     }
 
     private static void nicknameIsNotNull(final CreatePlayerRequest createPlayerRequest) throws GameException {

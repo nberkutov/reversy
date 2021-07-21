@@ -2,8 +2,8 @@ package gui;
 
 import exception.GameException;
 import models.base.Cell;
-import models.base.GameBoard;
 import models.base.GameState;
+import models.base.interfaces.GameBoard;
 
 import java.util.HashMap;
 import java.util.Map;

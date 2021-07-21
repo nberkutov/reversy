@@ -22,17 +22,10 @@ public class Player extends User implements Serializable, GamePlayer {
     private PlayerState state;
     protected PlayerColor color;
 
-    public Player(final int id) {
-        this.id = id;
-        state = PlayerState.NONE;
-    }
-
     public Player(final int id, final String nickname) {
         super(id, nickname);
-    }
-
-    public Player(final PlayerColor color) {
-        this.color = color;
+        state = PlayerState.NONE;
+        color = PlayerColor.NONE;
     }
 
     @Override

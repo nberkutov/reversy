@@ -4,6 +4,9 @@ import controllers.commands.CommandRequest;
 import controllers.commands.CommandResponse;
 import dto.request.GameRequest;
 import dto.request.player.*;
+import dto.request.room.CreateRoomRequest;
+import dto.request.room.GetRoomsRequest;
+import dto.request.room.JoinRoomRequest;
 import dto.request.server.CreateGameRequest;
 import dto.response.ErrorResponse;
 import dto.response.GameResponse;
@@ -11,6 +14,8 @@ import dto.response.player.CreatePlayerResponse;
 import dto.response.player.GameBoardResponse;
 import dto.response.player.MessageResponse;
 import dto.response.player.SearchGameResponse;
+import dto.response.room.ListRoomResponse;
+import dto.response.room.RoomResponse;
 import exception.GameErrorCode;
 import exception.GameException;
 import models.base.PlayerColor;
@@ -34,10 +39,13 @@ class JsonServiceCommandTest {
         return Stream.of(
                 Arguments.of(CommandRequest.CREATE_PLAYER, new CreatePlayerRequest()),
                 Arguments.of(WANT_PLAY, new WantPlayRequest()),
-                Arguments.of(PRIVATE_CREATE_GAME, new CreateGameRequest()),
+                Arguments.of(SEARCH_CREATE_GAME, new CreateGameRequest()),
                 Arguments.of(PLAYING_MOVE, new MovePlayerRequest()),
                 Arguments.of(PLAYER_AUTH, new AuthPlayerRequest()),
                 Arguments.of(PLAYER_LOGOUT, new LogoutPlayerRequest()),
+                Arguments.of(CREATE_ROOM, new CreateRoomRequest()),
+                Arguments.of(JOIN_ROOM, new JoinRoomRequest()),
+                Arguments.of(GET_ROOMS, new GetRoomsRequest()),
                 Arguments.of(GET_GAME_INFO, new GetGameInfoRequest())
         );
     }
@@ -46,6 +54,18 @@ class JsonServiceCommandTest {
     @MethodSource("getCommandByRequestStream")
     void getCommandByRequest(CommandRequest command, GameRequest request) throws GameException {
         assertEquals(command, JsonService.getCommandByRequest(request));
+    }
+
+    private static Stream<Arguments> getCommandByResponseStream() {
+        return Stream.of(
+                Arguments.of(ERROR, new ErrorResponse()),
+                Arguments.of(MESSAGE, new MessageResponse()),
+                Arguments.of(GAME_PLAYING, new GameBoardResponse()),
+                Arguments.of(GAME_START, new SearchGameResponse()),
+                Arguments.of(CREATE_PLAYER, new CreatePlayerResponse()),
+                Arguments.of(ROOM, new RoomResponse()),
+                Arguments.of(ROOMS, new ListRoomResponse())
+        );
     }
 
     @Test
@@ -66,20 +86,20 @@ class JsonServiceCommandTest {
         }
     }
 
-    private static Stream<Arguments> getCommandByResponseStream() {
-        return Stream.of(
-                Arguments.of(ERROR, new ErrorResponse()),
-                Arguments.of(MESSAGE, new MessageResponse()),
-                Arguments.of(GAME_PLAYING, new GameBoardResponse()),
-                Arguments.of(GAME_START, new SearchGameResponse()),
-                Arguments.of(CREATE_PLAYER, new CreatePlayerResponse())
-        );
+    @Test
+    void testCountCommandAndRequest() {
+        assertEquals(getCommandByRequestStream().count(), CommandRequest.values().length);
     }
 
     @ParameterizedTest
     @MethodSource("getCommandByResponseStream")
     void getCommandByResponse(CommandResponse command, GameResponse response) throws GameException {
         assertEquals(command, JsonService.getCommandByResponse(response));
+    }
+
+    @Test
+    void testCountCommandAndResponse() {
+        assertEquals(getCommandByResponseStream().count(), CommandResponse.values().length);
     }
 
     @Test

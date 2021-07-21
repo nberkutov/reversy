@@ -13,51 +13,57 @@ import models.base.interfaces.GameBoard;
 import models.board.Point;
 import models.game.Game;
 import models.game.GameResult;
+import models.game.Room;
 import models.player.Player;
+
+import java.util.Random;
 
 @Slf4j
 public class GameService extends DataBaseService {
 
-    public static Game createGame(final CreateGameRequest createGame, final ClientConnection connection) throws GameException {
-        requestIsNotNull(createGame);
-        connectionIsNotNullAndConnected(connection);
+    public static Game createGameBySearch(final CreateGameRequest createGame, final ClientConnection connection) throws GameException {
+        checkRequestAndConnection(createGame, connection);
         ClientConnection firstCon = getConnectionById(createGame.getFirstPlayerId());
         connectionIsNotNullAndConnected(firstCon);
         ClientConnection secondCon = getConnectionById(createGame.getSecondPlayerId());
         connectionIsNotNullAndConnected(secondCon);
         Player first = firstCon.getPlayer();
         Player second = secondCon.getPlayer();
-        return createGame(first, second);
+        if (new Random().nextBoolean()) {
+            return createGame(first, second);
+        }
+        return createGame(second, first);
     }
 
     public static Game getGameInfo(final GetGameInfoRequest getGame, final ClientConnection connection) throws GameException {
-        requestIsNotNull(getGame);
-        connectionIsNotNullAndConnected(connection);
+        checkRequestAndConnection(getGame, connection);
         Game game = getGameById(getGame.getGameId());
         gameIsNotNull(game);
         return game;
     }
 
-    public static Game createGame(final Player first, final Player second) throws GameException {
-        playerIsNotNull(first);
-        playerIsNotNull(second);
-        first.lock();
-        second.lock();
-        playerIsNotPlaying(first);
-        playerIsNotPlaying(second);
-        int gameId = getGameId();
-        Game game = new Game(gameId, first, second);
-        putGame(gameId, game);
-        first.setState(PlayerState.PLAYING);
-        second.setState(PlayerState.PLAYING);
-        second.unlock();
-        first.unlock();
+    public static Game createGame(final Player black, final Player white) throws GameException {
+        playerIsNotNull(black);
+        playerIsNotNull(white);
+        black.lock();
+        white.lock();
+        Game game = putGame(black, white);
+        black.setState(PlayerState.PLAYING);
+        white.setState(PlayerState.PLAYING);
+        white.unlock();
+        black.unlock();
         return game;
     }
 
+    public static Game createGameByRoom(Room room) throws GameException {
+        roomIsNotNull(room);
+        Player black = room.getBlackPlayer();
+        Player white = room.getWhitePlayer();
+        return createGame(black, white);
+    }
+
     public static Game makePlayerMove(final MovePlayerRequest movePlayer, final ClientConnection connection) throws GameException {
-        requestIsNotNull(movePlayer);
-        connectionIsNotNullAndConnected(connection);
+        checkRequestAndConnection(movePlayer, connection);
         Player player = connection.getPlayer();
         Game game = getGameById(movePlayer.getGameId());
         return makePlayerMove(game, movePlayer.getPoint(), player);

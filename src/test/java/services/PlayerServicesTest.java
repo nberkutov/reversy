@@ -223,14 +223,14 @@ public class PlayerServicesTest {
             PlayerService.canPlayerSearchGame(player);
             fail();
         } catch (GameException e) {
-            assertEquals(e.getErrorCode(), GameErrorCode.PLAYER_CANNOT_FIND_GAME);
+            assertEquals(e.getErrorCode(), GameErrorCode.PLAYER_CANT_PERFORM);
         }
         player.setState(PlayerState.PLAYING);
         try {
             PlayerService.canPlayerSearchGame(player);
             fail();
         } catch (GameException e) {
-            assertEquals(e.getErrorCode(), GameErrorCode.PLAYER_CANNOT_FIND_GAME);
+            assertEquals(e.getErrorCode(), GameErrorCode.PLAYER_CANT_PERFORM);
         }
         connection.close();
         socket.close();
