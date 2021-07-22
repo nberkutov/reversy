@@ -42,16 +42,16 @@ class GameWindow extends JFrame {
     private final JLabel stateInfoLabel;
     private final JLabel countBlackLabel;
     private final JLabel countWhiteLabel;
-    private final BoardPanel boardPanel;
     private final JPanel infoPanel;
+    private final BoardPanel boardPanel;
     private GameBoard board;
 
     public GameWindow() {
         super("Reversi Client");
         board = new Board();
-        int xSize = CELL_SIZE * BOARD_SIZE;
+        int size = CELL_SIZE * BOARD_SIZE;
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(xSize + 100, xSize + 100);
+        setSize(size + 125, size + 50);
         setLocationRelativeTo(null);
         setLayout(new BoxLayout(getContentPane(), BoxLayout.X_AXIS));
         stateInfoLabel = new JLabel();
@@ -60,30 +60,26 @@ class GameWindow extends JFrame {
         boardPanel = new BoardPanel(board);
         boardPanel.setBackground(Color.decode("#187d47"));
         boardPanel.setBorder(new LineBorder(Color.BLACK));
-
         infoPanel = new JPanel();
-        infoPanel.setMaximumSize(new Dimension(80, 400));
-        initLabels(xSize);
-        add(boardPanel);
+        initLabels();
         add(infoPanel);
+        add(boardPanel);
         setResizable(false);
         setVisible(true);
     }
 
-    private void initLabels(int xSize) {
-        stateInfoLabel.setBounds(OFFSET, 0, 200, 20);
-        stateInfoLabel.setText("НАЧАЛО ИГРЫ");
+    private void initLabels() {
+        infoPanel.setMaximumSize(new Dimension(120, CELL_SIZE * BOARD_SIZE));
+        infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
+
+        stateInfoLabel.setText(" НАЧАЛО ИГРЫ");
         infoPanel.add(stateInfoLabel);
 
-        countBlackLabel.setBounds(xSize - OFFSET - 200, 0, xSize - OFFSET - 120, 20);
-        countBlackLabel.setText(String.format("ЧЕРНЫЕ: %d", board.getCountBlackCells()));
+        countBlackLabel.setText(String.format(" ЧЕРНЫЕ: %d", board.getCountBlackCells()));
         infoPanel.add(countBlackLabel);
 
-        countWhiteLabel.setBounds(xSize - OFFSET - 80, 0, xSize - OFFSET, 20);
-        countWhiteLabel.setText(String.format("БЕЛЫЕ: %d", board.getCountWhiteCells()));
+        countWhiteLabel.setText(String.format(" БЕЛЫЕ: %d", board.getCountWhiteCells()));
         infoPanel.add(countWhiteLabel);
-
-        infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
     }
 
     public void updateGUI(GameBoard board, GameState gameState) {
@@ -107,11 +103,14 @@ class GameWindow extends JFrame {
         countWhiteLabel.setText(String.format("БЕЛЫЕ: %d", board.getCountWhiteCells()));
         boardPanel.update(board);
         repaint();
-    }
 
-    public void paint(Graphics g) {
-        super.paint(g);
-
+        if (gameState == GameState.END) {
+            if (board.getCountBlackCells() > board.getCountWhiteCells()) {
+                JOptionPane.showMessageDialog(new JFrame(), "Победа черных");
+            } else {
+                JOptionPane.showMessageDialog(new JFrame(), "Победа белых");
+            }
+        }
     }
 }
 
@@ -133,9 +132,7 @@ class BoardPanel extends JPanel {
         addMouseListener(new BoardMouseListener());
         addMouseMotionListener(new MouseMotionListener() {
             @Override
-            public void mouseDragged(MouseEvent mouseEvent) {
-
-            }
+            public void mouseDragged(MouseEvent mouseEvent) {}
 
             @Override
             public void mouseMoved(MouseEvent mouseEvent) {
@@ -195,7 +192,11 @@ class BoardPanel extends JPanel {
                     );
                     if (mouseX >= 0 && mouseY >= 0) {
                         g2.setColor(Color.YELLOW);
-                        g2.drawRect(mouseX / CELL_SIZE * CELL_SIZE, mouseY / CELL_SIZE * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+                        g2.drawRect(
+                                mouseX / CELL_SIZE * CELL_SIZE,
+                                mouseY / CELL_SIZE * CELL_SIZE,
+                                CELL_SIZE, CELL_SIZE
+                        );
                         mouseX = -1;
                         mouseY = -1;
                     }
