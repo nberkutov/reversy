@@ -10,10 +10,9 @@ import java.util.List;
 import java.util.Random;
 
 @NoArgsConstructor
-public class RandomBot extends Player {
+public class RandomBotPlayer extends Player {
 
-
-    public RandomBot(int id, String nickname) {
+    public RandomBotPlayer(int id, String nickname) {
         super(id, nickname);
     }
 

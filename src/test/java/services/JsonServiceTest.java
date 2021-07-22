@@ -4,7 +4,7 @@ import dto.request.GameRequest;
 import dto.request.player.CreatePlayerRequest;
 import models.board.Board;
 import models.game.Game;
-import models.player.Player;
+import models.player.RandomBotPlayer;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -29,7 +29,7 @@ class JsonServiceTest {
         Board after = JsonService.fromJson(json, Board.class);
         assertEquals(board, after);
 
-        Game game = new Game(board, new Player(0, "Test"), new Player(1, "Test1"));
+        Game game = new Game(board, new RandomBotPlayer(0, "Test"), new RandomBotPlayer(1, "Test1"));
         String gameString = JsonService.toJson(game);
         Game afterJson = JsonService.fromJson(gameString, Game.class);
         assertEquals(game, afterJson);

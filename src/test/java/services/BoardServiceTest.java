@@ -7,6 +7,7 @@ import models.base.PlayerColor;
 import models.board.Board;
 import models.board.Point;
 import models.player.Player;
+import models.player.RandomBotPlayer;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -147,7 +148,7 @@ class BoardServiceTest {
                 + "0 0 0 0 0 0 0 0";
         Board board = BoardUtils.fromString(boardStr);
 
-        Player player = new Player();
+        Player player = new RandomBotPlayer();
         player.setColor(PlayerColor.WHITE);
         assertTrue(BoardService.hasPossibleMove(board, player));
         player.setColor(PlayerColor.BLACK);

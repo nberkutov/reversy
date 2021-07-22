@@ -12,6 +12,7 @@ import models.board.Point;
 import models.game.Game;
 import models.game.GameResult;
 import models.player.Player;
+import models.player.RandomBotPlayer;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -43,7 +44,7 @@ public class GameServicesTest {
                 + "bbbbbbbb"
                 + "bbbbbbbb";
         Board board = BoardUtils.fromString(s);
-        Game game = new Game(board, new Player(0, "Test"), new Player(1, "Test1"));
+        Game game = new Game(board, new RandomBotPlayer(0, "Test"), new RandomBotPlayer(1, "Test1"));
         GameService.makePlayerMove(game, new Point(0, 4), game.getBlackPlayer());
         GameResult result = GameService.getGameResult(game);
         assertEquals(result.getResultState(), GameResultState.WINNER_FOUND);
@@ -62,7 +63,7 @@ public class GameServicesTest {
                 + "bbbbbbbb"
                 + "bbbbbbbb";
         Board board = BoardUtils.fromString(s);
-        Game game = new Game(board, new Player(0, "Test"), new Player(1, "Test1"));
+        Game game = new Game(board, new RandomBotPlayer(0, "Test"), new RandomBotPlayer(1, "Test1"));
         GameService.makePlayerMove(game, new Point(0, 4), game.getBlackPlayer());
         GameResult result = GameService.getGameResult(game);
         assertEquals(result.getResultState(), GameResultState.WINNER_FOUND);
@@ -81,7 +82,7 @@ public class GameServicesTest {
                 + "bbbbbbbb"
                 + "bbbbbbbw";
         Board board = BoardUtils.fromString(s);
-        Game game = new Game(board, new Player(0, "Test"), new Player(1, "Test1"));
+        Game game = new Game(board, new RandomBotPlayer(0, "Test"), new RandomBotPlayer(1, "Test1"));
         GameService.makePlayerMove(game, new Point(0, 4), game.getBlackPlayer());
         GameResult result = GameService.getGameResult(game);
         assertEquals(result.getResultState(), GameResultState.WINNER_FOUND);
@@ -100,7 +101,7 @@ public class GameServicesTest {
                 + "bbbbbbbb"
                 + "bbbbbbbw";
         Board board = BoardUtils.fromString(s);
-        Game game = new Game(board, new Player(0, "Test"), new Player(1, "Test1"));
+        Game game = new Game(board, new RandomBotPlayer(0, "Test"), new RandomBotPlayer(1, "Test1"));
         GameService.makePlayerMove(game, new Point(0, 4), game.getBlackPlayer());
 
         try {
@@ -131,7 +132,7 @@ public class GameServicesTest {
             assertEquals(e.getErrorCode(), GameErrorCode.CONNECTION_LOST);
         }
 
-        Game game = GameService.createGame(new Player(), new Player());
+        Game game = GameService.createGame(new RandomBotPlayer(), new RandomBotPlayer());
 
         ServerSocket socket = new ServerSocket(PORT);
 
@@ -166,9 +167,9 @@ public class GameServicesTest {
 
     @Test
     void testCreateGame() throws GameException {
-        Player p1 = new Player();
+        RandomBotPlayer p1 = new RandomBotPlayer();
         p1.setState(PlayerState.SEARCH_GAME);
-        Player p2 = new Player();
+        RandomBotPlayer p2 = new RandomBotPlayer();
         p2.setState(PlayerState.SEARCH_GAME);
         Game game = GameService.createGame(p1, p2);
         assertEquals(p1.getState(), PlayerState.PLAYING);
@@ -178,13 +179,13 @@ public class GameServicesTest {
     @Test
     void testCreateGameException() {
         try {
-            GameService.createGame(new Player(), null);
+            GameService.createGame(new RandomBotPlayer(), null);
             fail();
         } catch (GameException e) {
             assertEquals(e.getErrorCode(), GameErrorCode.PLAYER_NOT_FOUND);
         }
         try {
-            GameService.createGame(null, new Player());
+            GameService.createGame(null, new RandomBotPlayer());
             fail();
         } catch (GameException e) {
             assertEquals(e.getErrorCode(), GameErrorCode.PLAYER_NOT_FOUND);

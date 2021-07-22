@@ -11,8 +11,8 @@ import dto.response.player.MessageResponse;
 import dto.response.player.SearchGameResponse;
 import exception.GameErrorCode;
 import exception.GameException;
-import gui.WindowGUI;
-import lombok.Data;
+import gui.GameGUI;
+import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 import models.ClientConnection;
 import models.base.GameState;
@@ -20,24 +20,24 @@ import models.base.PlayerColor;
 import models.base.interfaces.GameBoard;
 import models.board.Point;
 import models.player.Player;
-import models.player.RandomBot;
 import services.JsonService;
 
 import java.io.IOException;
 import java.net.Socket;
 
 @Slf4j
-@Data
+@EqualsAndHashCode
 public class Client implements Runnable {
-    private Player player = new RandomBot();
-    private ClientConnection connection;
-    private WindowGUI gui;
+    private final Player player;
+    private final ClientConnection connection;
+    private final GameGUI gui;
 
-    public Client(final String ip, final int port) throws GameException {
+    public Client(final String ip, final int port, final Player player, GameGUI gui) throws GameException {
         try {
+            this.player = player;
             Socket socket = new Socket(ip, port);
             this.connection = new ClientConnection(socket);
-            gui = new WindowGUI();
+            this.gui = gui;
         } catch (IOException e) {
             throw new GameException(GameErrorCode.SERVER_NOT_STARTED);
         }

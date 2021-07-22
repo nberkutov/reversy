@@ -1,10 +1,11 @@
 package client;
 
 import exception.GameException;
+import gui.TextGUI;
+import gui.WindowGUI;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayList;
-import java.util.List;
+import models.player.HumanConsolePayer;
+import models.player.RandomBotPlayer;
 
 @Slf4j
 public class StartClient {
@@ -13,17 +14,14 @@ public class StartClient {
 
     public static void main(String[] args) {
         try {
-            List<Thread> list = new ArrayList<>();
-            for (int i = 0; i < 2; i++) {
-                Client client = new Client(IP, PORT);
-                Thread thread = new Thread(client);
-                thread.start();
-                list.add(thread);
-            }
-
-            for (Thread thread : list) {
-                thread.join();
-            }
+            Client botClient = new Client(IP, PORT, new RandomBotPlayer(), new WindowGUI());
+            Client humanClient = new Client(IP, PORT, new HumanConsolePayer(), new TextGUI());
+            Thread thread1 = new Thread(botClient);
+            Thread thread2 = new Thread(humanClient);
+            thread1.start();
+            thread2.start();
+            thread1.join();
+            thread2.join();
         } catch (InterruptedException | GameException e) {
             log.error("ERROR {}", e.getMessage());
         }

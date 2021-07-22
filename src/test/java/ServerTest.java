@@ -19,7 +19,7 @@ import models.board.Point;
 import models.game.Game;
 import models.game.Room;
 import models.player.Player;
-import models.player.RandomBot;
+import models.player.RandomBotPlayer;
 import org.junit.jupiter.api.Test;
 import services.DataBaseService;
 import services.JsonService;
@@ -118,7 +118,7 @@ class ServerTest {
         //handler
         new Thread(() -> {
             try {
-                Player player = new RandomBot(0, "Bot0");
+                Player player = new RandomBotPlayer(0, "Bot0");
                 while (gameIsNotFinish.get()) {
                     GameResponse response = responsesBot1.takeFirst();
                     switch (JsonService.getCommandByResponse(response)) {
@@ -158,7 +158,7 @@ class ServerTest {
         //handler
         Thread threadBot2 = new Thread(() -> {
             try {
-                Player player = new RandomBot(0, "Bot1");
+                Player player = new RandomBotPlayer(0, "Bot1");
                 while (gameIsNotFinish.get()) {
                     GameResponse response = responsesBot2.takeFirst();
                     switch (JsonService.getCommandByResponse(response)) {
@@ -265,7 +265,7 @@ class ServerTest {
         //handler
         Thread thread = new Thread(() -> {
             try {
-                Player player = new RandomBot(0, "Bot0");
+                Player player = new RandomBotPlayer(0, "Bot0");
                 while (play.get()) {
                     GameResponse response = responsesBot.takeFirst();
                     switch (JsonService.getCommandByResponse(response)) {

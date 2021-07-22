@@ -11,15 +11,12 @@ import java.util.function.BiConsumer;
 
 public class TextGUI implements GameGUI {
     private final Map<Cell, String> tiles;
-    private BiConsumer<Integer, Integer> callback;
-    //private final GameBoard board;
 
     public TextGUI() {
-        //this.board = board;
         tiles = new HashMap<>();
         tiles.put(Cell.EMPTY, "_");
-        tiles.put(Cell.BLACK, "⊛");
-        tiles.put(Cell.WHITE, "◯");
+        tiles.put(Cell.BLACK, "◯");
+        tiles.put(Cell.WHITE, "⊛");
     }
 
     public void updateGUI(GameBoard board, GameState gameState) throws GameException {
@@ -35,14 +32,29 @@ public class TextGUI implements GameGUI {
                 boardBuilder.append("КОНЕЦ ИГРЫ");
                 break;
         }
+        boardBuilder.append('\n');
         boardBuilder.append("ЧЕРНЫЕ: ").append(board.getCountBlackCells()).append('\n');
         boardBuilder.append("БЕЛЫЕ: ").append(board.getCountWhiteCells()).append('\n');
+        boardBuilder.append("  ");
+        for (int i = 1; i <= 8; i++) {
+            boardBuilder.append(i).append(' ');
+        }
+        boardBuilder.append('\n');
         for (int i = 0; i < board.getSize(); i++) {
+            boardBuilder.append(i + 1).append(' ');
             for (int j = 0; j < board.getSize(); j++) {
                 boardBuilder.append(tiles.get(board.getCell(j, i))).append(" ");
             }
             boardBuilder.append("\n");
         }
         System.out.println(boardBuilder);
+
+        if (gameState == GameState.END) {
+            if (board.getCountBlackCells() > board.getCountWhiteCells()) {
+                System.out.println("ПОБЕДА ЧЕРНЫХ!");
+            } else {
+                System.out.println("ПОБЕДА БЕЛЫХ!");
+            }
+        }
     }
 }

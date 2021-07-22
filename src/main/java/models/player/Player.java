@@ -18,8 +18,8 @@ import java.io.Serializable;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Player extends User implements Serializable, GamePlayer {
-    private PlayerState state;
+public abstract class Player extends User {
+    protected PlayerState state;
     protected PlayerColor color;
 
     public Player(final int id, final String nickname) {
@@ -28,10 +28,7 @@ public class Player extends User implements Serializable, GamePlayer {
         color = PlayerColor.NONE;
     }
 
-    @Override
-    public Point move(final GameBoard board) throws GameException {
-        return null;
-    }
+    public abstract Point move(final GameBoard board) throws GameException;
 
     @Override
     public String toString() {

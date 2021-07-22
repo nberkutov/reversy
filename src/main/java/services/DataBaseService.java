@@ -10,6 +10,7 @@ import models.base.RoomState;
 import models.game.Game;
 import models.game.Room;
 import models.player.Player;
+import models.player.RandomBotPlayer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -73,7 +74,7 @@ public class DataBaseService {
     }
 
     public static synchronized Player putPlayer(final int id, final String nickname) {
-        Player player = new Player(id, nickname);
+        Player player = new RandomBotPlayer(id, nickname);
         login_players.put(player.getNickname(), player);
         players.put(id, player);
         return player;
