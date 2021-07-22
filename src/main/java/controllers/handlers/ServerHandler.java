@@ -1,5 +1,6 @@
-package controllers;
+package controllers.handlers;
 
+import controllers.ConnectionController;
 import dto.request.TaskRequest;
 import dto.response.TaskResponse;
 import dto.response.player.MessageResponse;
@@ -14,11 +15,11 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingDeque;
 
 @Slf4j
-public class ServerController {
+public class ServerHandler {
     private final LinkedBlockingDeque<TaskRequest> requests;
     private final LinkedBlockingDeque<ClientConnection> waiting;
 
-    public ServerController() {
+    public ServerHandler() {
         requests = new LinkedBlockingDeque<>();
         waiting = new LinkedBlockingDeque<>();
 
@@ -36,7 +37,7 @@ public class ServerController {
         try {
             ClientConnection connection = new ClientConnection(socket);
             motdForPlayer(connection);
-            PlayerController.initPlayerController(connection, requests);
+            ConnectionController.initPlayerController(connection, requests);
         } catch (IOException | GameException e) {
             log.error("CreatePlayerController", e);
         }

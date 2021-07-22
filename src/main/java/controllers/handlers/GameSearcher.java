@@ -1,4 +1,4 @@
-package controllers;
+package controllers.handlers;
 
 import dto.request.TaskRequest;
 import dto.request.server.CreateGameRequest;
@@ -24,13 +24,13 @@ public class GameSearcher extends Thread {
                 ClientConnection first = waiting.takeFirst();
                 ClientConnection second = waiting.takeFirst();
                 log.debug("GameSearcher {}, {}", first, second);
-                if (!PlayerService.canPlay(first)) {
+                if (!PlayerService.canSearchGame(first)) {
                     log.info("Player cant play {}", first);
                     waiting.putFirst(second);
                     PlayerService.setPlayerStateNone(first);
                     continue;
                 }
-                if (!PlayerService.canPlay(second)) {
+                if (!PlayerService.canSearchGame(second)) {
                     log.info("Player cant play {}", second);
                     PlayerService.setPlayerStateNone(second);
                     waiting.putFirst(first);
