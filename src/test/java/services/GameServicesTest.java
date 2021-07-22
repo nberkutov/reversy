@@ -132,7 +132,7 @@ public class GameServicesTest {
             assertEquals(e.getErrorCode(), GameErrorCode.CONNECTION_LOST);
         }
 
-        Game game = GameService.createGame(new RandomBotPlayer(), new RandomBotPlayer());
+        Game game = GameService.createGame(new RandomBotPlayer(0, "Bot1"), new RandomBotPlayer(1, "bot2"));
 
         ServerSocket socket = new ServerSocket(PORT);
 
@@ -156,7 +156,10 @@ public class GameServicesTest {
         connection.close();
 
         try {
-            GameService.makePlayerMove(new MovePlayerRequest(game.getId(), new Point()), new ClientConnection());
+            GameService.makePlayerMove(
+                            new MovePlayerRequest(game.getId(), new Point()),
+                            new ClientConnection(new Socket(IP, PORT))
+                    );
             fail();
         } catch (GameException e) {
             assertEquals(e.getErrorCode(), GameErrorCode.CONNECTION_LOST);
@@ -167,9 +170,9 @@ public class GameServicesTest {
 
     @Test
     void testCreateGame() throws GameException {
-        RandomBotPlayer p1 = new RandomBotPlayer();
+        RandomBotPlayer p1 = new RandomBotPlayer(1, "bot1");
         p1.setState(PlayerState.SEARCH_GAME);
-        RandomBotPlayer p2 = new RandomBotPlayer();
+        RandomBotPlayer p2 = new RandomBotPlayer(2, "bot2");
         p2.setState(PlayerState.SEARCH_GAME);
         Game game = GameService.createGame(p1, p2);
         assertEquals(p1.getState(), PlayerState.PLAYING);
@@ -179,13 +182,13 @@ public class GameServicesTest {
     @Test
     void testCreateGameException() {
         try {
-            GameService.createGame(new RandomBotPlayer(), null);
+            GameService.createGame(new RandomBotPlayer(1, "bot2"), null);
             fail();
         } catch (GameException e) {
             assertEquals(e.getErrorCode(), GameErrorCode.PLAYER_NOT_FOUND);
         }
         try {
-            GameService.createGame(null, new RandomBotPlayer());
+            GameService.createGame(null, new RandomBotPlayer(1, "bot2"));
             fail();
         } catch (GameException e) {
             assertEquals(e.getErrorCode(), GameErrorCode.PLAYER_NOT_FOUND);

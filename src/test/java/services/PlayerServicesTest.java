@@ -82,7 +82,7 @@ public class PlayerServicesTest {
         }
 
         try {
-            PlayerService.createPlayer(new CreatePlayerRequest("Boooot"), new ClientConnection());
+            PlayerService.createPlayer(new CreatePlayerRequest("Boooot"), new ClientConnection(new Socket(IP, PORT)));
             fail();
         } catch (GameException e) {
             assertEquals(e.getErrorCode(), GameErrorCode.CONNECTION_LOST);
@@ -103,7 +103,7 @@ public class PlayerServicesTest {
         }
 
         try {
-            PlayerService.authPlayer(new AuthPlayerRequest("Boooot"), new ClientConnection());
+            PlayerService.authPlayer(new AuthPlayerRequest("Boooot"), new ClientConnection(new Socket(IP, PORT)));
             fail();
         } catch (GameException e) {
             assertEquals(e.getErrorCode(), GameErrorCode.CONNECTION_LOST);
@@ -163,7 +163,7 @@ public class PlayerServicesTest {
         }
 
         try {
-            PlayerService.logoutPlayer(new LogoutPlayerRequest(), new ClientConnection());
+            PlayerService.logoutPlayer(new LogoutPlayerRequest(), new ClientConnection(new Socket(IP, PORT)));
             fail();
         } catch (GameException e) {
             assertEquals(e.getErrorCode(), GameErrorCode.CONNECTION_LOST);
@@ -209,7 +209,7 @@ public class PlayerServicesTest {
         }
 
         try {
-            PlayerService.canPlayerSearchGame(new ClientConnection());
+            PlayerService.canPlayerSearchGame(new ClientConnection(new Socket(IP, PORT)));
             fail();
         } catch (GameException e) {
             assertEquals(e.getErrorCode(), GameErrorCode.CONNECTION_LOST);
@@ -239,7 +239,7 @@ public class PlayerServicesTest {
 
     @Test
     void setNoneStatePlayer() throws GameException {
-        Player player = new RandomBotPlayer();
+        Player player = new RandomBotPlayer(0, "bot");
         player.setState(PlayerState.PLAYING);
         PlayerService.setPlayerStateNone(player);
         assertEquals(player.getState(), PlayerState.NONE);

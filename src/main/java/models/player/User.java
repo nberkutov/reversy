@@ -8,10 +8,9 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 @Data
-@NoArgsConstructor
 public class User {
-    protected int id;
-    protected String nickname;
+    protected final int id;
+    protected final String nickname;
     protected Statistics statistics;
 
     private transient final Lock lock = new ReentrantLock();

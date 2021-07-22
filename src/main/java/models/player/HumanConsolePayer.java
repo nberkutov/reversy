@@ -11,8 +11,12 @@ import java.util.Scanner;
 public class HumanConsolePayer extends Player {
     private static final Scanner scanner = new Scanner(System.in);
 
+    public HumanConsolePayer(int id, String nickname) {
+        super(id, nickname);
+    }
+
     @Override
-    public Point move(GameBoard board) throws GameException {
+    public Point move(final GameBoard board) throws GameException {
         while (true) {
             System.out.print("Ваш ход (два числа через пробел): ");
             String input = scanner.nextLine();

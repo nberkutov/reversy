@@ -1,23 +1,18 @@
 package models.player;
 
 import exception.GameException;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 import models.base.PlayerColor;
 import models.base.PlayerState;
 import models.base.interfaces.GameBoard;
-import models.base.interfaces.GamePlayer;
 import models.board.Point;
-
-import java.io.Serializable;
 
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 public abstract class Player extends User {
     protected PlayerState state;
     protected PlayerColor color;

@@ -14,8 +14,8 @@ public class StartClient {
 
     public static void main(String[] args) {
         try {
-            Client botClient = new Client(IP, PORT, new RandomBotPlayer(), new WindowGUI());
-            Client humanClient = new Client(IP, PORT, new HumanConsolePayer(), new TextGUI());
+            Client botClient = new Client(IP, PORT, new RandomBotPlayer(0, "bot1"), new WindowGUI());
+            Client humanClient = new Client(IP, PORT, new HumanConsolePayer(1, "player1"), new TextGUI());
             Thread thread1 = new Thread(botClient);
             Thread thread2 = new Thread(humanClient);
             thread1.start();

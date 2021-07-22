@@ -9,10 +9,9 @@ import services.BoardService;
 import java.util.List;
 import java.util.Random;
 
-@NoArgsConstructor
 public class RandomBotPlayer extends Player {
 
-    public RandomBotPlayer(int id, String nickname) {
+    public RandomBotPlayer(final int id, final String nickname) {
         super(id, nickname);
     }
 

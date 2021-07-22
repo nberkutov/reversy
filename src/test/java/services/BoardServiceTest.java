@@ -148,7 +148,7 @@ class BoardServiceTest {
                 + "0 0 0 0 0 0 0 0";
         Board board = BoardUtils.fromString(boardStr);
 
-        Player player = new RandomBotPlayer();
+        Player player = new RandomBotPlayer(0, "bot");
         player.setColor(PlayerColor.WHITE);
         assertTrue(BoardService.hasPossibleMove(board, player));
         player.setColor(PlayerColor.BLACK);

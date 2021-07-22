@@ -15,12 +15,11 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
 public class ClientConnection implements AutoCloseable, Serializable {
-    private Socket socket;
-    private DataInputStream in;
-    private DataOutputStream out;
+    private final Socket socket;
+    private final DataInputStream in;
+    private final DataOutputStream out;
     private Player player;
 
     private final Lock lock = new ReentrantLock();

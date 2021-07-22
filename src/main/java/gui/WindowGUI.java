@@ -41,13 +41,12 @@ class GameWindow extends JFrame {
     private GameBoard board;
 
     static class BoardPanel extends JPanel {
-        private static final int CELL_SIZE = 50;
         private GameBoard board;
         private GameBoard prevBoard;
         private int mouseX;
         private int mouseY;
 
-        public BoardPanel(GameBoard board) {
+        public BoardPanel(final GameBoard board) {
             mouseX = -1;
             mouseY = -1;
             this.board = board;
@@ -68,7 +67,7 @@ class GameWindow extends JFrame {
             });
         }
 
-        public void update(GameBoard board) {
+        public void update(final GameBoard board) {
             prevBoard = this.board;
             this.board = board;
             repaint();
@@ -199,7 +198,7 @@ class GameWindow extends JFrame {
         infoPanel.add(countWhiteLabel);
     }
 
-    public void updateGUI(GameBoard board, GameState gameState) {
+    public void updateGUI(final GameBoard board, final GameState gameState) {
         String stateText;
         switch (gameState) {
             case BLACK_MOVE:

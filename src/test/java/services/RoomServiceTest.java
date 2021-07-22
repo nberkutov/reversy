@@ -49,7 +49,7 @@ class RoomServiceTest {
         }
 
         try {
-            RoomService.createRoom(new CreateRoomRequest(), new ClientConnection());
+            RoomService.createRoom(new CreateRoomRequest(), new ClientConnection(new Socket(IP, PORT)));
             fail();
         } catch (GameException e) {
             assertEquals(e.getErrorCode(), GameErrorCode.CONNECTION_LOST);
@@ -106,7 +106,7 @@ class RoomServiceTest {
         }
 
         try {
-            RoomService.joinRoom(new JoinRoomRequest(), new ClientConnection());
+            RoomService.joinRoom(new JoinRoomRequest(), new ClientConnection(new Socket(IP, PORT)));
             fail();
         } catch (GameException e) {
             assertEquals(e.getErrorCode(), GameErrorCode.CONNECTION_LOST);
@@ -166,13 +166,6 @@ class RoomServiceTest {
 
         try {
             RoomService.getRooms(new GetRoomsRequest(), null);
-            fail();
-        } catch (GameException e) {
-            assertEquals(e.getErrorCode(), GameErrorCode.CONNECTION_LOST);
-        }
-
-        try {
-            RoomService.getRooms(new GetRoomsRequest(), new ClientConnection());
             fail();
         } catch (GameException e) {
             assertEquals(e.getErrorCode(), GameErrorCode.CONNECTION_LOST);
