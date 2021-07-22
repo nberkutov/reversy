@@ -1,6 +1,6 @@
 package services;
 
-import controllers.ServerController;
+import controllers.handlers.ServerHandler;
 import lombok.Data;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -13,13 +13,13 @@ import java.net.Socket;
 @Data
 public class Server implements Runnable {
     private final int PORT;
-    private final ServerController controller;
+    private final ServerHandler controller;
     private final DataBaseService dataBaseService;
 
     public Server(final int PORT, final DataBaseService dataBaseService) {
         this.PORT = PORT;
         this.dataBaseService = dataBaseService;
-        this.controller = new ServerController();
+        this.controller = new ServerHandler();
     }
 
     public Server(final int PORT) {

@@ -3,6 +3,8 @@ import dto.request.player.CreatePlayerRequest;
 import dto.request.player.GetGameInfoRequest;
 import dto.request.player.MovePlayerRequest;
 import dto.request.player.WantPlayRequest;
+import dto.request.room.CreateRoomRequest;
+import dto.request.room.JoinRoomRequest;
 import dto.response.GameResponse;
 import dto.response.player.GameBoardResponse;
 import dto.response.player.SearchGameResponse;
@@ -11,9 +13,11 @@ import models.ClientConnection;
 import models.base.GameState;
 import models.base.PlayerColor;
 import models.base.PlayerState;
+import models.base.RoomState;
 import models.base.interfaces.GameBoard;
 import models.board.Point;
 import models.game.Game;
+import models.game.Room;
 import models.player.Player;
 import models.player.RandomBot;
 import org.junit.jupiter.api.Test;
@@ -114,7 +118,7 @@ class ServerTest {
         //handler
         new Thread(() -> {
             try {
-                Player player = null;
+                Player player = new RandomBot(0, "Bot0");
                 while (gameIsNotFinish.get()) {
                     GameResponse response = responsesBot1.takeFirst();
                     switch (JsonService.getCommandByResponse(response)) {
@@ -131,7 +135,7 @@ class ServerTest {
                             break;
                         case GAME_START:
                             SearchGameResponse createGame = (SearchGameResponse) response;
-                            player = new RandomBot(createGame.getColor());
+                            player.setColor(createGame.getColor());
                             break;
                         default:
                             break;
@@ -154,7 +158,7 @@ class ServerTest {
         //handler
         Thread threadBot2 = new Thread(() -> {
             try {
-                Player player = null;
+                Player player = new RandomBot(0, "Bot1");
                 while (gameIsNotFinish.get()) {
                     GameResponse response = responsesBot2.takeFirst();
                     switch (JsonService.getCommandByResponse(response)) {
@@ -171,7 +175,7 @@ class ServerTest {
                             break;
                         case GAME_START:
                             SearchGameResponse createGame = (SearchGameResponse) response;
-                            player = new RandomBot(createGame.getColor());
+                            player.setColor(createGame.getColor());
                             break;
                         default:
                             break;
@@ -188,6 +192,31 @@ class ServerTest {
 
         threadBot2.join();
         assertEquals(DataBaseService.getAllGames().get(0).getState(), GameState.END);
+    }
+
+    @Test
+    void createRoomOnServer() throws IOException, GameException, InterruptedException {
+        DataBaseService.clearAll();
+        final int PORT = 8085;
+        final String IP = "127.0.0.1";
+        Server server = new Server(PORT, dataBaseService);
+        Thread thread = new Thread(server);
+        thread.start();
+
+        ClientConnection connectionBot1 = createConnection(IP, PORT, "Bot1");
+        ClientConnection connectionBot2 = createConnection(IP, PORT, "Bot2");
+
+        assertTrue(DataBaseService.getAllGames().isEmpty());
+        sendRequest(connectionBot1, new CreateRoomRequest(PlayerColor.WHITE));
+        assertEquals(DataBaseService.getAllRooms().size(), 1);
+        assertEquals(DataBaseService.getAllRooms().get(0).getState(), RoomState.OPEN);
+        Room room = DataBaseService.getAllRooms().get(0);
+        assertTrue(DataBaseService.getAllGames().isEmpty());
+
+        sendRequest(connectionBot2, new JoinRoomRequest(room.getId()));
+        assertEquals(DataBaseService.getAllRooms().get(0).getState(), RoomState.CLOSE);
+
+        assertEquals(DataBaseService.getAllGames().size(), 1);
     }
 
     private static void fastSendRequest(final ClientConnection connection, final GameRequest request) throws IOException, GameException, InterruptedException {
@@ -236,7 +265,7 @@ class ServerTest {
         //handler
         Thread thread = new Thread(() -> {
             try {
-                Player player = null;
+                Player player = new RandomBot(0, "Bot0");
                 while (play.get()) {
                     GameResponse response = responsesBot.takeFirst();
                     switch (JsonService.getCommandByResponse(response)) {
@@ -251,13 +280,14 @@ class ServerTest {
                                 if (DataBaseService.getAllGames().size() > needPlayGames) {
                                     play.set(false);
                                 } else {
+                                    player.setColor(PlayerColor.NONE);
                                     wantPlay(connection);
                                 }
                             }
                             break;
                         case GAME_START:
                             SearchGameResponse createGame = (SearchGameResponse) response;
-                            player = new RandomBot(createGame.getColor());
+                            player.setColor(createGame.getColor());
                             break;
                         default:
                             break;
