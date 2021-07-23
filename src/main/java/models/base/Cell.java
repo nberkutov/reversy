@@ -1,6 +1,8 @@
 package models.base;
 
-public enum Cell {
+import java.io.Serializable;
+
+public enum Cell implements Serializable {
     EMPTY, WHITE, BLACK;
 
     public static Cell valueOf(PlayerColor color) {
@@ -9,4 +11,5 @@ public enum Cell {
         }
         return Cell.WHITE;
     }
+
 }
