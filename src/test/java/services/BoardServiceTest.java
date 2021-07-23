@@ -2,19 +2,19 @@ package services;
 
 import exception.GameErrorCode;
 import exception.GameException;
-import models.board.Board;
-import models.BoardUtilsTest;
-import models.player.Player;
-import models.board.Point;
 import models.base.Cell;
 import models.base.PlayerColor;
+import models.board.Board;
+import models.board.Point;
+import models.player.Player;
+import models.player.RandomBotPlayer;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static models.board.Board.BOARD_SIZE;
+import static models.GameProperties.BOARD_SIZE;
 import static org.junit.jupiter.api.Assertions.*;
 
 class BoardServiceTest {
@@ -30,7 +30,7 @@ class BoardServiceTest {
                 + "0 0 0 0 b 0 0 0"
                 + "0 0 0 0 0 0 0 0"
                 + "0 0 0 0 0 0 0 0";
-        Board board = BoardUtilsTest.parse(s);
+        Board board = BoardUtils.fromString(s);
 
 
         List<Point> result = BoardService.getCellInAllDirection(board, new Point(4, 6), Cell.WHITE);
@@ -55,7 +55,7 @@ class BoardServiceTest {
                 + "b b b b b b b b"
                 + "b b b b b b b b"
                 + "w b b b b b b w";
-        Board a = BoardUtilsTest.parse(before);
+        Board a = BoardUtils.fromString(before);
         BoardService.makeMove(a, new Point(0, 0), Cell.WHITE);
         String after = ""
                 + "w w w w w w w w"
@@ -66,7 +66,7 @@ class BoardServiceTest {
                 + "w b b b b w b b"
                 + "w b b b b b w b"
                 + "w b b b b b b w";
-        Board b = BoardUtilsTest.parse(after);
+        Board b = BoardUtils.fromString(after);
         assertEquals(a, b);
     }
 
@@ -81,7 +81,7 @@ class BoardServiceTest {
                 + "b b b b b b b b"
                 + "b b b b b b b b"
                 + "w b b b w b b w";
-        Board a = BoardUtilsTest.parse(before);
+        Board a = BoardUtils.fromString(before);
 
         BoardService.makeMove(a, new Point(4, 4), Cell.WHITE);
         String after = ""
@@ -93,7 +93,7 @@ class BoardServiceTest {
                 + "b b b b w w b b"
                 + "b b b b w b w b"
                 + "w b b b w b b w";
-        Board b = BoardUtilsTest.parse(after);
+        Board b = BoardUtils.fromString(after);
         assertEquals(a, b);
     }
 
@@ -108,7 +108,7 @@ class BoardServiceTest {
                 + "00000000"
                 + "00000000"
                 + "00000000";
-        Board board = BoardUtilsTest.parse(boardStr);
+        Board board = BoardUtils.fromString(boardStr);
 
         assertEquals(8, BoardService.getAvailableMoves(board, Cell.WHITE).size());
         assertEquals(BoardService.getAvailableMoves(board, Cell.BLACK).size(), 0);
@@ -125,7 +125,7 @@ class BoardServiceTest {
                 + "0 0 0 0 0 0 0 0"
                 + "0 0 0 0 0 0 0 0"
                 + "0 0 0 0 0 0 0 0";
-        Board board = BoardUtilsTest.parse(s);
+        Board board = BoardUtils.fromString(s);
 
         List<Point> points = BoardService.getAvailableMoves(board, Cell.WHITE);
         assertEquals(points.size(), 4);
@@ -146,9 +146,9 @@ class BoardServiceTest {
                 + "0 0 0 0 0 0 0 0"
                 + "0 0 0 0 0 0 0 0"
                 + "0 0 0 0 0 0 0 0";
-        Board board =  BoardUtilsTest.parse(boardStr);
+        Board board = BoardUtils.fromString(boardStr);
 
-        Player player = new Player();
+        Player player = new RandomBotPlayer(0, "bot");
         player.setColor(PlayerColor.WHITE);
         assertTrue(BoardService.hasPossibleMove(board, player));
         player.setColor(PlayerColor.BLACK);
@@ -163,7 +163,7 @@ class BoardServiceTest {
                 + "0 0 0 0 0 0 0 0"
                 + "0 0 0 0 0 0 0 0"
                 + "0 0 0 0 0 0 0 0";
-        Board bs = BoardUtilsTest.parse(two);
+        Board bs = BoardUtils.fromString(two);
         assertFalse(BoardService.hasPossibleMove(bs, player));
         player.setColor(PlayerColor.WHITE);
         assertFalse(BoardService.hasPossibleMove(bs, player));
@@ -205,7 +205,7 @@ class BoardServiceTest {
         } catch (GameException e) {
             assertEquals(e.getErrorCode(), GameErrorCode.INVALID_CELL);
         }
-        //TODO: need edit on JUNIT ARRAYS
+
         List<Point> forCheck = new ArrayList<>(Arrays.asList(
                 new Point(-1, -1),
                 new Point(-1, 0),
@@ -234,7 +234,7 @@ class BoardServiceTest {
                 + "0 0 0 0 0 0 0 0"
                 + "0 0 0 0 0 0 0 0"
                 + "0 0 0 0 0 0 0 0";
-        Board board = BoardUtilsTest.parse(before);
+        Board board = BoardUtils.fromString(before);
 
         try {
             BoardService.makeMove(board, new Point(1, 7), Cell.WHITE);
@@ -243,7 +243,7 @@ class BoardServiceTest {
             assertEquals(e.getErrorCode(), GameErrorCode.INVALID_MOVE);
         }
 
-        assertEquals(board, BoardUtilsTest.parse(before));
+        assertEquals(board, BoardUtils.fromString(before));
     }
 
     @Test

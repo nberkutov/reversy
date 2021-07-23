@@ -1,37 +1,43 @@
 package controllers;
 
-import dto.request.player.TaskRequest;
+import dto.request.player.AuthPlayerRequest;
+import dto.request.player.CreatePlayerRequest;
+import dto.request.player.LogoutPlayerRequest;
+import dto.response.GameResponse;
+import dto.response.TaskResponse;
+import dto.response.player.CreatePlayerResponse;
+import dto.response.player.MessageResponse;
 import exception.GameException;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import models.ClientConnection;
+import models.player.Player;
+import services.PlayerService;
 
 import java.io.IOException;
-import java.util.concurrent.BlockingQueue;
 
-
-@AllArgsConstructor
 @Slf4j
-public class PlayerController extends Thread {
-    private final ClientConnection connection;
-    private final BlockingQueue<TaskRequest> requests;
+public class PlayerController {
 
-    @Override
-    public void run() {
-        log.debug("PlayerController started");
-        while (connection.isConnected()) {
-            try {
-                TaskRequest request = TaskRequest.getTaskRequest(connection);
-                requests.add(request);
-            } catch (GameException | IOException e) {
-                connection.close();
-                this.interrupt();
-            }
-        }
+    public static void actionCreatePlayer(final CreatePlayerRequest createPlayer, final ClientConnection connection) throws IOException, GameException {
+        Player player = PlayerService.createPlayer(createPlayer, connection);
+        log.debug("action createPlayer {} {}", connection.getSocket().getPort(), createPlayer);
+        sendResponse(connection, CreatePlayerResponse.toDto(player));
     }
 
-    public static void initPlayerController(ClientConnection connection, BlockingQueue<TaskRequest> requests) {
-        PlayerController controller = new PlayerController(connection, requests);
-        controller.start();
+    public static void actionAuthPlayer(final AuthPlayerRequest authPlayer, final ClientConnection connection) throws IOException, GameException {
+        Player player = PlayerService.authPlayer(authPlayer, connection);
+        log.debug("action authPlayer {} {}", connection.getSocket().getPort(), authPlayer);
+        sendResponse(connection, CreatePlayerResponse.toDto(player));
     }
+
+    public static void actionLogoutPlayer(final LogoutPlayerRequest logoutPlayer, final ClientConnection connection) throws IOException, GameException {
+        PlayerService.logoutPlayer(logoutPlayer, connection);
+        log.debug("action logoutPlayer {} {}", connection.getSocket().getPort(), logoutPlayer);
+        sendResponse(connection, new MessageResponse("Logout player successfully"));
+    }
+
+    private static void sendResponse(final ClientConnection connection, final GameResponse response) throws IOException, GameException {
+        TaskResponse.createAndSend(connection, response);
+    }
+
 }

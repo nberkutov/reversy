@@ -1,12 +1,13 @@
-package dto.response;
+package dto.response.player;
 
+import dto.response.GameResponse;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
-@Getter
-@ToString
+@Data
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
 public class MessageResponse extends GameResponse {

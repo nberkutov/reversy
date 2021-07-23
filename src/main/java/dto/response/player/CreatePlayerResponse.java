@@ -1,21 +1,19 @@
 package dto.response.player;
 
 import dto.response.GameResponse;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 import models.player.Player;
 
-@Getter
+@Data
 @ToString
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreatePlayerResponse extends GameResponse {
     private int id;
+    private String nickname;
 
-    public static CreatePlayerResponse toDto(final Player player) {
-        return new CreatePlayerResponse(player.getId());
+    public static CreatePlayerResponse toDto(Player player) {
+        return new CreatePlayerResponse(player.getId(), player.getNickname());
     }
-
 }

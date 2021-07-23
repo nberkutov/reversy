@@ -7,7 +7,7 @@ import models.board.Board;
 import models.board.Point;
 import org.junit.jupiter.api.Test;
 
-import static models.board.Board.BOARD_SIZE;
+import static models.GameProperties.BOARD_SIZE;
 import static org.junit.jupiter.api.Assertions.*;
 
 class BoardTest {

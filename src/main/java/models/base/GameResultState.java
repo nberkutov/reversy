@@ -1,7 +1,8 @@
 package models.base;
 
-public enum GameResultState {
+import java.io.Serializable;
+
+public enum GameResultState implements Serializable {
     PLAYING,
     WINNER_FOUND,
-    DRAW,
 }

@@ -1,6 +1,5 @@
 package exception;
 
-import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
@@ -9,12 +8,7 @@ import lombok.Getter;
 public class GameException extends Exception {
     private GameErrorCode errorCode;
 
-    public GameException(GameErrorCode errorCode) {
-        this.errorCode = errorCode;
-    }
-
-    public GameException(String message, GameErrorCode errorCode) {
-        super(message);
+    public GameException(final GameErrorCode errorCode) {
         this.errorCode = errorCode;
     }
 

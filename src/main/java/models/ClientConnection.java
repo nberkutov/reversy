@@ -3,43 +3,46 @@ package models;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import models.player.Player;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.Socket;
-import java.util.concurrent.Delayed;
-import java.util.concurrent.TimeUnit;
+import java.util.Objects;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
-@Slf4j
-public class ClientConnection implements AutoCloseable, Delayed {
-    private Socket socket;
-    private DataInputStream in;
-    private DataOutputStream out;
+public class ClientConnection implements AutoCloseable, Serializable {
+    private final Socket socket;
+    private final DataInputStream in;
+    private final DataOutputStream out;
     private Player player;
 
-    public ClientConnection(Socket socket) throws IOException {
+    private final Lock lock = new ReentrantLock();
+
+    public ClientConnection(final Socket socket) throws IOException {
         this.socket = socket;
         in = new DataInputStream(socket.getInputStream());
         out = new DataOutputStream(socket.getOutputStream());
-    }
-
-    public void initPlayer(Player player) {
-        this.player = player;
     }
 
     public boolean isConnected() {
         return socket != null && socket.isConnected();
     }
 
-    public void send(String msg) throws IOException {
+    public String readMsg() throws IOException {
+        return in.readUTF();
+    }
+
+    public void send(final String msg) throws IOException {
+        lock.lock();
         out.writeUTF(msg);
         out.flush();
+        lock.unlock();
     }
 
     @Override
@@ -56,12 +59,16 @@ public class ClientConnection implements AutoCloseable, Delayed {
     }
 
     @Override
-    public long getDelay(TimeUnit unit) {
-        return 0;
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ClientConnection that = (ClientConnection) o;
+        return Objects.equals(socket, that.socket);
     }
 
     @Override
-    public int compareTo(Delayed o) {
-        return 0;
+    public int hashCode() {
+        return Objects.hash(socket);
     }
+
 }

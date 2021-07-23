@@ -1,51 +1,34 @@
 package dto.response;
 
-import controllers.commands.CommandResponse;
 import exception.GameException;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import models.ClientConnection;
+import services.JsonService;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.Delayed;
-import java.util.concurrent.TimeUnit;
 
 @Data
 @NoArgsConstructor
-
-public class TaskResponse implements Delayed {
+@AllArgsConstructor
+public class TaskResponse {
     private ClientConnection client;
-    private List<GameResponse> responses;
+    private GameResponse response;
 
-
-    public TaskResponse(final ClientConnection client, final GameResponse response) {
-        responses = new ArrayList<>();
-        this.client = client;
-        responses.add(response);
+    public static TaskResponse create(final ClientConnection connection, final GameResponse response) {
+        return new TaskResponse(connection, response);
     }
 
-    public TaskResponse(ClientConnection client, List<GameResponse> responses) {
-        this.client = client;
-        this.responses = responses;
+    public static void createAndSend(final ClientConnection connection, final GameResponse response) throws IOException, GameException {
+        TaskResponse taskResponse = new TaskResponse(connection, response);
+        taskResponse.sendJson();
     }
 
     public void sendJson() throws IOException, GameException {
         if (client.isConnected()) {
-            for (GameResponse response : responses) {
-                client.send(CommandResponse.toJsonParser(response));
-            }
+            client.send(JsonService.toMsgParser(response));
         }
     }
 
-    @Override
-    public long getDelay(TimeUnit unit) {
-        return 0;
-    }
-
-    @Override
-    public int compareTo(Delayed o) {
-        return 0;
-    }
 }

@@ -1,28 +1,50 @@
 package services;
 
-import controllers.ServerController;
+import controllers.handlers.ServerHandler;
+import lombok.Data;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
-import java.net.BindException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
 @Slf4j
-public class Server {
-    public static final int PORT = 8081;
-    private final ServerController controller = new ServerController();
-    private final BaseService baseService = new BaseService();
+@Data
+public class Server implements Runnable {
+    private final int PORT;
+    private final ServerHandler controller;
+    private final DataBaseService dataBaseService;
 
-    public void Start() throws IOException {
+    public Server(final int PORT, final DataBaseService dataBaseService) {
+        this.PORT = PORT;
+        this.dataBaseService = dataBaseService;
+        this.controller = new ServerHandler();
+    }
+
+    public Server(final int PORT) {
+        this(PORT, new DataBaseService());
+    }
+
+    @SneakyThrows
+    @Override
+    public void run() {
+        Start();
+    }
+
+    private void Start() {
         try (final ServerSocket serverSocket = new ServerSocket(PORT)) {
             log.debug("Server stated {}", serverSocket);
             while (true) {
-                final Socket socket = serverSocket.accept();
-                connect(socket);
+                try {
+                    final Socket socket = serverSocket.accept();
+                    connect(socket);
+                } catch (IOException e) {
+                    log.error("Error connection with socket", e);
+                }
             }
-        } catch (final BindException e) {
-            log.error("ERROR", e);
+        } catch (IOException e) {
+            log.error("Error server", e);
         }
     }
 
@@ -31,8 +53,5 @@ public class Server {
         controller.createControllerForPlayer(socket);
     }
 
-    public static void main(String[] args) throws IOException {
-        Server server = new Server();
-        server.Start();
-    }
+
 }

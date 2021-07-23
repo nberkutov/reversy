@@ -5,49 +5,49 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import models.base.GameState;
 import models.base.PlayerColor;
+import models.base.interfaces.GameBoard;
 import models.board.Board;
 import models.player.Player;
 
-import java.util.Random;
+import java.io.Serializable;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 @Data
 @Slf4j
 @AllArgsConstructor
-public class Game {
+public class Game implements Serializable {
     private int id;
     private final Player blackPlayer;
     private final Player whitePlayer;
-    private final Board board;
+    private final GameBoard board;
 
     private GameState state;
     private GameResult result;
 
+    private transient final Lock lock = new ReentrantLock();
+
     public Game(final int id, final Player first, final Player second) {
-        this(first, second);
+        this(new Board(), first, second);
         this.id = id;
     }
 
-    public Game(final Player first, final Player second) {
-        this(new Board(), first, second);
-    }
-
-    public Game(final Board board, final Player first, final Player second) {
+    public Game(final GameBoard board, final Player first, final Player second) {
         state = GameState.BLACK_MOVE;
         result = GameResult.playing(board);
-        if (new Random().nextBoolean()) {
-            this.blackPlayer = first;
-            this.whitePlayer = second;
-        } else {
-            this.blackPlayer = second;
-            this.whitePlayer = first;
-        }
+        this.blackPlayer = first;
+        this.whitePlayer = second;
         blackPlayer.setColor(PlayerColor.BLACK);
         whitePlayer.setColor(PlayerColor.WHITE);
         this.board = board;
     }
 
-    public boolean isFinished() {
-        return state == GameState.END;
+    public void lock() {
+        lock.lock();
+    }
+
+    public void unlock() {
+        lock.unlock();
     }
 
     @Override

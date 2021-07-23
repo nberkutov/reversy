@@ -1,6 +1,6 @@
-package controllers;
+package controllers.handlers;
 
-import dto.request.player.TaskRequest;
+import dto.request.TaskRequest;
 import dto.request.server.CreateGameRequest;
 import exception.GameException;
 import lombok.AllArgsConstructor;
@@ -8,32 +8,32 @@ import lombok.extern.slf4j.Slf4j;
 import models.ClientConnection;
 import services.PlayerService;
 
-import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingDeque;
 
 @Slf4j
 @AllArgsConstructor
 public class GameSearcher extends Thread {
-    private final BlockingQueue<TaskRequest> requests;
-    private final BlockingQueue<ClientConnection> waiting;
+    private final LinkedBlockingDeque<TaskRequest> requests;
+    private final LinkedBlockingDeque<ClientConnection> waiting;
 
     @Override
     public void run() {
-        log.debug("GameController started");
+        log.info("GameController started");
         while (true) {
             try {
-                ClientConnection first = waiting.take();
-                ClientConnection second = waiting.take();
+                ClientConnection first = waiting.takeFirst();
+                ClientConnection second = waiting.takeFirst();
                 log.debug("GameSearcher {}, {}", first, second);
-                if (!PlayerService.isCanPlay(first)) {
+                if (!PlayerService.canSearchGame(first)) {
                     log.info("Player cant play {}", first);
-                    waiting.put(second);
+                    waiting.putFirst(second);
                     PlayerService.setPlayerStateNone(first);
                     continue;
                 }
-                if (!PlayerService.isCanPlay(second)) {
+                if (!PlayerService.canSearchGame(second)) {
                     log.info("Player cant play {}", second);
                     PlayerService.setPlayerStateNone(second);
-                    waiting.put(first);
+                    waiting.putFirst(first);
                     continue;
                 }
                 linkPlayersForGame(first, second);
@@ -43,8 +43,8 @@ public class GameSearcher extends Thread {
         }
     }
 
-    private void linkPlayersForGame(final ClientConnection first, final ClientConnection second) throws InterruptedException, GameException {
-        requests.put(new TaskRequest(PlayerService.getConnectionById(first.getPlayer().getId()), CreateGameRequest.toDto(first.getPlayer(), second.getPlayer())));
+    private void linkPlayersForGame(final ClientConnection first, final ClientConnection second) throws InterruptedException {
+        requests.putLast(new TaskRequest(PlayerService.getConnectionById(first.getPlayer().getId()), CreateGameRequest.toDto(first.getPlayer(), second.getPlayer())));
     }
 
 }

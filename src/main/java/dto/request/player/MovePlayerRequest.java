@@ -1,13 +1,14 @@
 package dto.request.player;
 
+import dto.request.GameRequest;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 import models.board.Point;
 
-@Getter
-@ToString
+@Data
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
 public class MovePlayerRequest extends GameRequest {
