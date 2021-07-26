@@ -6,122 +6,102 @@ import exception.GameException;
 import lombok.extern.slf4j.Slf4j;
 import models.ClientConnection;
 import models.base.PlayerState;
-import models.base.RoomState;
 import models.game.Game;
+import models.game.GameResult;
 import models.game.Room;
-import models.player.Player;
-import models.player.RandomBotPlayer;
+import models.player.User;
 
-import java.util.ArrayList;
+import java.io.Serializable;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Slf4j
-public class DataBaseService {
-    private static final Map<Integer, Game> games = new ConcurrentHashMap<>();
-    private static final Map<Integer, Player> players = new ConcurrentHashMap<>();
-    private static final Map<String, Player> login_players = new ConcurrentHashMap<>();
-    private static final Map<String, ClientConnection> login_connects = new ConcurrentHashMap<>();
-    private static final Map<Integer, ClientConnection> connects = new ConcurrentHashMap<>();
-    private static final Map<Integer, Room> rooms = new ConcurrentHashMap<>();
-    private static int gameIncrement = 0;
-    private static int playerIncrement = 0;
-    private static int roomIncrement = 0;
+public class DataBaseService implements Serializable {
 
     protected static synchronized int getPlayerId() {
-        return playerIncrement++;
+        return Server.dataBase.getPlayerId();
     }
 
     protected static synchronized int getGameId() {
-        return gameIncrement++;
+        return Server.dataBase.getGameId();
     }
 
     protected static synchronized int getRoomId() {
-        return roomIncrement++;
+        return Server.dataBase.getRoomId();
     }
 
     public static void clearAll() {
-        games.clear();
-        login_players.clear();
-        players.clear();
-        login_connects.clear();
-        connects.clear();
-        rooms.clear();
+        Server.dataBase.clearAll();
     }
 
     public static Game getGameById(final int gameId) {
-        return games.get(gameId);
+        return Server.dataBase.getGameById(gameId);
     }
 
     public static Room getRoomById(final int roomId) {
-        return rooms.get(roomId);
+        return Server.dataBase.getRoomById(roomId);
     }
 
-    public static synchronized Game putGame(final Player first, final Player second) {
-        int id = getGameId();
-        Game game = new Game(id, first, second);
-        games.put(id, game);
-        return game;
+    public static Game putGame(final User first, final User second) {
+        return Server.dataBase.putGame(first, second);
+    }
+
+    public static User putPlayer(final int id, final String nickname) {
+        return Server.dataBase.putPlayer(id, nickname);
+    }
+
+    public static synchronized Room putRoom() {
+        return Server.dataBase.putRoom();
     }
 
     protected static synchronized void nicknameIsUsedAlready(final String nickname) throws GameException {
-        if (login_players.get(nickname) != null || login_connects.get(nickname) != null) {
+        if (getPlayerByNickname(nickname) != null || getConnectionByNickname(nickname) != null) {
             throw new GameException(GameErrorCode.NICKNAME_ALREADY_USED);
         }
     }
 
-    public static synchronized Player putPlayer(final int id, final String nickname) {
-        Player player = new RandomBotPlayer(id, nickname);
-        login_players.put(player.getNickname(), player);
-        players.put(id, player);
-        return player;
-    }
-
-    public static synchronized Room putRoom() {
-        int id = getRoomId();
-        Room room = new Room(id);
-        rooms.put(id, room);
-        return room;
-    }
 
     public static void putConnection(final int id, final String nickname, final ClientConnection connection) {
-        connects.put(id, connection);
-        putConnection(nickname, connection);
+        Server.dataBase.putConnection(id, nickname, connection);
+    }
+
+    public static void removeConnection(final int id, final String nickname) {
+        Server.dataBase.removeConnection(id, nickname);
+    }
+
+    public static void removeConnection(final String nickname) {
+        Server.dataBase.removeConnection(nickname);
     }
 
     public static void putConnection(final String nickname, final ClientConnection connection) {
-        login_connects.put(nickname, connection);
+        Server.dataBase.putConnection(nickname, connection);
     }
 
-    public static Player getPlayerByNickname(final String nickname) {
-        return login_players.get(nickname);
+    public static User getPlayerByNickname(final String nickname) {
+        return Server.dataBase.getPlayerByNickname(nickname);
     }
 
-    public static List<Player> getAllPlayers() {
-        return new ArrayList<>(players.values());
+    public static ClientConnection getConnectionByNickname(final String nickname) {
+        return Server.dataBase.getConnectionByNickname(nickname);
+    }
+
+    public static List<User> getAllPlayers() {
+        return Server.dataBase.getAllPlayers();
     }
 
     public static List<Game> getAllGames() {
-        return new ArrayList<>(games.values());
+        return Server.dataBase.getAllGames();
     }
 
     public static List<Room> getRooms(final boolean needClose, final int limit) {
-        Stream<Room> stream = rooms.values().stream();
-        if (!needClose) {
-            stream = stream.filter(room -> room.getState() == RoomState.CLOSE);
-        }
-        return stream.limit(limit).collect(Collectors.toList());
+        return Server.dataBase.getRooms(needClose, limit);
     }
 
     public static List<Room> getAllRooms() {
-        return new ArrayList<>(rooms.values());
+        return Server.dataBase.getAllRooms();
     }
 
     public static ClientConnection getConnectionById(final int id) {
-        return connects.get(id);
+        return Server.dataBase.getConnectionById(id);
     }
 
     /**
@@ -136,8 +116,14 @@ public class DataBaseService {
         }
     }
 
+    protected static void gameResultIsNotNull(final GameResult game) throws GameException {
+        if (game == null) {
+            throw new GameException(GameErrorCode.GAME_RESULT_NOT_FOUND);
+        }
+    }
+
     protected static void connectionIsAuthed(ClientConnection connection) throws GameException {
-        if (connection.getPlayer() != null) {
+        if (connection.getUser() != null) {
             throw new GameException(GameErrorCode.PLAYER_IS_AUTH);
         }
     }
@@ -146,10 +132,10 @@ public class DataBaseService {
      * Функция провероки
      * Если player равен null, то выбрасывает GameException.
      *
-     * @param player - класс игрока
+     * @param user - класс игрока
      */
-    protected static void playerIsNotNull(final Player player) throws GameException {
-        if (player == null) {
+    protected static void playerIsNotNull(final User user) throws GameException {
+        if (user == null) {
             throw new GameException(GameErrorCode.PLAYER_NOT_FOUND);
         }
     }
@@ -160,32 +146,32 @@ public class DataBaseService {
         }
     }
 
-    protected static void playerIsNotPlaying(final Player player) throws GameException {
-        if (player.getState() == PlayerState.PLAYING) {
+    protected static void playerIsNotPlaying(final User user) throws GameException {
+        if (user.getState() == PlayerState.PLAYING) {
             throw new GameException(GameErrorCode.PLAYER_ALREADY_PLAYING);
         }
     }
 
-    protected static void playerIsStateNone(final Player player) throws GameException {
-        if (player.getState() == PlayerState.NONE) {
+    protected static void playerIsStateNone(final User user) throws GameException {
+        if (user.getState() == PlayerState.NONE) {
             throw new GameException(GameErrorCode.PLAYER_CANT_PERFORM);
         }
     }
 
-    protected static void playerIsNotStateNone(final Player player) throws GameException {
-        if (player.getState() != PlayerState.NONE) {
+    protected static void playerIsNotStateNone(final User user) throws GameException {
+        if (user.getState() != PlayerState.NONE) {
             throw new GameException(GameErrorCode.PLAYER_CANT_PERFORM);
         }
     }
 
-    protected static void playerIsNotInRoom(final Player player) throws GameException {
-        if (player.getState() == PlayerState.WAITING_ROOM) {
+    protected static void playerIsNotInRoom(final User user) throws GameException {
+        if (user.getState() == PlayerState.WAITING_ROOM) {
             throw new GameException(GameErrorCode.PLAYER_ALREADY_PLAYING);
         }
     }
 
-    protected static void checkPlayerConnection(final Player player) throws GameException {
-        ClientConnection connection = getConnectionById(player.getId());
+    protected static void checkPlayerConnection(final User user) throws GameException {
+        ClientConnection connection = getConnectionById(user.getId());
         connectionIsNotNullAndConnected(connection);
     }
 

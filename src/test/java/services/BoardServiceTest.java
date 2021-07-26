@@ -6,9 +6,10 @@ import models.base.Cell;
 import models.base.PlayerColor;
 import models.board.Board;
 import models.board.Point;
-import models.player.Player;
 import models.player.RandomBotPlayer;
+import models.player.User;
 import org.junit.jupiter.api.Test;
+import services.utils.BoardUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -148,11 +149,11 @@ class BoardServiceTest {
                 + "0 0 0 0 0 0 0 0";
         Board board = BoardUtils.fromString(boardStr);
 
-        Player player = new RandomBotPlayer(0, "bot");
-        player.setColor(PlayerColor.WHITE);
-        assertTrue(BoardService.hasPossibleMove(board, player));
-        player.setColor(PlayerColor.BLACK);
-        assertTrue(BoardService.hasPossibleMove(board, player));
+        User user = new RandomBotPlayer(0, "bot");
+        user.setColor(PlayerColor.WHITE);
+        assertTrue(BoardService.hasPossibleMove(board, user));
+        user.setColor(PlayerColor.BLACK);
+        assertTrue(BoardService.hasPossibleMove(board, user));
 
         String two = ""
                 + "0 0 0 0 0 0 0 0"
@@ -164,9 +165,9 @@ class BoardServiceTest {
                 + "0 0 0 0 0 0 0 0"
                 + "0 0 0 0 0 0 0 0";
         Board bs = BoardUtils.fromString(two);
-        assertFalse(BoardService.hasPossibleMove(bs, player));
-        player.setColor(PlayerColor.WHITE);
-        assertFalse(BoardService.hasPossibleMove(bs, player));
+        assertFalse(BoardService.hasPossibleMove(bs, user));
+        user.setColor(PlayerColor.WHITE);
+        assertFalse(BoardService.hasPossibleMove(bs, user));
     }
 
     @Test

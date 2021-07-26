@@ -7,7 +7,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import models.base.PlayerColor;
 import models.game.Game;
-import models.player.Player;
+import models.player.User;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -17,8 +17,8 @@ public class SearchGameResponse extends GameResponse {
     private int gameId;
     private PlayerColor color;
 
-    public static SearchGameResponse toDto(final Game game, final Player player) {
-        return new SearchGameResponse(game.getId(), player.getColor());
+    public static SearchGameResponse toDto(final Game game, final User user) {
+        return new SearchGameResponse(game.getId(), user.getColor());
     }
 }
 

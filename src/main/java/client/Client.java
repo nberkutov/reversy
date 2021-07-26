@@ -1,5 +1,6 @@
 package client;
 
+import client.models.Player;
 import dto.request.player.CreatePlayerRequest;
 import dto.request.player.MovePlayerRequest;
 import dto.request.player.WantPlayRequest;
@@ -19,15 +20,14 @@ import models.base.GameState;
 import models.base.PlayerColor;
 import models.base.interfaces.GameBoard;
 import models.board.Point;
-import models.player.Player;
 import services.JsonService;
 
 import java.io.IOException;
 import java.net.Socket;
 
 @Slf4j
-@EqualsAndHashCode
-public class Client implements Runnable {
+@EqualsAndHashCode(callSuper = false)
+public class Client extends Thread {
     private final Player player;
     private final ClientConnection connection;
     private final GameGUI gui;
@@ -75,11 +75,11 @@ public class Client implements Runnable {
         log.info("actionMessage {}", response);
     }
 
-    private static boolean nowMoveByMe(Player player, GameState state) {
-        if (player.getColor() == PlayerColor.WHITE && state == GameState.WHITE_MOVE) {
+    private static boolean nowMoveByMe(Player user, GameState state) {
+        if (user.getColor() == PlayerColor.WHITE && state == GameState.WHITE_MOVE) {
             return true;
         }
-        return player.getColor() == PlayerColor.BLACK && state == GameState.BLACK_MOVE;
+        return user.getColor() == PlayerColor.BLACK && state == GameState.BLACK_MOVE;
     }
 
     @Override
@@ -88,21 +88,25 @@ public class Client implements Runnable {
         new Thread(() -> {
             try {
                 Thread.sleep(1000);
-                ClientController.sendRequest(connection, new CreatePlayerRequest(Thread.currentThread().getName()));
+                ClientController.sendRequest(connection, new CreatePlayerRequest(player.getNickname()));
             } catch (InterruptedException | IOException | GameException e) {
                 e.printStackTrace();
             }
         }).start();
 
-        while (connection.isConnected()) {
-            try {
-                GameResponse response = ClientController.getRequest(connection);
-                actionByResponseFromServer(response);
-            } catch (GameException | IOException | InterruptedException e) {
-                log.error("Error {}", connection.getSocket(), e);
+        try {
+            while (connection.isConnected()) {
+                try {
+                    GameResponse response = ClientController.getRequest(connection);
+                    actionByResponseFromServer(response);
+                } catch (GameException e) {
+                    log.error("GameError {} {}", connection.getSocket(), e.getErrorCode());
+                }
             }
+        } catch (IOException | InterruptedException e) {
+            log.error("Error {} {}", connection.getSocket(), e.getMessage());
+            connection.close();
         }
-
     }
 
     private void actionError(final ErrorResponse response) {
@@ -126,7 +130,7 @@ public class Client implements Runnable {
             }
         } else {
             player.setColor(PlayerColor.NONE);
-            //ClientController.sendRequest(connection, new WantPlayRequest());
+            ClientController.sendRequest(connection, new WantPlayRequest());
         }
     }
 

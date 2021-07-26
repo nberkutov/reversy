@@ -16,35 +16,40 @@ public class GameSearcher extends Thread {
     private final LinkedBlockingDeque<TaskRequest> requests;
     private final LinkedBlockingDeque<ClientConnection> waiting;
 
+
     @Override
     public void run() {
-        log.info("GameController started");
-        while (true) {
-            try {
-                ClientConnection first = waiting.takeFirst();
-                ClientConnection second = waiting.takeFirst();
-                log.debug("GameSearcher {}, {}", first, second);
-                if (!PlayerService.canSearchGame(first)) {
-                    log.info("Player cant play {}", first);
-                    waiting.putFirst(second);
-                    PlayerService.setPlayerStateNone(first);
-                    continue;
+        log.info("GameSearcher started");
+        try {
+            while (!Thread.currentThread().isInterrupted()) {
+                try {
+                    ClientConnection first = waiting.takeFirst();
+                    ClientConnection second = waiting.takeFirst();
+                    log.debug("GameSearcher {}, {}", first, second);
+                    if (!PlayerService.canSearchGame(first)) {
+                        log.info("Player cant play {}", first);
+                        waiting.putFirst(second);
+                        PlayerService.setPlayerStateNone(first);
+                        continue;
+                    }
+                    if (!PlayerService.canSearchGame(second)) {
+                        log.info("Player cant play {}", second);
+                        PlayerService.setPlayerStateNone(second);
+                        waiting.putFirst(first);
+                        continue;
+                    }
+                    linkPlayersForGame(first, second);
+                } catch (GameException e) {
+                    log.error("GameSearcher", e);
                 }
-                if (!PlayerService.canSearchGame(second)) {
-                    log.info("Player cant play {}", second);
-                    PlayerService.setPlayerStateNone(second);
-                    waiting.putFirst(first);
-                    continue;
-                }
-                linkPlayersForGame(first, second);
-            } catch (InterruptedException | GameException e) {
-                log.error("GameSearcher", e);
             }
+        } catch (InterruptedException e) {
+            log.info("GameSearcher closed");
         }
     }
 
     private void linkPlayersForGame(final ClientConnection first, final ClientConnection second) throws InterruptedException {
-        requests.putLast(new TaskRequest(PlayerService.getConnectionById(first.getPlayer().getId()), CreateGameRequest.toDto(first.getPlayer(), second.getPlayer())));
+        requests.putLast(new TaskRequest(PlayerService.getConnectionById(first.getUser().getId()), CreateGameRequest.toDto(first.getUser(), second.getUser())));
     }
 
 }

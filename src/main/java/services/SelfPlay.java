@@ -10,15 +10,15 @@ import models.board.Board;
 import models.board.Point;
 import models.game.Game;
 import models.game.GameResult;
-import models.player.Player;
+import models.player.User;
 
 @Slf4j
 public class SelfPlay {
-    private final Player first;
-    private final Player second;
+    private final User first;
+    private final User second;
     private final Game game;
 
-    public SelfPlay(final Player first, final Player second) {
+    public SelfPlay(final User first, final User second) {
         this.first = first;
         this.second = second;
         GameBoard board = new Board();
@@ -33,15 +33,15 @@ public class SelfPlay {
     private static void playNext(final Game game) throws GameException {
         switch (game.getState()) {
             case BLACK_MOVE:
-                if (BoardService.hasPossibleMove(game.getBoard(), game.getBlackPlayer())) {
-                    Point move = game.getBlackPlayer().move(game.getBoard());
+                if (BoardService.hasPossibleMove(game.getBoard(), game.getBlackUser())) {
+                    Point move = game.getBlackUser().move(game.getBoard());
                     BoardService.makeMove(game.getBoard(), move, Cell.BLACK);
                 }
                 game.setState(GameState.WHITE_MOVE);
                 break;
             case WHITE_MOVE:
-                if (BoardService.hasPossibleMove(game.getBoard(), game.getWhitePlayer())) {
-                    Point move = game.getWhitePlayer().move(game.getBoard());
+                if (BoardService.hasPossibleMove(game.getBoard(), game.getWhiteUser())) {
+                    Point move = game.getWhiteUser().move(game.getBoard());
                     BoardService.makeMove(game.getBoard(), move, Cell.WHITE);
                 }
                 game.setState(GameState.BLACK_MOVE);
@@ -62,8 +62,8 @@ public class SelfPlay {
         if (BoardService.getCountEmpty(game.getBoard()) == 0) {
             return true;
         }
-        return !BoardService.hasPossibleMove(game.getBoard(), game.getBlackPlayer())
-                && !BoardService.hasPossibleMove(game.getBoard(), game.getWhitePlayer());
+        return !BoardService.hasPossibleMove(game.getBoard(), game.getBlackUser())
+                && !BoardService.hasPossibleMove(game.getBoard(), game.getWhiteUser());
     }
 
     public GameResult play() throws GameException {
@@ -83,9 +83,9 @@ public class SelfPlay {
         long blackCells = BoardService.getCountBlack(board);
         long whiteCells = BoardService.getCountWhite(board);
         if (blackCells <= whiteCells) {
-            return GameResult.winner(board, game.getWhitePlayer(), game.getBlackPlayer());
+            return GameResult.winner(board, game.getWhiteUser(), game.getBlackUser());
         } else {
-            return GameResult.winner(board, game.getBlackPlayer(), game.getWhitePlayer());
+            return GameResult.winner(board, game.getBlackUser(), game.getWhiteUser());
         }
     }
 }

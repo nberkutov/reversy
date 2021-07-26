@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import models.player.Player;
+import models.player.User;
 
 
 @Getter
@@ -16,7 +16,7 @@ public class CreateGameRequest extends GameRequest {
     private int firstPlayerId;
     private int secondPlayerId;
 
-    public static CreateGameRequest toDto(Player first, Player second) {
+    public static CreateGameRequest toDto(User first, User second) {
         return new CreateGameRequest(first.getId(), second.getId());
     }
 }

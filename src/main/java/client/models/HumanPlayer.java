@@ -1,4 +1,4 @@
-package models.player;
+package client.models;
 
 import exception.GameException;
 import models.base.interfaces.GameBoard;
@@ -8,11 +8,11 @@ import services.BoardService;
 import java.util.List;
 import java.util.Scanner;
 
-public class HumanConsolePayer extends Player {
+public class HumanPlayer extends Player {
     private static final Scanner scanner = new Scanner(System.in);
 
-    public HumanConsolePayer(int id, String nickname) {
-        super(id, nickname);
+    public HumanPlayer(String nickname) {
+        super(nickname);
     }
 
     @Override

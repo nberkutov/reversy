@@ -4,5 +4,6 @@ import java.io.Serializable;
 
 public enum GameResultState implements Serializable {
     PLAYING,
-    WINNER_FOUND,
+    ORDINARY_VICTORY,
+    TECHNICAL_VICTORY
 }

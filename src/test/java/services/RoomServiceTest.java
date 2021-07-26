@@ -9,8 +9,8 @@ import exception.GameException;
 import models.ClientConnection;
 import models.base.PlayerState;
 import models.game.Room;
-import models.player.Player;
-import org.junit.jupiter.api.BeforeAll;
+import models.player.User;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -21,17 +21,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 class RoomServiceTest {
-    private static DataBaseService bs;
+    private static Server server = new Server();
 
-    @BeforeAll
+    @BeforeEach
     private static void clearDateBase() {
-        bs = new DataBaseService();
         DataBaseService.clearAll();
     }
 
     @Test
     void createRoomException() throws IOException, GameException {
-        DataBaseService.clearAll();
         final int PORT = 8087;
         final String IP = "127.0.0.1";
         try {
@@ -43,13 +41,6 @@ class RoomServiceTest {
 
         try {
             RoomService.createRoom(new CreateRoomRequest(), null);
-            fail();
-        } catch (GameException e) {
-            assertEquals(e.getErrorCode(), GameErrorCode.CONNECTION_LOST);
-        }
-
-        try {
-            RoomService.createRoom(new CreateRoomRequest(), new ClientConnection(new Socket(IP, PORT)));
             fail();
         } catch (GameException e) {
             assertEquals(e.getErrorCode(), GameErrorCode.CONNECTION_LOST);
@@ -73,8 +64,8 @@ class RoomServiceTest {
 
         Socket client2 = new Socket(IP, PORT);
         ClientConnection connection2 = new ClientConnection(client2);
-        Player player = PlayerService.createPlayer(new CreatePlayerRequest("Boooot2"), connection2);
-        player.setState(PlayerState.SEARCH_GAME);
+        User user = PlayerService.createPlayer(new CreatePlayerRequest("Boooot2"), connection2);
+        user.setState(PlayerState.SEARCH_GAME);
 
         try {
             RoomService.createRoom(new CreateRoomRequest(), connection2);
@@ -88,7 +79,6 @@ class RoomServiceTest {
 
     @Test
     void joinRoomException() throws IOException, GameException {
-        DataBaseService.clearAll();
         final int PORT = 8087;
         final String IP = "127.0.0.1";
         try {
@@ -100,13 +90,6 @@ class RoomServiceTest {
 
         try {
             RoomService.joinRoom(new JoinRoomRequest(), null);
-            fail();
-        } catch (GameException e) {
-            assertEquals(e.getErrorCode(), GameErrorCode.CONNECTION_LOST);
-        }
-
-        try {
-            RoomService.joinRoom(new JoinRoomRequest(), new ClientConnection(new Socket(IP, PORT)));
             fail();
         } catch (GameException e) {
             assertEquals(e.getErrorCode(), GameErrorCode.CONNECTION_LOST);
@@ -174,7 +157,6 @@ class RoomServiceTest {
 
     @Test
     void getRooms() throws IOException, GameException {
-        DataBaseService.clearAll();
         final int PORT = 8087;
         final String IP = "127.0.0.1";
         ServerSocket socket = new ServerSocket(PORT);

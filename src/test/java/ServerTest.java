@@ -10,6 +10,7 @@ import dto.response.player.GameBoardResponse;
 import dto.response.player.SearchGameResponse;
 import exception.GameException;
 import models.ClientConnection;
+import models.DataBase;
 import models.base.GameState;
 import models.base.PlayerColor;
 import models.base.PlayerState;
@@ -18,8 +19,8 @@ import models.base.interfaces.GameBoard;
 import models.board.Point;
 import models.game.Game;
 import models.game.Room;
-import models.player.Player;
 import models.player.RandomBotPlayer;
+import models.player.User;
 import org.junit.jupiter.api.Test;
 import services.DataBaseService;
 import services.JsonService;
@@ -37,7 +38,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ServerTest {
-    private static DataBaseService dataBaseService = new DataBaseService();
+    private static DataBase dataBase = new DataBase();
 
     private static ClientConnection createConnection(String ip, int port, String name) throws IOException, GameException, InterruptedException {
         Socket client = new Socket(ip, port);
@@ -59,24 +60,30 @@ class ServerTest {
         sendRequest(connection, new WantPlayRequest());
     }
 
+    private static void fastSendRequest(final ClientConnection connection, final GameRequest request) throws IOException, GameException {
+        if (connection.isConnected()) {
+            connection.send(JsonService.toMsgParser(request));
+        }
+    }
+
     @Test
     void createGameOnServer() throws IOException, GameException, InterruptedException {
         DataBaseService.clearAll();
         final int PORT = 8085;
         final String IP = "127.0.0.1";
-        Server server = new Server(PORT, dataBaseService);
+        Server server = new Server(PORT, dataBase);
         Thread thread = new Thread(server);
         thread.start();
 
         ClientConnection connectionBot1 = createConnection(IP, PORT, "Bot1");
 
-        Player bot1 = DataBaseService.getAllPlayers().get(0);
+        User bot1 = DataBaseService.getAllPlayers().get(0);
         assertEquals(DataBaseService.getAllPlayers().size(), 1);
 
         ClientConnection connectionBot2 = createConnection(IP, PORT, "Bot2");
 
         assertEquals(DataBaseService.getAllPlayers().size(), 2);
-        Player bot2 = DataBaseService.getAllPlayers().get(1);
+        User bot2 = DataBaseService.getAllPlayers().get(1);
 
         wantPlay(connectionBot1);
 
@@ -94,7 +101,7 @@ class ServerTest {
         DataBaseService.clearAll();
         final int PORT = 8085;
         final String IP = "127.0.0.1";
-        Server server = new Server(PORT, dataBaseService);
+        Server server = new Server(PORT, dataBase);
         Thread thread = new Thread(server);
         thread.start();
 
@@ -118,7 +125,7 @@ class ServerTest {
         //handler
         new Thread(() -> {
             try {
-                Player player = new RandomBotPlayer(0, "Bot0");
+                User player = new RandomBotPlayer(0, "Bot0");
                 while (gameIsNotFinish.get()) {
                     GameResponse response = responsesBot1.takeFirst();
                     switch (JsonService.getCommandByResponse(response)) {
@@ -158,7 +165,7 @@ class ServerTest {
         //handler
         Thread threadBot2 = new Thread(() -> {
             try {
-                Player player = new RandomBotPlayer(0, "Bot1");
+                User player = new RandomBotPlayer(0, "Bot1");
                 while (gameIsNotFinish.get()) {
                     GameResponse response = responsesBot2.takeFirst();
                     switch (JsonService.getCommandByResponse(response)) {
@@ -199,7 +206,7 @@ class ServerTest {
         DataBaseService.clearAll();
         final int PORT = 8085;
         final String IP = "127.0.0.1";
-        Server server = new Server(PORT, dataBaseService);
+        Server server = new Server(PORT, dataBase);
         Thread thread = new Thread(server);
         thread.start();
 
@@ -219,19 +226,13 @@ class ServerTest {
         assertEquals(DataBaseService.getAllGames().size(), 1);
     }
 
-    private static void fastSendRequest(final ClientConnection connection, final GameRequest request) throws IOException, GameException, InterruptedException {
-        if (connection.isConnected()) {
-            connection.send(JsonService.toMsgParser(request));
-        }
-    }
-
     @Test
     void play10players1000GamesOnServer() throws IOException, GameException, InterruptedException {
-        DataBaseService.clearAll();
         final int PORT = 8085;
         final String IP = "127.0.0.1";
         final int needPlayGames = 1000;
-        Server server = new Server(PORT, dataBaseService);
+        Server server = new Server(PORT, dataBase);
+        DataBaseService.clearAll();
         Thread thread = new Thread(server);
         thread.start();
         List<Thread> threads = new ArrayList<>();
@@ -265,7 +266,7 @@ class ServerTest {
         //handler
         Thread thread = new Thread(() -> {
             try {
-                Player player = new RandomBotPlayer(0, "Bot0");
+                User player = new RandomBotPlayer(0, "Bot0");
                 while (play.get()) {
                     GameResponse response = responsesBot.takeFirst();
                     switch (JsonService.getCommandByResponse(response)) {
@@ -303,18 +304,18 @@ class ServerTest {
         return thread;
     }
 
-    private void actionPlaying(final ClientConnection connection, Player player, GameBoardResponse response) {
-        if (player == null || connection == null || response == null) {
+    private void actionPlaying(final ClientConnection connection, User user, GameBoardResponse response) {
+        if (user == null || connection == null || response == null) {
             fail();
         }
-        PlayerColor color = player.getColor();
+        PlayerColor color = user.getColor();
         try {
             if (nowMoveByMe(color, response.getState())) {
                 GameBoard board = response.getBoard();
-                Point move = player.move(board);
+                Point move = user.move(board);
                 fastSendRequest(connection, MovePlayerRequest.toDto(response.getGameId(), move));
             }
-        } catch (IOException | GameException | InterruptedException e) {
+        } catch (IOException | GameException e) {
             fail();
         }
 
@@ -331,7 +332,7 @@ class ServerTest {
     void getInfoGameOnServer() throws IOException, GameException, InterruptedException {
         final int PORT = 8085;
         final String IP = "127.0.0.1";
-        Server server = new Server(PORT, dataBaseService);
+        Server server = new Server(PORT, dataBase);
         Thread thread = new Thread(server);
         thread.start();
 

@@ -19,9 +19,8 @@ public class RoomResponse extends GameResponse {
 
     public RoomResponse(Room room) {
         this.id = room.getId();
-        this.blackPlayer = PlayerResponse.toDto(room.getBlackPlayer());
-        this.whitePlayer = PlayerResponse.toDto(room.getWhitePlayer());
-
+        this.blackPlayer = PlayerResponse.toDto(room.getBlackUser());
+        this.whitePlayer = PlayerResponse.toDto(room.getWhiteUser());
     }
 
     public static RoomResponse toDto(final Room room) {

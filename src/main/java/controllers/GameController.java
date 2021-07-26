@@ -11,7 +11,7 @@ import exception.GameException;
 import lombok.extern.slf4j.Slf4j;
 import models.ClientConnection;
 import models.game.Game;
-import models.player.Player;
+import models.player.User;
 import services.GameService;
 import services.PlayerService;
 
@@ -26,8 +26,8 @@ public class GameController {
             log.debug("action movePlayer {}", movePlayer);
             game = GameService.makePlayerMove(movePlayer, connection);
 
-            sendResponse(game.getBlackPlayer(), GameBoardResponse.toDto(game));
-            sendResponse(game.getWhitePlayer(), GameBoardResponse.toDto(game));
+            sendResponse(game.getBlackUser(), GameBoardResponse.toDto(game));
+            sendResponse(game.getWhiteUser(), GameBoardResponse.toDto(game));
         } finally {
             if (game != null) {
                 game.unlock();
@@ -38,28 +38,28 @@ public class GameController {
     public static void actionGetGameInfo(final GetGameInfoRequest getGame, final ClientConnection connection) throws IOException, GameException {
         Game game = GameService.getGameInfo(getGame, connection);
         sendResponse(connection, GameBoardResponse.toDto(game));
-        log.info("getGameInfo, {}", game);
+        log.debug("getGameInfo, {}", game);
     }
 
     public static void actionCreateGame(final CreateGameRequest createGame, final ClientConnection connection) throws IOException, GameException {
         Game game = GameService.createGameBySearch(createGame, connection);
-        sendInfoAboutGame(game, game.getBlackPlayer());
-        sendInfoAboutGame(game, game.getWhitePlayer());
-        log.info("Game created by search, {}", game);
+        sendInfoAboutGame(game, game.getBlackUser());
+        sendInfoAboutGame(game, game.getWhiteUser());
+        log.debug("Game created by search, {}", game);
     }
 
-    public static void sendInfoAboutGame(final Game game, Player player) throws IOException {
+    public static void sendInfoAboutGame(final Game game, User user) throws IOException {
         try {
-            ClientConnection connection = PlayerService.getConnectionByPlayer(player);
-            sendResponse(connection, SearchGameResponse.toDto(game, player));
+            ClientConnection connection = PlayerService.getConnectionByPlayer(user);
+            sendResponse(connection, SearchGameResponse.toDto(game, user));
             sendResponse(connection, GameBoardResponse.toDto(game));
         } catch (GameException e) {
-            log.warn("Cant sendInfoAboutGame {}", player, e);
+            log.warn("Cant sendInfoAboutGame {}", user, e);
         }
     }
 
-    private static void sendResponse(final Player player, final GameResponse response) throws GameException, IOException {
-        sendResponse(PlayerService.getConnectionByPlayer(player), response);
+    private static void sendResponse(final User user, final GameResponse response) throws GameException, IOException {
+        sendResponse(PlayerService.getConnectionByPlayer(user), response);
     }
 
     private static void sendResponse(final ClientConnection connection, final GameResponse response) throws IOException, GameException {

@@ -3,18 +3,19 @@ package models.game;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import models.base.RoomState;
-import models.player.Player;
+import models.player.User;
 
+import java.io.Serializable;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 @Data
 @AllArgsConstructor
-public class Room {
+public class Room implements Serializable {
     private final int id;
     private transient final Lock lock = new ReentrantLock();
-    private Player whitePlayer;
-    private Player blackPlayer;
+    private User whiteUser;
+    private User blackUser;
     private RoomState state;
 
     public Room(int id) {

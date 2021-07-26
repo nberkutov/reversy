@@ -7,13 +7,16 @@ import exception.GameErrorCode;
 import exception.GameException;
 import models.ClientConnection;
 import models.GameProperties;
+import models.base.GameState;
 import models.base.PlayerColor;
 import models.base.PlayerState;
-import models.player.Player;
+import models.game.Game;
+import models.game.GameResult;
+import models.player.User;
 
 public class PlayerService extends DataBaseService {
 
-    public static synchronized Player createPlayer(final CreatePlayerRequest createPlayerRequest, final ClientConnection connection) throws GameException {
+    public static synchronized User createPlayer(final CreatePlayerRequest createPlayerRequest, final ClientConnection connection) throws GameException {
         requestIsNotNull(createPlayerRequest);
         nicknameIsNotNull(createPlayerRequest);
         validateNickname(createPlayerRequest);
@@ -22,40 +25,60 @@ public class PlayerService extends DataBaseService {
         String nickname = createPlayerRequest.getNickname();
         nicknameIsUsedAlready(nickname);
         int id = getPlayerId();
-        Player player = putPlayer(id, nickname);
+        User user = putPlayer(id, nickname);
         putConnection(id, nickname, connection);
-        connection.setPlayer(player);
-        return player;
+        connection.setUser(user);
+        return user;
     }
 
-    public static synchronized Player authPlayer(final AuthPlayerRequest createPlayerRequest, final ClientConnection connection) throws GameException {
+    public static synchronized User authPlayer(final AuthPlayerRequest createPlayerRequest, final ClientConnection connection) throws GameException {
         requestIsNotNull(createPlayerRequest);
         nicknameIsNotNull(createPlayerRequest);
         validateNickname(createPlayerRequest);
         connectionIsNotNullAndConnected(connection);
         connectionIsAuthed(connection);
         String nickname = createPlayerRequest.getNickname();
-        Player player = getPlayerByNickname(nickname);
-        playerIsNotNull(player);
+        User user = getPlayerByNickname(nickname);
+        playerIsNotNull(user);
         putConnection(nickname, connection);
-        connection.setPlayer(player);
-        return player;
+        connection.setUser(user);
+        return user;
     }
 
-    public static synchronized Player logoutPlayer(final LogoutPlayerRequest logoutPlayerRequest, final ClientConnection connection) throws GameException {
+    public static synchronized User logoutPlayer(final LogoutPlayerRequest logoutPlayerRequest, final ClientConnection connection) throws GameException {
         requestIsNotNull(logoutPlayerRequest);
         connectionIsNotNullAndConnected(connection);
-        Player player = connection.getPlayer();
-        playerIsNotNull(player);
-        putConnection(player.getId(), player.getNickname(), null);
-        connection.setPlayer(null);
-        return player;
+        User user = connection.getUser();
+        playerIsNotNull(user);
+        removeConnection(user.getId(), user.getNickname());
+        connection.setUser(null);
+        return user;
     }
 
+    public static synchronized void autoLogoutPlayer(final ClientConnection connection) throws GameException {
+        User user = connection.getUser();
+        if (user == null) {
+            return;
+        }
+        removeConnection(user.getId(), user.getNickname());
+        connection.setUser(null);
+        Game nowPlayGame = user.getNowPlaying();
+        if (nowPlayGame == null) {
+            return;
+        }
+        try {
+            nowPlayGame.lock();
+            nowPlayGame.setState(GameState.END);
+            GameResult result = GameResult.techWinner(nowPlayGame, user);
+            GameService.finishGame(result, nowPlayGame);
+        } finally {
+            nowPlayGame.unlock();
+        }
+    }
 
-    public static ClientConnection getConnectionByPlayer(final Player player) throws GameException {
-        playerIsNotNull(player);
-        ClientConnection connection = getConnectionById(player.getId());
+    public static ClientConnection getConnectionByPlayer(final User user) throws GameException {
+        playerIsNotNull(user);
+        ClientConnection connection = getConnectionById(user.getId());
         connectionIsNotNullAndConnected(connection);
         return connection;
     }
@@ -64,8 +87,8 @@ public class PlayerService extends DataBaseService {
         if (connection == null) {
             return false;
         }
-        Player player = connection.getPlayer();
-        if (player == null || player.getState() != PlayerState.SEARCH_GAME) {
+        User user = connection.getUser();
+        if (user == null || user.getState() != PlayerState.SEARCH_GAME) {
             return false;
         }
         return connection.isConnected();
@@ -73,35 +96,36 @@ public class PlayerService extends DataBaseService {
 
     public static void setPlayerStateNone(final ClientConnection connection) throws GameException {
         connectionIsNotNullAndConnected(connection);
-        Player player = connection.getPlayer();
-        setPlayerStateNone(player);
+        User user = connection.getUser();
+        setPlayerStateNone(user);
     }
 
-    public static void setPlayerStateNone(final Player player) throws GameException {
-        playerIsNotNull(player);
-        player.lock();
-        player.setState(PlayerState.NONE);
-        player.setColor(PlayerColor.NONE);
-        player.unlock();
+    public static void setPlayerStateNone(final User user) throws GameException {
+        playerIsNotNull(user);
+        user.lock();
+        user.setState(PlayerState.NONE);
+        user.setColor(PlayerColor.NONE);
+        user.setNowPlaying(null);
+        user.unlock();
     }
 
 
-    public static Player canPlayerSearchGame(final ClientConnection clientConnection) throws GameException {
+    public static User canPlayerSearchGame(final ClientConnection clientConnection) throws GameException {
         connectionIsNotNullAndConnected(clientConnection);
-        Player player = clientConnection.getPlayer();
-        return canPlayerSearchGame(player);
+        User user = clientConnection.getUser();
+        return canPlayerSearchGame(user);
     }
 
-    public static Player canPlayerSearchGame(final Player player) throws GameException {
-        playerIsNotNull(player);
+    public static User canPlayerSearchGame(final User user) throws GameException {
+        playerIsNotNull(user);
         try {
-            player.lock();
-            playerIsNotStateNone(player);
-            player.setState(PlayerState.SEARCH_GAME);
+            user.lock();
+            playerIsNotStateNone(user);
+            user.setState(PlayerState.SEARCH_GAME);
         } finally {
-            player.unlock();
+            user.unlock();
         }
-        return player;
+        return user;
     }
 
     private static void nicknameIsNotNull(final CreatePlayerRequest createPlayerRequest) throws GameException {

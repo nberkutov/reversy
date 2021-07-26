@@ -1,6 +1,9 @@
 package exception;
 
 public enum GameErrorCode {
+    FILE_PATH_INVALID("The file path is not correct"),
+    SAVE_FILE_ERROR("The file cannot be saved"),
+    UPLOAD_FILE_ERROR("The file cannot be upload"),
     SERVER_NOT_STARTED("Server not started"),
     POINTS_NOT_FOUND("Points not found"),
     GAME_ENDED("The game is already completed"),
@@ -21,6 +24,7 @@ public enum GameErrorCode {
     PLAYER_ALREADY_PLAYING("Player already playing"),
     PLAYER_CANNOT_FIND_GAME("The player cannot start searching for the game"),
     GAME_NOT_FOUND("Game not found"),
+    GAME_RESULT_NOT_FOUND("Game result not found"),
     ROOM_NOT_FOUND("Room not found"),
     ROOM_IS_CLOSED("Room closed"),
     BOARD_NOT_FOUND("Board not found"),

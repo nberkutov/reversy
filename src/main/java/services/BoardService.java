@@ -8,7 +8,7 @@ import models.base.PlayerColor;
 import models.base.interfaces.GameBoard;
 import models.board.Point;
 import models.game.Game;
-import models.player.Player;
+import models.player.User;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -94,9 +94,9 @@ public class BoardService {
      * @param board - Игровое поле
      * @return boolean
      */
-    public static boolean hasPossibleMove(final GameBoard board, final Player player) throws GameException {
-        playerIsNotNull(player);
-        return !getAvailableMoves(board, player.getColor()).isEmpty();
+    public static boolean hasPossibleMove(final GameBoard board, final User user) throws GameException {
+        playerIsNotNull(user);
+        return !getAvailableMoves(board, user.getColor()).isEmpty();
     }
 
     /**
@@ -291,10 +291,10 @@ public class BoardService {
      * Функция провероки
      * Если player равен null, то выбрасывает GameException.
      *
-     * @param player - класс игрока
+     * @param user - класс игрока
      */
-    private static void playerIsNotNull(final Player player) throws GameException {
-        if (player == null) {
+    private static void playerIsNotNull(final User user) throws GameException {
+        if (user == null) {
             throw new GameException(GameErrorCode.PLAYER_NOT_FOUND);
         }
     }
