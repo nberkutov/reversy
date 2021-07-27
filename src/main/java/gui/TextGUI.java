@@ -7,7 +7,6 @@ import models.base.interfaces.GameBoard;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.BiConsumer;
 
 public class TextGUI implements GameGUI {
     private final Map<Cell, String> tiles;
@@ -19,7 +18,7 @@ public class TextGUI implements GameGUI {
         tiles.put(Cell.WHITE, "⊛");
     }
 
-    public void updateGUI(GameBoard board, GameState gameState) throws GameException {
+    public void updateGUI(GameBoard board, GameState gameState, String opponent) throws GameException {
         StringBuilder boardBuilder = new StringBuilder();
         switch (gameState) {
             case BLACK_MOVE:

@@ -26,8 +26,8 @@ public class GameController {
             log.debug("action movePlayer {}", movePlayer);
             game = GameService.makePlayerMove(movePlayer, connection);
 
-            sendResponse(game.getBlackUser(), GameBoardResponse.toDto(game));
-            sendResponse(game.getWhiteUser(), GameBoardResponse.toDto(game));
+            sendResponse(game.getBlackUser(), GameBoardResponse.toDto(game, game.getBlackUser()));
+            sendResponse(game.getWhiteUser(), GameBoardResponse.toDto(game, game.getWhiteUser()));
         } finally {
             if (game != null) {
                 game.unlock();
@@ -37,7 +37,8 @@ public class GameController {
 
     public static void actionGetGameInfo(final GetGameInfoRequest getGame, final ClientConnection connection) throws IOException, GameException {
         Game game = GameService.getGameInfo(getGame, connection);
-        sendResponse(connection, GameBoardResponse.toDto(game));
+        //TODO maybe Change getGameInfo -> GameResult, when game finish
+        sendResponse(connection, GameBoardResponse.toDto(game, connection.getUser()));
         log.debug("getGameInfo, {}", game);
     }
 
@@ -48,17 +49,17 @@ public class GameController {
         log.debug("Game created by search, {}", game);
     }
 
-    public static void sendInfoAboutGame(final Game game, User user) throws IOException {
+    public static void sendInfoAboutGame(final Game game, final User user) throws IOException {
         try {
             ClientConnection connection = PlayerService.getConnectionByPlayer(user);
             sendResponse(connection, SearchGameResponse.toDto(game, user));
-            sendResponse(connection, GameBoardResponse.toDto(game));
+            sendResponse(connection, GameBoardResponse.toDto(game, user));
         } catch (GameException e) {
             log.warn("Cant sendInfoAboutGame {}", user, e);
         }
     }
 
-    private static void sendResponse(final User user, final GameResponse response) throws GameException, IOException {
+    public static void sendResponse(final User user, final GameResponse response) throws GameException, IOException {
         sendResponse(PlayerService.getConnectionByPlayer(user), response);
     }
 

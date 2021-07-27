@@ -94,7 +94,7 @@ public class TasksHandler extends Thread {
                                 break;
                         }
                     } catch (GameException e) {
-                        log.warn("HandlerTasks {} {} {}", e.getErrorCode(), task.getRequest(), task.getClient().getSocket());
+                        log.warn("HandlerTasks ", e);
                         sendResponse(task.getClient(), ErrorResponse.toDto(e));
                     }
                 } catch (IOException | GameException e) {

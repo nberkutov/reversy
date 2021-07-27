@@ -21,6 +21,8 @@ import models.game.Game;
 import models.game.Room;
 import models.player.RandomBotPlayer;
 import models.player.User;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import services.DataBaseService;
 import services.JsonService;
@@ -38,7 +40,19 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ServerTest {
-    private static DataBase dataBase = new DataBase();
+    private static Server server = new Server();
+    private static int PORT;
+
+    @BeforeAll
+    private static void createDateBase() {
+        server.start();
+        PORT = server.getPORT();
+    }
+
+    @BeforeEach
+    private void clearDateBase() {
+        DataBaseService.clearAll();
+    }
 
     private static ClientConnection createConnection(String ip, int port, String name) throws IOException, GameException, InterruptedException {
         Socket client = new Socket(ip, port);
@@ -68,12 +82,7 @@ class ServerTest {
 
     @Test
     void createGameOnServer() throws IOException, GameException, InterruptedException {
-        DataBaseService.clearAll();
-        final int PORT = 8085;
         final String IP = "127.0.0.1";
-        Server server = new Server(PORT, dataBase);
-        Thread thread = new Thread(server);
-        thread.start();
 
         ClientConnection connectionBot1 = createConnection(IP, PORT, "Bot1");
 
@@ -98,12 +107,7 @@ class ServerTest {
 
     @Test
     void playGameOnServer() throws IOException, GameException, InterruptedException {
-        DataBaseService.clearAll();
-        final int PORT = 8085;
         final String IP = "127.0.0.1";
-        Server server = new Server(PORT, dataBase);
-        Thread thread = new Thread(server);
-        thread.start();
 
         ClientConnection connectionBot1 = createConnection(IP, PORT, "Bot1");
         ClientConnection connectionBot2 = createConnection(IP, PORT, "Bot2");
@@ -203,12 +207,7 @@ class ServerTest {
 
     @Test
     void createRoomOnServer() throws IOException, GameException, InterruptedException {
-        DataBaseService.clearAll();
-        final int PORT = 8085;
         final String IP = "127.0.0.1";
-        Server server = new Server(PORT, dataBase);
-        Thread thread = new Thread(server);
-        thread.start();
 
         ClientConnection connectionBot1 = createConnection(IP, PORT, "Bot1");
         ClientConnection connectionBot2 = createConnection(IP, PORT, "Bot2");
@@ -228,13 +227,9 @@ class ServerTest {
 
     @Test
     void play10players1000GamesOnServer() throws IOException, GameException, InterruptedException {
-        final int PORT = 8085;
         final String IP = "127.0.0.1";
         final int needPlayGames = 1000;
-        Server server = new Server(PORT, dataBase);
-        DataBaseService.clearAll();
-        Thread thread = new Thread(server);
-        thread.start();
+
         List<Thread> threads = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
             threads.add(createClientForPlay(PORT, IP, i, needPlayGames));
@@ -245,7 +240,7 @@ class ServerTest {
         for (Game game : DataBaseService.getAllGames()) {
             assertEquals(game.getState(), GameState.END);
         }
-
+        DataBaseService.clearAll();
     }
 
     private Thread createClientForPlay(final int PORT, String IP, int i, int needPlayGames) throws GameException, InterruptedException, IOException {
@@ -330,11 +325,8 @@ class ServerTest {
 
     @Test
     void getInfoGameOnServer() throws IOException, GameException, InterruptedException {
-        final int PORT = 8085;
         final String IP = "127.0.0.1";
-        Server server = new Server(PORT, dataBase);
-        Thread thread = new Thread(server);
-        thread.start();
+        Server server = new Server(PORT, new DataBase());
 
         ClientConnection connectionBot1 = createConnection(IP, PORT, "Bot1");
         ClientConnection connectionBot2 = createConnection(IP, PORT, "Bot2");

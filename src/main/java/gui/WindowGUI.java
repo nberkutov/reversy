@@ -25,8 +25,8 @@ public class WindowGUI implements GameGUI {
     }
 
     @Override
-    public void updateGUI(GameBoard board, GameState gameState) throws GameException {
-        gameWindow.updateGUI(board, gameState);
+    public void updateGUI(GameBoard board, GameState gameState, String opponent) {
+        gameWindow.updateGUI(board, gameState, opponent);
     }
 }
 
@@ -36,9 +36,81 @@ class GameWindow extends JFrame {
     private final JLabel stateInfoLabel;
     private final JLabel countBlackLabel;
     private final JLabel countWhiteLabel;
+    private final JLabel opponentLabel;
     private final JPanel infoPanel;
     private final BoardPanel boardPanel;
     private GameBoard board;
+
+    public GameWindow() {
+        super("Reversi Client");
+        board = new Board();
+        int size = CELL_SIZE * BOARD_SIZE;
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(size + 125, size + 50);
+        setLocationRelativeTo(null);
+        setLayout(new BoxLayout(getContentPane(), BoxLayout.X_AXIS));
+        stateInfoLabel = new JLabel();
+        countBlackLabel = new JLabel();
+        countWhiteLabel = new JLabel();
+        opponentLabel = new JLabel();
+        boardPanel = new BoardPanel(board);
+        boardPanel.setBackground(BACKGROUND_COLOR);
+        boardPanel.setBorder(new LineBorder(Color.BLACK));
+        infoPanel = new JPanel();
+        initLabels();
+        add(infoPanel);
+        add(boardPanel);
+        setResizable(false);
+        setVisible(true);
+    }
+
+    private void initLabels() {
+        infoPanel.setMaximumSize(new Dimension(120, CELL_SIZE * BOARD_SIZE));
+        infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
+
+        stateInfoLabel.setText(" НАЧАЛО ИГРЫ");
+        infoPanel.add(stateInfoLabel);
+
+        countBlackLabel.setText(String.format(" ЧЕРНЫЕ: %d", board.getCountBlackCells()));
+        infoPanel.add(countBlackLabel);
+
+        countWhiteLabel.setText(String.format(" БЕЛЫЕ: %d", board.getCountWhiteCells()));
+        infoPanel.add(countWhiteLabel);
+
+        infoPanel.add(opponentLabel);
+    }
+
+    public void updateGUI(final GameBoard board, final GameState gameState, final String opponent) {
+        String stateText;
+        switch (gameState) {
+            case BLACK_MOVE:
+                stateText = "ХОД ЧЕРНЫХ";
+                break;
+            case WHITE_MOVE:
+                stateText = "ХОД БЕЛЫХ";
+                break;
+            case END:
+                stateText = "КОНЕЦ ИГРЫ";
+                break;
+            default:
+                throw new NotImplementedException();
+        }
+        stateInfoLabel.setText(stateText);
+        this.board = board;
+        countBlackLabel.setText(String.format("ЧЕРНЫЕ: %d", board.getCountBlackCells()));
+        countWhiteLabel.setText(String.format("БЕЛЫЕ: %d", board.getCountWhiteCells()));
+        opponentLabel.setText(String.format("Ваш противник: %s", opponent));
+        boardPanel.update(board);
+        repaint();
+
+        if (gameState == GameState.END) {
+            if (board.getCountBlackCells() > board.getCountWhiteCells()) {
+                JOptionPane.showMessageDialog(new JFrame(), "Победа черных");
+            } else {
+                JOptionPane.showMessageDialog(new JFrame(), "Победа белых");
+            }
+        }
+    }
 
     static class BoardPanel extends JPanel {
         private GameBoard board;
@@ -56,7 +128,8 @@ class GameWindow extends JFrame {
             addMouseListener(new BoardMouseListener());
             addMouseMotionListener(new MouseMotionListener() {
                 @Override
-                public void mouseDragged(MouseEvent mouseEvent) {}
+                public void mouseDragged(MouseEvent mouseEvent) {
+                }
 
                 @Override
                 public void mouseMoved(MouseEvent mouseEvent) {
@@ -158,73 +231,6 @@ class GameWindow extends JFrame {
             @Override
             public void mouseExited(MouseEvent mouseEvent) {
 
-            }
-        }
-    }
-
-    public GameWindow() {
-        super("Reversi Client");
-        board = new Board();
-        int size = CELL_SIZE * BOARD_SIZE;
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(size + 125, size + 50);
-        setLocationRelativeTo(null);
-        setLayout(new BoxLayout(getContentPane(), BoxLayout.X_AXIS));
-        stateInfoLabel = new JLabel();
-        countBlackLabel = new JLabel();
-        countWhiteLabel = new JLabel();
-        boardPanel = new BoardPanel(board);
-        boardPanel.setBackground(BACKGROUND_COLOR);
-        boardPanel.setBorder(new LineBorder(Color.BLACK));
-        infoPanel = new JPanel();
-        initLabels();
-        add(infoPanel);
-        add(boardPanel);
-        setResizable(false);
-        setVisible(true);
-    }
-
-    private void initLabels() {
-        infoPanel.setMaximumSize(new Dimension(120, CELL_SIZE * BOARD_SIZE));
-        infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
-
-        stateInfoLabel.setText(" НАЧАЛО ИГРЫ");
-        infoPanel.add(stateInfoLabel);
-
-        countBlackLabel.setText(String.format(" ЧЕРНЫЕ: %d", board.getCountBlackCells()));
-        infoPanel.add(countBlackLabel);
-
-        countWhiteLabel.setText(String.format(" БЕЛЫЕ: %d", board.getCountWhiteCells()));
-        infoPanel.add(countWhiteLabel);
-    }
-
-    public void updateGUI(final GameBoard board, final GameState gameState) {
-        String stateText;
-        switch (gameState) {
-            case BLACK_MOVE:
-                stateText = "ХОД ЧЕРНЫХ";
-                break;
-            case WHITE_MOVE:
-                stateText = "ХОД БЕЛЫХ";
-                break;
-            case END:
-                stateText = "КОНЕЦ ИГРЫ";
-                break;
-            default:
-                throw new NotImplementedException();
-        }
-        stateInfoLabel.setText(stateText);
-        this.board = board;
-        countBlackLabel.setText(String.format("ЧЕРНЫЕ: %d", board.getCountBlackCells()));
-        countWhiteLabel.setText(String.format("БЕЛЫЕ: %d", board.getCountWhiteCells()));
-        boardPanel.update(board);
-        repaint();
-
-        if (gameState == GameState.END) {
-            if (board.getCountBlackCells() > board.getCountWhiteCells()) {
-                JOptionPane.showMessageDialog(new JFrame(), "Победа черных");
-            } else {
-                JOptionPane.showMessageDialog(new JFrame(), "Победа белых");
             }
         }
     }

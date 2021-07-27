@@ -121,7 +121,7 @@ public class Client extends Thread {
     private void actionPlaying(final GameBoardResponse response) throws GameException, IOException, InterruptedException {
         log.debug("actionPlaying {} {}", connection.getSocket().getLocalPort(), response);
         GameBoard board = response.getBoard();
-        gui.updateGUI(board, response.getState());
+        gui.updateGUI(board, response.getState(), response.getOpponent().getNickname());
         if (response.getState() != GameState.END) {
             if (nowMoveByMe(player, response.getState())) {
                 Thread.sleep(1000);

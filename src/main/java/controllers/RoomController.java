@@ -32,7 +32,7 @@ public class RoomController {
         log.debug("action joinRoom {} {}", connection.getSocket().getPort(), createRoom);
         sendInfoAboutGame(game, game.getBlackUser());
         sendInfoAboutGame(game, game.getWhiteUser());
-        log.info("Game created by search, {}", game);
+        log.debug("Game created by Room, {}", game);
     }
 
     public static void actionGetRooms(final GetRoomsRequest getRoomsRequest, final ClientConnection connection) throws GameException, IOException {
