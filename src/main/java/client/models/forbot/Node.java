@@ -9,12 +9,20 @@ import models.board.Point;
 @EqualsAndHashCode
 public class Node {
     private GameBoard last;
-    private GameBoard past;
     private Point move;
+    private int score;
 
-    public Node(GameBoard last, GameBoard past, Point move) {
+    public Node(GameBoard last, Point move, int score) {
         this.last = last;
-        this.past = past;
         this.move = move;
+        this.score = score;
+    }
+
+    @Override
+    public String toString() {
+        return "Node{" +
+                "move=" + move +
+                ", score=" + score +
+                '}';
     }
 }

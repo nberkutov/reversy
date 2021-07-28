@@ -45,8 +45,8 @@ public class DataBaseService implements Serializable {
         return Server.dataBase.putGame(first, second);
     }
 
-    public static User putPlayer(final int id, final String nickname) {
-        return Server.dataBase.putPlayer(id, nickname);
+    public static User putPlayer(final String nickname) {
+        return Server.dataBase.putPlayer(nickname);
     }
 
     public static synchronized Room putRoom() {

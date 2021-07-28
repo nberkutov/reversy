@@ -1,7 +1,8 @@
 package client;
 
 import client.models.RandomBotPlayer;
-import client.models.SmartBotMiniMax;
+import client.models.SmartBot;
+import client.models.strategies.HardStrategy;
 import exception.GameException;
 import gui.WindowGUI;
 import lombok.extern.slf4j.Slf4j;
@@ -14,7 +15,7 @@ public class StartClient {
 
     public static void main(String[] args) {
         try {
-            Client botClient = new Client(IP, PORT, new SmartBotMiniMax("minimax"), new WindowGUI());
+            Client botClient = new Client(IP, PORT, new SmartBot("minimax", 2, new HardStrategy()), new WindowGUI());
             Client humanClient = new Client(IP, PORT, new RandomBotPlayer("Random"), new WindowGUI());
             Thread thread1 = new Thread(botClient);
             Thread thread2 = new Thread(humanClient);

@@ -22,7 +22,7 @@ public class StartServer {
         boolean work = server.isAlive();
 
         while (work) {
-            String string = scanner.nextLine();
+            String string = scanner.nextLine().trim().toLowerCase();
             ServerCommand command = ServerCommand.getCommandMessage(string);
             switch (command) {
                 case HELP:

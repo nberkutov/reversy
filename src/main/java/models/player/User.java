@@ -11,6 +11,7 @@ import models.game.Game;
 import models.statistics.Statistics;
 
 import java.io.Serializable;
+import java.util.Objects;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -26,7 +27,7 @@ public class User implements Serializable {
     protected PlayerColor color;
     protected Game nowPlaying;
 
-    private transient final Lock lock = new ReentrantLock();
+    private final Lock lock = new ReentrantLock();
 
     public User(final int id, final String nickname) {
         this.id = id;
@@ -57,5 +58,23 @@ public class User implements Serializable {
                 ", state=" + state +
                 ", color=" + color +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof User)) return false;
+        User user = (User) o;
+        return getId() == user.getId() &&
+                Objects.equals(getNickname(), user.getNickname()) &&
+                Objects.equals(getStatistics(), user.getStatistics()) &&
+                getState() == user.getState() &&
+                getColor() == user.getColor() &&
+                Objects.equals(getNowPlaying(), user.getNowPlaying());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId(), getNickname(), getStatistics(), getState(), getColor(), getNowPlaying());
     }
 }

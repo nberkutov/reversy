@@ -7,9 +7,12 @@ import models.base.GameState;
 import models.base.PlayerColor;
 import models.base.interfaces.GameBoard;
 import models.board.Board;
+import models.board.Point;
 import models.player.User;
 
 import java.io.Serializable;
+import java.util.LinkedList;
+import java.util.Objects;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -24,8 +27,8 @@ public class Game implements Serializable {
 
     private GameState state;
     private GameResult result;
-
-    private transient final Lock lock = new ReentrantLock();
+    private final Lock lock = new ReentrantLock();
+    private LinkedList<Move> moves;
 
     public Game(final int id, final User first, final User second) {
         this(new Board(), first, second);
@@ -40,7 +43,13 @@ public class Game implements Serializable {
         blackUser.setColor(PlayerColor.BLACK);
         whiteUser.setColor(PlayerColor.WHITE);
         this.board = board;
+        moves = new LinkedList<>();
     }
+
+    public void addMove(PlayerColor color, Point point) {
+        moves.addLast(Move.create(color, point));
+    }
+
 
     public void lock() {
         lock.lock();
@@ -58,5 +67,24 @@ public class Game implements Serializable {
                 ", vs " + whiteUser +
                 ", state=" + state +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Game)) return false;
+        Game game = (Game) o;
+        return getId() == game.getId() &&
+                Objects.equals(getBlackUser(), game.getBlackUser()) &&
+                Objects.equals(getWhiteUser(), game.getWhiteUser()) &&
+                Objects.equals(getBoard(), game.getBoard()) &&
+                getState() == game.getState() &&
+                Objects.equals(getResult(), game.getResult()) &&
+                Objects.equals(getMoves(), game.getMoves());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId(), getBlackUser(), getWhiteUser(), getBoard(), getState(), getResult(), getMoves());
     }
 }

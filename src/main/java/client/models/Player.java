@@ -19,5 +19,5 @@ public abstract class Player {
         this.nickname = nickname;
     }
 
-    public abstract Point move(GameBoard board) throws GameException;
+    public abstract Point move(final GameBoard board) throws GameException;
 }

@@ -42,6 +42,7 @@ public class SelfPlay {
                 if (BoardService.hasPossibleMove(game.getBoard(), game.getBlackUser())) {
                     Point move = first.move(game.getBoard());
                     BoardService.makeMove(game.getBoard(), move, Cell.BLACK);
+                    game.addMove(first.getColor(), move);
                 }
                 game.setState(GameState.WHITE_MOVE);
                 break;
@@ -49,6 +50,7 @@ public class SelfPlay {
                 if (BoardService.hasPossibleMove(game.getBoard(), game.getWhiteUser())) {
                     Point move = second.move(game.getBoard());
                     BoardService.makeMove(game.getBoard(), move, Cell.WHITE);
+                    game.addMove(second.getColor(), move);
                 }
                 game.setState(GameState.BLACK_MOVE);
                 break;

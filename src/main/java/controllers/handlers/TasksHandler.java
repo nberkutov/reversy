@@ -72,9 +72,9 @@ public class TasksHandler extends Thread {
                                 MovePlayerRequest movePlayer = (MovePlayerRequest) request;
                                 GameController.actionMovePlayer(movePlayer, connection);
                                 break;
-                            case GET_GAME_INFO:
-                                GetGameInfoRequest getGame = (GetGameInfoRequest) request;
-                                GameController.actionGetGameInfo(getGame, connection);
+                            case GET_REPLAY_GAME:
+                                GetReplayGameRequest getGame = (GetReplayGameRequest) request;
+                                GameController.actionGetReplayGame(getGame, connection);
                                 break;
                             case CREATE_ROOM:
                                 CreateRoomRequest createRoom = (CreateRoomRequest) request;

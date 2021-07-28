@@ -1,6 +1,7 @@
-package dto.response.player;
+package dto.response.game;
 
 import dto.response.GameResponse;
+import dto.response.player.PlayerResponse;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

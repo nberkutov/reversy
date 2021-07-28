@@ -1,6 +1,6 @@
 package services;
 
-import dto.request.player.GetGameInfoRequest;
+import dto.request.player.GetReplayGameRequest;
 import dto.request.player.MovePlayerRequest;
 import dto.request.server.CreateGameRequest;
 import exception.GameErrorCode;
@@ -36,10 +36,11 @@ public class GameService extends DataBaseService {
         return createGame(second, first);
     }
 
-    public static Game getGameInfo(final GetGameInfoRequest getGame, final ClientConnection connection) throws GameException {
-        checkRequestAndConnection(getGame, connection);
-        Game game = getGameById(getGame.getGameId());
+    public static Game getReplayGame(final GetReplayGameRequest request, final ClientConnection connection) throws GameException {
+        checkRequestAndConnection(request, connection);
+        Game game = getGameById(request.getGameId());
         gameIsNotNull(game);
+        gameIsEnd(game);
         return game;
     }
 
@@ -80,6 +81,7 @@ public class GameService extends DataBaseService {
         playerValidMove(game, user);
 
         BoardService.makeMove(game, point, user.getColor());
+        game.addMove(user.getColor(), point);
         choosingPlayerMove(game);
 
         if (gameIsFinished(game)) {
@@ -155,8 +157,14 @@ public class GameService extends DataBaseService {
     }
 
     private static void gameIsNotEnd(final Game game) throws GameException {
-        if (gameIsFinished(game) || game.getBoard().getCountEmpty() == 0) {
+        if (gameIsFinished(game)) {
             throw new GameException(GameErrorCode.GAME_ENDED);
+        }
+    }
+
+    private static void gameIsEnd(final Game game) throws GameException {
+        if (!gameIsFinished(game)) {
+            throw new GameException(GameErrorCode.GAME_NOT_FINISHED);
         }
     }
 

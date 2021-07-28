@@ -6,8 +6,8 @@ import dto.request.player.MovePlayerRequest;
 import dto.request.player.WantPlayRequest;
 import dto.response.ErrorResponse;
 import dto.response.GameResponse;
+import dto.response.game.GameBoardResponse;
 import dto.response.player.CreatePlayerResponse;
-import dto.response.player.GameBoardResponse;
 import dto.response.player.MessageResponse;
 import dto.response.player.SearchGameResponse;
 import exception.GameErrorCode;
@@ -124,7 +124,7 @@ public class Client extends Thread {
         gui.updateGUI(board, response.getState(), response.getOpponent().getNickname());
         if (response.getState() != GameState.END) {
             if (nowMoveByMe(player, response.getState())) {
-                Thread.sleep(1);
+                Thread.sleep(100);
                 Point move = player.move(board);
                 ClientController.sendRequest(connection, MovePlayerRequest.toDto(response.getGameId(), move));
             }

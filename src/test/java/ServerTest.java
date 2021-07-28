@@ -1,12 +1,13 @@
 import dto.request.GameRequest;
 import dto.request.player.CreatePlayerRequest;
-import dto.request.player.GetGameInfoRequest;
+import dto.request.player.GetReplayGameRequest;
 import dto.request.player.MovePlayerRequest;
 import dto.request.player.WantPlayRequest;
 import dto.request.room.CreateRoomRequest;
 import dto.request.room.JoinRoomRequest;
 import dto.response.GameResponse;
-import dto.response.player.GameBoardResponse;
+import dto.response.game.GameBoardResponse;
+import dto.response.game.ReplayResponse;
 import dto.response.player.SearchGameResponse;
 import exception.GameException;
 import models.ClientConnection;
@@ -35,8 +36,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.Assert.fail;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class ServerTest {
     private static Server server = new Server();
@@ -233,7 +233,6 @@ class ServerTest {
         for (Game game : DataBaseService.getAllGames()) {
             assertEquals(game.getState(), GameState.END);
         }
-        DataBaseService.clearAll();
     }
 
     private Thread createClientForPlay(final int PORT, String IP, int i, int needPlayGames) throws GameException, InterruptedException, IOException {
@@ -317,15 +316,22 @@ class ServerTest {
     }
 
     @Test
-    void getInfoGameOnServer() throws IOException, GameException, InterruptedException {
-        ClientConnection connectionBot1 = createConnection(IP, PORT, "Bot1");
-        ClientConnection connectionBot2 = createConnection(IP, PORT, "Bot2");
+    void getReplayGameOnServer() throws IOException, GameException, InterruptedException {
+        final int needPlayGames = 1;
 
-        wantPlay(connectionBot1);
-        wantPlay(connectionBot2);
+        List<Thread> threads = new ArrayList<>();
+        for (int i = 0; i < 2; i++) {
+            threads.add(createClientForPlay(PORT, IP, i, needPlayGames));
+        }
+        for (Thread th : threads) {
+            th.join();
+        }
+        for (Game game : DataBaseService.getAllGames()) {
+            assertEquals(game.getState(), GameState.END);
+        }
 
         LinkedBlockingDeque<GameResponse> responsesBot3 = new LinkedBlockingDeque<>();
-        ClientConnection connectionBot3 = createConnection(IP, PORT, "Bot3");
+        ClientConnection connectionBot3 = createConnection(IP, PORT, "BotReplay");
         Game game = DataBaseService.getAllGames().get(0);
 
         AtomicBoolean needGetInfo = new AtomicBoolean(true);
@@ -333,7 +339,7 @@ class ServerTest {
         new Thread(() -> {
             try {
                 while (needGetInfo.get()) {
-                    responsesBot3.putLast(JsonService.getResponseFromMsg(connectionBot2.readMsg()));
+                    responsesBot3.putLast(JsonService.getResponseFromMsg(connectionBot3.readMsg()));
                 }
             } catch (InterruptedException | GameException | IOException e) {
                 fail();
@@ -348,10 +354,9 @@ class ServerTest {
                         case ERROR:
                             fail();
                             break;
-                        case GAME_PLAYING:
-                            GameBoardResponse gameBoardresponse = (GameBoardResponse) response;
-                            GameBoard board = gameBoardresponse.getBoard();
-                            assertEquals(board, game.getBoard());
+                        case GAME_REPLAY:
+                            ReplayResponse replay = (ReplayResponse) response;
+                            assertFalse(replay.getMoves().isEmpty());
                             needGetInfo.set(false);
                             break;
                         default:
@@ -364,7 +369,7 @@ class ServerTest {
         });
         threadBot3.start();
 
-        sendRequest(connectionBot3, new GetGameInfoRequest(game.getId()));
+        sendRequest(connectionBot3, new GetReplayGameRequest(game.getId()));
 
         threadBot3.join();
     }

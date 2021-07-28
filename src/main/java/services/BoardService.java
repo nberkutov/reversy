@@ -77,6 +77,15 @@ public class BoardService {
         return board.getCountBlackCells();
     }
 
+    public static int getCountCellByPlayerColor(final GameBoard board, final PlayerColor color) throws GameException {
+        boardIsNotNull(board);
+        colorIsNotNull(color);
+        colorIsNotNone(color);
+        if (color == PlayerColor.BLACK) {
+            return getCountBlack(board);
+        }
+        return getCountWhite(board);
+    }
 
     /**
      * Функция получения количества пустых полей
@@ -242,6 +251,12 @@ public class BoardService {
     private static void colorIsNotNull(final PlayerColor color) throws GameException {
         if (color == null) {
             log.error("Bad checkPlayerColor", new GameException(GameErrorCode.INVALID_PLAYER_COLOR));
+            throw new GameException(GameErrorCode.INVALID_PLAYER_COLOR);
+        }
+    }
+
+    private static void colorIsNotNone(final PlayerColor color) throws GameException {
+        if (color == PlayerColor.NONE) {
             throw new GameException(GameErrorCode.INVALID_PLAYER_COLOR);
         }
     }

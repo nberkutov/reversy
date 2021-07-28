@@ -1,11 +1,12 @@
 package controllers;
 
-import dto.request.player.GetGameInfoRequest;
+import dto.request.player.GetReplayGameRequest;
 import dto.request.player.MovePlayerRequest;
 import dto.request.server.CreateGameRequest;
 import dto.response.GameResponse;
 import dto.response.TaskResponse;
-import dto.response.player.GameBoardResponse;
+import dto.response.game.GameBoardResponse;
+import dto.response.game.ReplayResponse;
 import dto.response.player.SearchGameResponse;
 import exception.GameException;
 import lombok.extern.slf4j.Slf4j;
@@ -35,11 +36,10 @@ public class GameController {
         }
     }
 
-    public static void actionGetGameInfo(final GetGameInfoRequest getGame, final ClientConnection connection) throws IOException, GameException {
-        Game game = GameService.getGameInfo(getGame, connection);
-        //TODO maybe Change getGameInfo -> GameResult, when game finish
-        sendResponse(connection, GameBoardResponse.toDto(game, connection.getUser()));
-        log.debug("getGameInfo, {}", game);
+    public static void actionGetReplayGame(final GetReplayGameRequest getGame, final ClientConnection connection) throws IOException, GameException {
+        Game game = GameService.getReplayGame(getGame, connection);
+        sendResponse(connection, ReplayResponse.toDto(game));
+        log.debug("action GetReplayGame, {}", game);
     }
 
     public static void actionCreateGame(final CreateGameRequest createGame, final ClientConnection connection) throws IOException, GameException {

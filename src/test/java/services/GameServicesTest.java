@@ -1,11 +1,13 @@
 package services;
 
 import dto.request.player.CreatePlayerRequest;
+import dto.request.player.GetReplayGameRequest;
 import dto.request.player.MovePlayerRequest;
 import exception.GameErrorCode;
 import exception.GameException;
 import models.ClientConnection;
 import models.base.GameResultState;
+import models.base.GameState;
 import models.base.PlayerState;
 import models.board.Board;
 import models.board.Point;
@@ -21,8 +23,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class GameServicesTest {
     private static Server server = new Server();
@@ -175,6 +176,65 @@ public class GameServicesTest {
         Game game = GameService.createGame(p1, p2);
         assertEquals(p1.getState(), PlayerState.PLAYING);
         assertEquals(p2.getState(), PlayerState.PLAYING);
+    }
+
+    @Test
+    void testGetReplayGameException() throws GameException, IOException {
+        final int PORT = 8083;
+        final String IP = "127.0.0.1";
+        try {
+            GameService.getReplayGame(null, null);
+            fail();
+        } catch (GameException e) {
+            assertEquals(e.getErrorCode(), GameErrorCode.INVALID_REQUEST);
+        }
+
+        try {
+            GameService.getReplayGame(new GetReplayGameRequest(0), null);
+            fail();
+        } catch (GameException e) {
+            assertEquals(e.getErrorCode(), GameErrorCode.CONNECTION_LOST);
+        }
+        RandomBotPlayer p1 = new RandomBotPlayer(1, "bot1");
+        RandomBotPlayer p2 = new RandomBotPlayer(2, "bot2");
+        Game game = GameService.createGame(p1, p2);
+
+        ServerSocket socket = new ServerSocket(PORT);
+        Socket client = new Socket(IP, PORT);
+        ClientConnection connection = new ClientConnection(client);
+        PlayerService.createPlayer(new CreatePlayerRequest("Booot"), connection);
+
+        try {
+            GameService.getReplayGame(new GetReplayGameRequest(game.getId()), connection);
+            fail();
+        } catch (GameException e) {
+            assertEquals(e.getErrorCode(), GameErrorCode.GAME_NOT_FINISHED);
+        }
+        socket.close();
+    }
+
+    @Test
+    void testGetReplayGame() throws GameException, IOException {
+        final int PORT = 8083;
+        final String IP = "127.0.0.1";
+
+        RandomBotPlayer p1 = new RandomBotPlayer(1, "bot1");
+        RandomBotPlayer p2 = new RandomBotPlayer(2, "bot2");
+        Game game = GameService.createGame(p1, p2);
+
+        game.addMove(p1.getColor(), new Point(0, 0));
+        game.addMove(p2.getColor(), new Point(1, 1));
+        game.addMove(p1.getColor(), new Point(2, 2));
+        game.setResult(GameResult.winner(game.getBoard(), p1, p2));
+        game.setState(GameState.END);
+        ServerSocket socket = new ServerSocket(PORT);
+        Socket client = new Socket(IP, PORT);
+        ClientConnection connection = new ClientConnection(client);
+        PlayerService.createPlayer(new CreatePlayerRequest("Booot"), connection);
+
+        Game responseGame = GameService.getReplayGame(new GetReplayGameRequest(game.getId()), connection);
+        assertNotNull(responseGame);
+        socket.close();
     }
 
     @Test

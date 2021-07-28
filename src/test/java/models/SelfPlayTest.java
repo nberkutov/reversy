@@ -2,7 +2,8 @@ package models;
 
 import client.models.Player;
 import client.models.RandomBotPlayer;
-import client.models.SmartBotMiniMax;
+import client.models.SmartBot;
+import client.models.strategies.HardStrategy;
 import exception.GameException;
 import models.game.GameResult;
 import org.junit.jupiter.api.Test;
@@ -20,15 +21,15 @@ class SelfPlayTest {
 
     @Test
     void test1kGamesWithStats() throws GameException {
-        int games = 200;
-        Player bot1 = new SmartBotMiniMax("tree", 3);
+        int games = 100;
+        Player bot1 = new SmartBot("minimax", 3, new HardStrategy());
         Player bot2 = new RandomBotPlayer("Random");
         int win1 = 0;
         int win2 = 0;
         float maxTime = 0;
         for (int i = 0; i < games; i++) {
             long timeBefore = System.currentTimeMillis();
-            SelfPlay selfPlay = new SelfPlay(bot1, bot2);
+            SelfPlay selfPlay = new SelfPlay(bot2, bot1);
             GameResult result = selfPlay.play();
             if (result.getWinner().getNickname().equals(bot1.getNickname())) {
                 win1++;
@@ -38,7 +39,7 @@ class SelfPlayTest {
             long timeAfter = System.currentTimeMillis();
             float timeGame = timeAfter - timeBefore;
             maxTime = Math.max(maxTime, timeGame);
-            System.out.println(i + String.format(" Time on game %2.3f sec", timeGame / 1000));
+            System.out.println(i + String.format(" Time on game %2.3f sec, win %s", timeGame / 1000, result.getWinner().getNickname()));
         }
         System.out.println(String.format("%s win %d; %s win %d", bot1.getNickname(), win1, bot2.getNickname(), win2));
         System.out.println(String.format("Percent win: %2.0f%s", getPercent(win1, games), "%"));

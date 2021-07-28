@@ -9,20 +9,19 @@ import java.util.TreeMap;
 
 @Data
 public class Tree {
-    private TreeMap<Integer, Node> tree;
+    private TreeMap<Vertex, Node> tree;
 
     public Tree() {
         tree = new TreeMap<>();
     }
 
-    public void addNode(Integer depth, GameBoard last, GameBoard past, Point point) {
-        tree.put(depth, new Node(last, past, point));
+    public void addNode(Integer depth, GameBoard last, Point point, int score) {
+        tree.put(new Vertex(depth, score), new Node(last, point, score));
     }
 
     public Point getMove() {
-        Map.Entry<Integer, Node> entry = tree.lastEntry();
+        Map.Entry<Vertex, Node> entry = tree.firstEntry();
         Node node = entry.getValue();
         return node.getMove();
     }
-
 }

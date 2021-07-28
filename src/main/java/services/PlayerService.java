@@ -4,7 +4,7 @@ import controllers.handlers.TasksHandler;
 import dto.request.player.AuthPlayerRequest;
 import dto.request.player.CreatePlayerRequest;
 import dto.request.player.LogoutPlayerRequest;
-import dto.response.player.GameBoardResponse;
+import dto.response.game.GameBoardResponse;
 import exception.GameErrorCode;
 import exception.GameException;
 import lombok.extern.slf4j.Slf4j;
@@ -30,9 +30,8 @@ public class PlayerService extends DataBaseService {
         connectionIsAuthed(connection);
         String nickname = createPlayerRequest.getNickname();
         nicknameIsUsedAlready(nickname);
-        int id = getPlayerId();
-        User user = putPlayer(id, nickname);
-        putConnection(id, nickname, connection);
+        User user = putPlayer(nickname);
+        putConnection(user.getId(), nickname, connection);
         connection.setUser(user);
         return user;
     }

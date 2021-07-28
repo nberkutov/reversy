@@ -62,7 +62,8 @@ public class DataBase implements Serializable, Cloneable {
         return game;
     }
 
-    public synchronized User putPlayer(final int id, final String nickname) {
+    public synchronized User putPlayer(final String nickname) {
+        int id = getPlayerId();
         User user = new User(id, nickname);
         login_players.put(user.getNickname(), user);
         players.put(id, user);
