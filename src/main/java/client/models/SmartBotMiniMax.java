@@ -42,7 +42,7 @@ public class SmartBotMiniMax extends Player {
         return PlayerColor.BLACK;
     }
 
-    private static boolean isGameEnd(GameBoard board, PlayerColor color) throws GameException {
+    private static boolean isAvailableMovesPlayer(GameBoard board, PlayerColor color) throws GameException {
         return BoardService.getAvailableMoves(board, color).isEmpty();
     }
 
@@ -61,7 +61,7 @@ public class SmartBotMiniMax extends Player {
     }
 
     private Integer minimax(final Tree branch, final GameBoard board, int depth, int alpha, int beta, boolean playerMove) throws GameException {
-        if (depth == 0 || isGameEnd(board, color)) {
+        if (depth == 0 || isAvailableMovesPlayer(board, color)) {
             return simpleFuncEvaluation(board, color);
         }
         if (playerMove) {
