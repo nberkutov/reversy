@@ -4,6 +4,7 @@ import exception.GameErrorCode;
 import exception.GameException;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import models.base.Cell;
 import models.base.interfaces.GameBoard;
@@ -197,6 +198,16 @@ public class Board implements Serializable, GameBoard {
                 && point.getY() >= 0
                 && point.getX() < BOARD_SIZE
                 && point.getY() < BOARD_SIZE;
+    }
+
+    @SneakyThrows
+    @Override
+    public Board clone() {
+        Board board = new Board();
+        for (Map.Entry<Point, Cell> entry : getCells().entrySet()) {
+            board.setCell(entry.getKey(), entry.getValue());
+        }
+        return board;
     }
 
     @Override

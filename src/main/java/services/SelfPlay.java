@@ -1,10 +1,12 @@
 package services;
 
+import client.models.Player;
 import exception.GameErrorCode;
 import exception.GameException;
 import lombok.extern.slf4j.Slf4j;
 import models.base.Cell;
 import models.base.GameState;
+import models.base.PlayerColor;
 import models.base.interfaces.GameBoard;
 import models.board.Board;
 import models.board.Point;
@@ -14,15 +16,19 @@ import models.player.User;
 
 @Slf4j
 public class SelfPlay {
-    private final User first;
-    private final User second;
+    private final Player first;
+    private final Player second;
     private final Game game;
 
-    public SelfPlay(final User first, final User second) {
+    public SelfPlay(final Player first, final Player second) {
         this.first = first;
         this.second = second;
         GameBoard board = new Board();
-        game = new Game(board, first, second);
+        User black = new User(0, first.getNickname());
+        first.setColor(PlayerColor.BLACK);
+        User white = new User(1, second.getNickname());
+        second.setColor(PlayerColor.WHITE);
+        game = new Game(board, black, white);
     }
 
     /**
@@ -30,18 +36,18 @@ public class SelfPlay {
      *
      * @param game - Игра
      */
-    private static void playNext(final Game game) throws GameException {
+    private static void playNext(final Game game, Player first, Player second) throws GameException {
         switch (game.getState()) {
             case BLACK_MOVE:
                 if (BoardService.hasPossibleMove(game.getBoard(), game.getBlackUser())) {
-                    Point move = game.getBlackUser().move(game.getBoard());
+                    Point move = first.move(game.getBoard());
                     BoardService.makeMove(game.getBoard(), move, Cell.BLACK);
                 }
                 game.setState(GameState.WHITE_MOVE);
                 break;
             case WHITE_MOVE:
                 if (BoardService.hasPossibleMove(game.getBoard(), game.getWhiteUser())) {
-                    Point move = game.getWhiteUser().move(game.getBoard());
+                    Point move = second.move(game.getBoard());
                     BoardService.makeMove(game.getBoard(), move, Cell.WHITE);
                 }
                 game.setState(GameState.BLACK_MOVE);
@@ -68,7 +74,7 @@ public class SelfPlay {
 
     public GameResult play() throws GameException {
         while (game.getState() != GameState.END) {
-            playNext(game);
+            playNext(game, first, second);
         }
 
         log.debug("DEBUG finish \n{}", game.getResult().getBoard());

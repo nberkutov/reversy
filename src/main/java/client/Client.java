@@ -87,7 +87,7 @@ public class Client extends Thread {
         log.info("Debug connect {}", connection);
         new Thread(() -> {
             try {
-                Thread.sleep(1000);
+                Thread.sleep(10);
                 ClientController.sendRequest(connection, new CreatePlayerRequest(player.getNickname()));
             } catch (InterruptedException | IOException | GameException e) {
                 e.printStackTrace();
@@ -124,7 +124,7 @@ public class Client extends Thread {
         gui.updateGUI(board, response.getState(), response.getOpponent().getNickname());
         if (response.getState() != GameState.END) {
             if (nowMoveByMe(player, response.getState())) {
-                Thread.sleep(1000);
+                Thread.sleep(1);
                 Point move = player.move(board);
                 ClientController.sendRequest(connection, MovePlayerRequest.toDto(response.getGameId(), move));
             }

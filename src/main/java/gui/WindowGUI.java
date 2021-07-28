@@ -104,11 +104,13 @@ class GameWindow extends JFrame {
         repaint();
 
         if (gameState == GameState.END) {
+            String message = "";
             if (board.getCountBlackCells() > board.getCountWhiteCells()) {
-                JOptionPane.showMessageDialog(new JFrame(), "Победа черных");
+                message = "Победа черных";
             } else {
-                JOptionPane.showMessageDialog(new JFrame(), "Победа белых");
+                message = "Победа белых";
             }
+//            JOptionPane.showMessageDialog(new JFrame(), message);
         }
     }
 

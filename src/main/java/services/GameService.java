@@ -8,6 +8,7 @@ import exception.GameException;
 import lombok.extern.slf4j.Slf4j;
 import models.ClientConnection;
 import models.base.GameState;
+import models.base.PlayerColor;
 import models.base.PlayerState;
 import models.base.interfaces.GameBoard;
 import models.board.Point;
@@ -94,28 +95,29 @@ public class GameService extends DataBaseService {
         gameResultIsNotNull(result);
         log.info("GameEnd {} {}", game.getId(), result);
         game.setResult(result);
+        calculateStatistic(result);
         PlayerService.setPlayerStateNone(game.getBlackUser());
         PlayerService.setPlayerStateNone(game.getWhiteUser());
-        calculateStatistic(result, game);
     }
 
-    private static void calculateStatistic(final GameResult gameResult, final Game game) {
+    private static void calculateStatistic(final GameResult gameResult) {
         User winner = gameResult.getWinner();
         User loser = gameResult.getLoser();
 
         winner.getStatistics().incrementWin();
         winner.getStatistics().incrementCountGames();
         winner.getStatistics().incrementPlayerAgainst(loser);
+
         loser.getStatistics().incrementLose();
         loser.getStatistics().incrementCountGames();
 
-        User whiteUser = game.getWhiteUser();
-        whiteUser.getStatistics().incrementPlayWhite();
-        whiteUser.getStatistics().addGameResult(gameResult);
-
-        User blackUser = game.getWhiteUser();
-        blackUser.getStatistics().incrementPlayBlack();
-        blackUser.getStatistics().addGameResult(gameResult);
+        if (winner.getColor() == PlayerColor.BLACK) {
+            winner.getStatistics().incrementPlayBlack();
+            loser.getStatistics().incrementPlayWhite();
+        } else {
+            winner.getStatistics().incrementPlayWhite();
+            loser.getStatistics().incrementPlayBlack();
+        }
     }
 
     private static void choosingPlayerMove(final Game game) throws GameException {
