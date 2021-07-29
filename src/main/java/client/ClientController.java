@@ -13,20 +13,20 @@ import java.io.IOException;
 @Slf4j
 public class ClientController {
 
-    public static void sendRequest(final ClientConnection server, final GameRequest request) throws IOException, GameException {
-        if (server.isConnected()) {
-            log.debug("sendRequest {} {}", server.getSocket().getLocalPort(), request);
-            server.send(JsonService.toMsgParser(request));
+    public static void sendRequest(final ClientConnection connection, final GameRequest request) throws IOException, GameException {
+        if (connection.isConnected()) {
+            log.debug("sendRequest {} {}", connection.getSocket().getLocalPort(), request);
+            connection.send(JsonService.toMsgParser(request));
         }
     }
 
-    public static GameResponse getRequest(final ClientConnection server) throws GameException, IOException {
-        if (!server.isConnected()) {
+    public static GameResponse getRequest(final ClientConnection connection) throws GameException, IOException {
+        if (!connection.isConnected()) {
             throw new GameException(GameErrorCode.CONNECTION_LOST);
         }
 
-        String msg = server.readMsg();
-        log.debug("Client getRequest {} {}", server.getSocket().getLocalPort(), msg);
+        String msg = connection.readMsg();
+        log.debug("Client getRequest {} {}", connection.getSocket().getLocalPort(), msg);
         return JsonService.getResponseFromMsg(msg);
     }
 }

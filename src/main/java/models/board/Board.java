@@ -29,6 +29,15 @@ public class Board implements Serializable, GameBoard {
     private int countEmpty;
 
 
+    public Board(GameBoard board) throws GameException {
+        this();
+        for (int i = 0; i < board.getSize(); i++) {
+            for (int j = 0; j < board.getSize(); j++) {
+                setCell(new Point(i, j), board.getCell(i, j));
+            }
+        }
+    }
+
     public Board() {
         size = BOARD_SIZE;
         countEmpty = BOARD_SIZE * BOARD_SIZE;

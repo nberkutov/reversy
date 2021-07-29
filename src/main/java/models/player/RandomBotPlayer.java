@@ -1,5 +1,6 @@
 package models.player;
 
+import client.models.Player;
 import exception.GameException;
 import models.base.interfaces.GameBoard;
 import models.board.Point;

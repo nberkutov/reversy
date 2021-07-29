@@ -31,6 +31,7 @@ public class Client extends Thread {
     private final Player player;
     private final ClientConnection connection;
     private final GameGUI gui;
+    private int gamesCount;
 
     public Client(final String ip, final int port, final Player player, GameGUI gui) throws GameException {
         try {
@@ -38,6 +39,7 @@ public class Client extends Thread {
             Socket socket = new Socket(ip, port);
             this.connection = new ClientConnection(socket);
             this.gui = gui;
+            gamesCount = 0;
         } catch (IOException e) {
             throw new GameException(GameErrorCode.SERVER_NOT_STARTED);
         }
@@ -124,13 +126,16 @@ public class Client extends Thread {
         gui.updateGUI(board, response.getState());
         if (response.getState() != GameState.END) {
             if (nowMoveByMe(player, response.getState())) {
-                Thread.sleep(1000);
+                //Thread.sleep(10);
                 Point move = player.move(board);
                 ClientController.sendRequest(connection, MovePlayerRequest.toDto(response.getGameId(), move));
             }
         } else {
+            System.out.println("Game " + gamesCount);
             player.setColor(PlayerColor.NONE);
-            ClientController.sendRequest(connection, new WantPlayRequest());
+            if (gamesCount++ < 1000) {
+                ClientController.sendRequest(connection, new WantPlayRequest());
+            }
         }
     }
 

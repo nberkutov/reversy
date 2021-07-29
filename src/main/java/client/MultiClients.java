@@ -2,6 +2,7 @@ package client;
 
 import client.models.RandomBotPlayer;
 import exception.GameException;
+import gui.NoGUI;
 import gui.WindowGUI;
 import lombok.extern.slf4j.Slf4j;
 
@@ -18,7 +19,7 @@ public class MultiClients {
         try {
             List<Thread> threadList = new ArrayList<>();
             for (int i = 0; i < 10; i++) {
-                Client botClient = new Client(IP, PORT, new RandomBotPlayer("bot" + i), new WindowGUI());
+                Client botClient = new Client(IP, PORT, new RandomBotPlayer("bot" + i), new NoGUI());
                 threadList.add(botClient);
                 botClient.start();
             }
