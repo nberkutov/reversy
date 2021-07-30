@@ -13,8 +13,6 @@ public class SmartBot extends Player {
     private final int depth;
     private final Strategy strategyPlayer;
     private final Strategy strategyBot;
-    private int alpha;
-    private int beta;
 
     public SmartBot(final String nickname) {
         this(nickname, 3);
