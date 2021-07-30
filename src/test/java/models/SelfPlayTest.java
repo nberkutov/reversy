@@ -3,7 +3,7 @@ package models;
 import client.models.Player;
 import client.models.RandomBotPlayer;
 import client.models.SmartBot;
-import client.models.strategies.HardStrategy;
+import client.models.strategies.StrangeStrategy;
 import exception.GameException;
 import models.game.GameResult;
 import org.junit.jupiter.api.Test;
@@ -22,7 +22,7 @@ class SelfPlayTest {
     @Test
     void test1kGamesWithStats() throws GameException {
         int games = 100;
-        Player bot1 = new SmartBot("minimax", 3, new HardStrategy());
+        Player bot1 = new SmartBot("minimax", 3, new StrangeStrategy());
         Player bot2 = new RandomBotPlayer("Random");
         int win1 = 0;
         int win2 = 0;

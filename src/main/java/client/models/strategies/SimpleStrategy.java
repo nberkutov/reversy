@@ -9,7 +9,7 @@ import services.BoardService;
 public class SimpleStrategy extends Strategy {
 
     @Override
-    public boolean additionTriggerEvaluationCall(final GameBoard board, final PlayerColor color, final Point point, final int depth, final int maxDepth) {
+    public boolean triggerEvaluationCall(final GameBoard board, final PlayerColor color, final Point point, final int depth, final int maxDepth) {
         return false;
     }
 

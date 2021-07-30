@@ -6,7 +6,7 @@ import models.base.interfaces.GameBoard;
 import models.board.Point;
 import services.BoardService;
 
-public class HardStrategy extends Strategy {
+public class StrangeStrategy extends Strategy {
 
     @Override
     public boolean triggerEvaluationCall(final GameBoard board, final PlayerColor color, final Point point, final int depth, final int maxDepth) {

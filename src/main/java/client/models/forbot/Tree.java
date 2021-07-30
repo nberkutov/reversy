@@ -15,7 +15,7 @@ public class Tree {
         tree = new TreeMap<>();
     }
 
-    public void addNode(Integer depth, GameBoard last, Point point, int score) {
+    public synchronized void addNode(Integer depth, GameBoard last, Point point, int score) {
         tree.put(new Vertex(depth, score), new Node(last, point, score));
     }
 

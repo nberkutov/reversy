@@ -99,7 +99,7 @@ class GameWindow extends JFrame {
         this.board = board;
         countBlackLabel.setText(String.format("ЧЕРНЫЕ: %d", board.getCountBlackCells()));
         countWhiteLabel.setText(String.format("БЕЛЫЕ: %d", board.getCountWhiteCells()));
-        opponentLabel.setText(String.format("Ваш противник: %s", opponent));
+        opponentLabel.setText(String.format("VS: %s", opponent));
         boardPanel.update(board);
         repaint();
 

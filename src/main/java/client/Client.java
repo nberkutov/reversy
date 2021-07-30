@@ -137,5 +137,6 @@ public class Client extends Thread {
     private void actionStartGame(final SearchGameResponse response) {
         log.debug("actionStartGame {}", response);
         player.setColor(response.getColor());
+        System.out.println(player.getNickname() + " " + response.getColor());
     }
 }
