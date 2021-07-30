@@ -27,8 +27,8 @@ public class WindowGUI implements GameGUI {
     }
 
     @Override
-    public void updateGUI(GameBoard board, GameState gameState) throws GameException {
-        gameWindow.updateGUI(board, gameState);
+    public void updateGUI(GameBoard board, GameState gameState, String opponent) throws GameException {
+        gameWindow.updateGUI(board, gameState, opponent);
     }
 
     public void setCallback(BiConsumer<Integer, Integer> callback) {
@@ -215,7 +215,7 @@ class GameWindow extends JFrame {
         infoPanel.add(countWhiteLabel);
     }
 
-    public void updateGUI(final GameBoard board, final GameState gameState) {
+    public void updateGUI(final GameBoard board, final GameState gameState, String opponent) {
         String stateText;
         switch (gameState) {
             case BLACK_MOVE:

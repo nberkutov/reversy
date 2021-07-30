@@ -141,7 +141,7 @@ public class GUIClient implements Runnable {
 
     private void onGameBoardResponse(GameBoardResponse response) {
         try {
-            gui.updateGUI(response.getBoard(), response.getState());
+            gui.updateGUI(response.getBoard(), response.getState(), response.getOpponent().getNickname());
         } catch (GameException e) {
             e.printStackTrace();
         }
