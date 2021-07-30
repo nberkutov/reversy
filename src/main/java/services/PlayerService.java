@@ -1,10 +1,13 @@
 package services;
 
+import controllers.handlers.TasksHandler;
 import dto.request.player.AuthPlayerRequest;
 import dto.request.player.CreatePlayerRequest;
 import dto.request.player.LogoutPlayerRequest;
+import dto.response.player.GameBoardResponse;
 import exception.GameErrorCode;
 import exception.GameException;
+import lombok.extern.slf4j.Slf4j;
 import models.ClientConnection;
 import models.GameProperties;
 import models.base.GameState;
@@ -14,6 +17,9 @@ import models.game.Game;
 import models.game.GameResult;
 import models.player.User;
 
+import java.io.IOException;
+
+@Slf4j
 public class PlayerService extends DataBaseService {
 
     public static synchronized User createPlayer(final CreatePlayerRequest createPlayerRequest, final ClientConnection connection) throws GameException {
@@ -40,7 +46,7 @@ public class PlayerService extends DataBaseService {
         String nickname = createPlayerRequest.getNickname();
         User user = getPlayerByNickname(nickname);
         playerIsNotNull(user);
-        putConnection(nickname, connection);
+        putConnection(user.getId(), nickname, connection);
         connection.setUser(user);
         return user;
     }
@@ -68,9 +74,24 @@ public class PlayerService extends DataBaseService {
         }
         try {
             nowPlayGame.lock();
+            if (nowPlayGame.getState() == GameState.END) {
+                return;
+            }
             nowPlayGame.setState(GameState.END);
             GameResult result = GameResult.techWinner(nowPlayGame, user);
             GameService.finishGame(result, nowPlayGame);
+
+            ClientConnection whiteConnection = getConnectionById(nowPlayGame.getWhiteUser().getId());
+            if (whiteConnection != null) {
+                TasksHandler.sendResponse(whiteConnection, GameBoardResponse.toDto(nowPlayGame, nowPlayGame.getWhiteUser()));
+            }
+
+            ClientConnection blackConnection = getConnectionById(nowPlayGame.getBlackUser().getId());
+            if (blackConnection != null) {
+                TasksHandler.sendResponse(blackConnection, GameBoardResponse.toDto(nowPlayGame, nowPlayGame.getBlackUser()));
+            }
+        } catch (IOException ignore) {
+            log.debug("Cant send info about tech win {}", nowPlayGame);
         } finally {
             nowPlayGame.unlock();
         }

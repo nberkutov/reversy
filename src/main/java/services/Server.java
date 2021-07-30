@@ -59,7 +59,7 @@ public class Server extends Thread implements AutoCloseable {
             log.info("Server found and upload database in {}", path);
             log.info("Database found: {}", dataBase);
         } catch (IOException | ClassNotFoundException e) {
-            log.error("Upload server from file not successfully {} {}", path, e.getMessage());
+            log.error("Upload server from file not successfully {}", e.getMessage());
         }
     }
 
@@ -96,12 +96,7 @@ public class Server extends Thread implements AutoCloseable {
     public void closeAllConnects() {
         broadcastMessage("The server kicked you");
         for (ClientConnection connection : dataBase.getAllConnection()) {
-            try {
-                connection.close();
-                PlayerService.autoLogoutPlayer(connection);
-            } catch (GameException exception) {
-                log.error("Cant logout player {}", connection);
-            }
+            connection.close();
         }
     }
 
@@ -153,6 +148,7 @@ public class Server extends Thread implements AutoCloseable {
                 System.out.println(game);
                 return;
             }
+
         } catch (NumberFormatException | PatternSyntaxException ignore) {
         }
         log.warn("Game not found");

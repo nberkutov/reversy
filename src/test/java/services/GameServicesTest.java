@@ -28,7 +28,7 @@ public class GameServicesTest {
     private static Server server = new Server();
 
     @BeforeEach
-    private static void clearDateBase() {
+    private void clearDateBase() {
         DataBaseService.clearAll();
     }
 

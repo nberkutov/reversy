@@ -40,10 +40,10 @@ public class ConnectionController extends Thread {
         } catch (InterruptedException | IOException e) {
             log.info("Close connect with {}", connection);
             try {
-                PlayerService.autoLogoutPlayer(connection);
                 connection.close();
+                PlayerService.autoLogoutPlayer(connection);
             } catch (GameException exception) {
-                log.error("Cant logout user after leave {}", connection, e);
+                log.error("Cant logout user after leave {}", connection);
             }
 
         }

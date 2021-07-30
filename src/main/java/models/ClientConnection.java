@@ -70,4 +70,11 @@ public class ClientConnection implements AutoCloseable, Serializable {
         return Objects.hash(socket);
     }
 
+    @Override
+    public String toString() {
+        return "ClientConnection{" +
+                "socket=" + socket +
+                ", user=" + user +
+                '}';
+    }
 }
