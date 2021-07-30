@@ -3,6 +3,7 @@ package gui;
 import exception.GameException;
 import models.base.Cell;
 import models.base.GameState;
+import models.base.PlayerColor;
 import models.base.interfaces.GameBoard;
 import models.board.Board;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
@@ -14,19 +15,24 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.Line2D;
+import java.util.function.BiConsumer;
 
 import static models.GameProperties.BOARD_SIZE;
 
 public class WindowGUI implements GameGUI {
     private final GameWindow gameWindow;
 
-    public WindowGUI() {
-        gameWindow = new GameWindow();
+    public WindowGUI(PlayerColor color) {
+        gameWindow = new GameWindow(color.name());
     }
 
     @Override
     public void updateGUI(GameBoard board, GameState gameState) throws GameException {
         gameWindow.updateGUI(board, gameState);
+    }
+
+    public void setCallback(BiConsumer<Integer, Integer> callback) {
+        gameWindow.setCallback(callback);
     }
 }
 
@@ -39,6 +45,11 @@ class GameWindow extends JFrame {
     private final JPanel infoPanel;
     private final BoardPanel boardPanel;
     private GameBoard board;
+    private static BiConsumer<Integer, Integer> callback;
+
+    public void setCallback(BiConsumer<Integer, Integer> callback) {
+        GameWindow.callback = callback;
+    }
 
     static class BoardPanel extends JPanel {
         private GameBoard board;
@@ -56,7 +67,8 @@ class GameWindow extends JFrame {
             addMouseListener(new BoardMouseListener());
             addMouseMotionListener(new MouseMotionListener() {
                 @Override
-                public void mouseDragged(MouseEvent mouseEvent) {}
+                public void mouseDragged(MouseEvent mouseEvent) {
+                }
 
                 @Override
                 public void mouseMoved(MouseEvent mouseEvent) {
@@ -137,6 +149,11 @@ class GameWindow extends JFrame {
             public void mouseClicked(MouseEvent mouseEvent) {
                 mouseX = mouseEvent.getX();
                 mouseY = mouseEvent.getY();
+                int x = mouseX / CELL_SIZE;
+                int y = mouseY / CELL_SIZE;
+                System.out.println(mouseX + " " + mouseY);
+                System.out.println(x + " " + y);
+                callback.accept(x, y);
                 repaint();
             }
 
@@ -162,8 +179,8 @@ class GameWindow extends JFrame {
         }
     }
 
-    public GameWindow() {
-        super("Reversi Client");
+    public GameWindow(String title) {
+        super(title);
         board = new Board();
         int size = CELL_SIZE * BOARD_SIZE;
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
