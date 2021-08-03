@@ -24,6 +24,11 @@ public class WindowGUI implements GameGUI {
         gameWindow = new GameWindow();
     }
 
+    public WindowGUI(String title) {
+        this();
+        this.gameWindow.setTitle(title);
+    }
+
     @Override
     public void updateGUI(GameBoard board, GameState gameState) throws GameException {
         gameWindow.updateGUI(board, gameState);

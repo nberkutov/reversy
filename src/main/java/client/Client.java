@@ -131,9 +131,9 @@ public class Client extends Thread {
                 ClientController.sendRequest(connection, MovePlayerRequest.toDto(response.getGameId(), move));
             }
         } else {
-            System.out.println("Game " + gamesCount);
             player.setColor(PlayerColor.NONE);
-            if (gamesCount++ < 1000) {
+            if (++gamesCount < 10) {
+                System.out.println("Game " + gamesCount);
                 ClientController.sendRequest(connection, new WantPlayRequest());
             }
         }

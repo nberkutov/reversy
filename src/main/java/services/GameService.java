@@ -30,10 +30,10 @@ public class GameService extends DataBaseService {
         connectionIsNotNullAndConnected(secondCon);
         User first = firstCon.getUser();
         User second = secondCon.getUser();
-        if (new Random().nextBoolean()) {
+        /*if (new Random().nextBoolean()) {
             return createGame(first, second);
-        }
-        return createGame(second, first);
+        }*/
+        return createGame(first, second);
     }
 
     public static Game getGameInfo(final GetGameInfoRequest getGame, final ClientConnection connection) throws GameException {

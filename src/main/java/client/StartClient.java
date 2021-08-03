@@ -1,5 +1,6 @@
 package client;
 
+import client.models.MinimaxBotPlayer;
 import client.models.OneStepBotPlayer;
 import client.models.RandomBotPlayer;
 import exception.GameException;
@@ -15,10 +16,10 @@ public class StartClient {
 
     public static void main(String[] args) {
         try {
-            Client botClient = new Client(IP, PORT, new RandomBotPlayer("bot1"), new NoGUI());
-            Client humanClient = new Client(IP, PORT, new OneStepBotPlayer("OneStepAheadBot"), new NoGUI());
-            Thread thread1 = new Thread(botClient);
-            Thread thread2 = new Thread(humanClient);
+            Client client2 = new Client(IP, PORT, new RandomBotPlayer("RandomBot"), new NoGUI());
+            Client client1 = new Client(IP, PORT, new MinimaxBotPlayer("MinimaxBot"), new WindowGUI());
+            Thread thread1 = new Thread(client1);
+            Thread thread2 = new Thread(client2);
             thread1.start();
             thread2.start();
             thread1.join();

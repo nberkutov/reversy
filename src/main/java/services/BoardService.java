@@ -48,6 +48,7 @@ public class BoardService {
         List<Point> moves = getCellInAllDirection(board, point, cell);
 
         if (moves.isEmpty()) {
+            log.error("INVALID MOVE {} WITH COLOR {}", point, cell);
             throw new GameException(GameErrorCode.INVALID_MOVE);
         }
 
@@ -283,7 +284,8 @@ public class BoardService {
                 && point.getY() < BOARD_SIZE) {
             return;
         }
-        log.error("Bad checkPoint", new GameException(GameErrorCode.BAD_POINT));
+        System.out.println(point);
+        log.error("Bad checkPoint {}", point);
         throw new GameException(GameErrorCode.BAD_POINT);
     }
 
