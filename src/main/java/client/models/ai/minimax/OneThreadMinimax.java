@@ -1,5 +1,6 @@
-package client.models.forbot;
+package client.models.ai.minimax;
 
+import client.models.ai.minimax.tree.Tree;
 import client.models.strategies.Strategy;
 import exception.GameException;
 import lombok.Data;
@@ -29,19 +30,13 @@ public class OneThreadMinimax {
         beta = Integer.MAX_VALUE;
     }
 
-    private static boolean isAvailableMovesPlayer(final GameBoard board, final PlayerColor color) throws GameException {
-        return BoardService.getAvailableMoves(board, color).isEmpty();
-    }
-
-    private boolean criticalStateForGame(final GameBoard board) {
-        return BoardService.getCountEmpty(board) == 0
-                || BoardService.getCountWhite(board) == 0
-                || BoardService.getCountBlack(board) == 0;
+    private static boolean canMove(final GameBoard board, final PlayerColor color) throws GameException {
+        return !BoardService.getAvailableMoves(board, color).isEmpty();
     }
 
     public int minimax(final Tree branch, final GameBoard board, Point move, int depth, PlayerColor moveColor) throws GameException {
         if (depth >= this.depth
-                || criticalStateForGame(board)
+                || BoardService.isNotPossiblePlayOnBoard(board)
                 || moreTriggers(board, moveColor, move, depth)) {
             return funcEvaluation(board, moveColor, move, depth);
         }
@@ -68,7 +63,7 @@ public class OneThreadMinimax {
         }
 
         int minEval = Integer.MAX_VALUE;
-        PlayerColor opponentColor = PlayerColor.getOpponentColor(myColor);
+        PlayerColor opponentColor = myColor.getOpponent();
         for (Point point : listMoves) {
             int eval = -1 * simulationMove(branch, board, point, opponentColor, depth + 1);
 
@@ -103,9 +98,9 @@ public class OneThreadMinimax {
                                int depth) throws GameException {
         GameBoard newBoard = board.clone();
         BoardService.makeMove(newBoard, point, Cell.valueOf(color));
-        PlayerColor opponentColor = PlayerColor.getOpponentColor(color);
+        PlayerColor opponentColor = color.getOpponent();
         PlayerColor nextMove = color;
-        if (isAvailableMovesPlayer(newBoard, opponentColor)) {
+        if (canMove(newBoard, opponentColor)) {
             nextMove = opponentColor;
         }
 

@@ -97,6 +97,24 @@ public class BoardService {
     }
 
     /**
+     * Функция, которая определяет, возможны ли вообще ещё ходы
+     * Если player равен null, то выбрасывает GameException.
+     *
+     * @param board - Игровое поле
+     * @return boolean
+     */
+    public static boolean isNotPossiblePlayOnBoard(final GameBoard board) throws GameException {
+        boardIsNotNull(board);
+        if (board.getCountEmpty() == 0
+                || board.getCountBlackCells() == 0
+                || board.getCountWhiteCells() == 0) {
+            return true;
+        }
+        return getAvailableMoves(board, PlayerColor.BLACK).isEmpty()
+                && getAvailableMoves(board, PlayerColor.WHITE).isEmpty();
+    }
+
+    /**
      * Функция, которая определяет, может ли ходить игрок
      * Если player равен null, то выбрасывает GameException.
      *

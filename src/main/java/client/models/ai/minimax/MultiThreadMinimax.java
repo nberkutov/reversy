@@ -1,4 +1,4 @@
-package client.models.forbot;
+package client.models.ai.minimax;
 
 import exception.GameException;
 import lombok.AllArgsConstructor;
@@ -33,7 +33,7 @@ public class MultiThreadMinimax extends RecursiveTask<Integer> {
         beta = Integer.MAX_VALUE;
     }
 
-    private static boolean isAvailableMovesPlayer(final GameBoard board, final PlayerColor color) throws GameException {
+    private static boolean canMove(final GameBoard board, final PlayerColor color) throws GameException {
         return !BoardService.getAvailableMoves(board, color).isEmpty();
     }
 
@@ -41,7 +41,7 @@ public class MultiThreadMinimax extends RecursiveTask<Integer> {
     @Override
     protected Integer compute() {
         if (depth >= info.getMaxDepth()
-                || criticalStateForGame(board)
+                || BoardService.isNotPossiblePlayOnBoard(board)
                 || moreTriggers(board, moveColor, move, depth)) {
             return funcEvaluation(board, moveColor, move, depth);
         }
@@ -63,10 +63,10 @@ public class MultiThreadMinimax extends RecursiveTask<Integer> {
                     info.getBranch().addNode(depth + 1, board, m.move, eval);
                 }
 
-//                alpha = Math.max(alpha, eval);
-//                if (beta <= alpha) {
-//                    break;
-//                }
+                alpha = Math.max(alpha, eval);
+                if (beta <= alpha) {
+                    break;
+                }
             }
 
             return maxEval;
@@ -80,13 +80,13 @@ public class MultiThreadMinimax extends RecursiveTask<Integer> {
             list.add(minimax);
         }
         for (MultiThreadMinimax m : list) {
-            int eval = m.join();
+            int eval = -1 * m.join();
 
             minEval = Math.min(minEval, eval);
-//            beta = Math.min(beta, eval);
-//            if (beta <= alpha) {
-//                break;
-//            }
+            beta = Math.min(beta, eval);
+            if (beta <= alpha) {
+                break;
+            }
         }
 
         return minEval;
@@ -108,19 +108,14 @@ public class MultiThreadMinimax extends RecursiveTask<Integer> {
 
     private MultiThreadMinimax simulationMove(final Point point, final PlayerColor color) throws GameException {
         final GameBoard newBoard = board.clone();
-        final PlayerColor opponentColor = PlayerColor.getOpponentColor(color);
+        final PlayerColor opponentColor = color.getOpponent();
         BoardService.makeMove(newBoard, point, Cell.valueOf(color));
         PlayerColor nextMove = color;
-        if (isAvailableMovesPlayer(newBoard, opponentColor)) {
+        if (canMove(newBoard, opponentColor)) {
             nextMove = opponentColor;
         }
 
         return new MultiThreadMinimax(newBoard, nextMove, point, depth + 1, info, alpha, beta);
     }
 
-    private boolean criticalStateForGame(final GameBoard board) {
-        return BoardService.getCountEmpty(board) == 0
-                || BoardService.getCountWhite(board) == 0
-                || BoardService.getCountBlack(board) == 0;
-    }
 }

@@ -1,5 +1,6 @@
-package client.models.forbot;
+package client.models.ai.minimax;
 
+import client.models.ai.minimax.tree.Tree;
 import client.models.strategies.Strategy;
 import lombok.AllArgsConstructor;
 import lombok.Data;

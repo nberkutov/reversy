@@ -8,13 +8,14 @@ import java.io.Serializable;
 public enum PlayerColor implements Serializable {
     WHITE, BLACK, NONE;
 
-    public static PlayerColor getOpponentColor(PlayerColor color) throws GameException {
-        if (color == PlayerColor.NONE) {
+    public PlayerColor getOpponent() throws GameException {
+        if (this == NONE) {
             throw new GameException(GameErrorCode.INVALID_PLAYER_COLOR);
         }
-        if (color == PlayerColor.BLACK) {
-            return PlayerColor.WHITE;
+
+        if (this == WHITE) {
+            return BLACK;
         }
-        return PlayerColor.BLACK;
+        return WHITE;
     }
 }

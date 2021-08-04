@@ -1,4 +1,4 @@
-package client.models.forbot;
+package client.models.ai.minimax.tree;
 
 import lombok.Data;
 import models.base.interfaces.GameBoard;
@@ -15,7 +15,7 @@ public class Tree {
         tree = new TreeMap<>();
     }
 
-    public synchronized void addNode(Integer depth, GameBoard last, Point point, int score) {
+    public synchronized void addNode(Integer depth, GameBoard last, Point point, float score) {
         tree.put(new Vertex(depth, score), new Node(last, point, score));
     }
 

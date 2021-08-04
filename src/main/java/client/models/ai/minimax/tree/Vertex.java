@@ -1,4 +1,4 @@
-package client.models.forbot;
+package client.models.ai.minimax.tree;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,7 +7,7 @@ import lombok.Data;
 @AllArgsConstructor
 public class Vertex implements Comparable {
     private int depth;
-    private int score;
+    private float score;
 
     @Override
     public String toString() {
@@ -21,8 +21,8 @@ public class Vertex implements Comparable {
     public int compareTo(Object o) {
         Vertex other = (Vertex) o;
         if (getDepth() == other.getDepth()) {
-            return Integer.compare(other.getScore(), getScore());
+            return Float.compare(other.getScore(), getScore());
         }
-        return Integer.compare(getDepth(), other.getDepth());
+        return Float.compare(getDepth(), other.getDepth());
     }
 }

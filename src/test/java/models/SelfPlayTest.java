@@ -1,5 +1,6 @@
 package models;
 
+import client.models.AiEnum;
 import client.models.Player;
 import client.models.RandomBotPlayer;
 import client.models.SmartBot;
@@ -21,15 +22,15 @@ class SelfPlayTest {
 
     @Test
     void test1kGamesWithStats() throws GameException {
-        int games = 100;
-        Player bot1 = new SmartBot("minimax", 3, new StrangeStrategy());
-        Player bot2 = new RandomBotPlayer("Random");
+        int games = 1000;
+        Player bot1 = new SmartBot("minimax", AiEnum.TRAVERSAL_DEEP, 3, new StrangeStrategy());
+        Player bot2 = new RandomBotPlayer("RandomBot");
         int win1 = 0;
         int win2 = 0;
         float maxTime = 0;
         for (int i = 0; i < games; i++) {
             long timeBefore = System.currentTimeMillis();
-            SelfPlay selfPlay = new SelfPlay(bot2, bot1);
+            SelfPlay selfPlay = new SelfPlay(bot1, bot2);
             GameResult result = selfPlay.play();
             if (result.getWinner().getNickname().equals(bot1.getNickname())) {
                 win1++;

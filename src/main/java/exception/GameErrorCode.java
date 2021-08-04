@@ -2,6 +2,7 @@ package exception;
 
 public enum GameErrorCode {
     FILE_PATH_INVALID("The file path is not correct"),
+    AI_ERROR("The Ai returned an error"),
     SAVE_FILE_ERROR("The file cannot be saved"),
     UPLOAD_FILE_ERROR("The file cannot be upload"),
     SERVER_NOT_STARTED("Server not started"),

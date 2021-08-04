@@ -17,4 +17,5 @@ public class StrangeStrategy extends Strategy {
     public int funcEvaluation(final GameBoard board, final PlayerColor color, final Point point, final int depth, final int maxDepth) throws GameException {
         return BoardService.getCountCellByPlayerColor(board, color);
     }
+
 }

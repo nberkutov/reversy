@@ -1,4 +1,4 @@
-package client.models.forbot;
+package client.models.ai.minimax.tree;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -10,9 +10,9 @@ import models.board.Point;
 public class Node {
     private GameBoard last;
     private Point move;
-    private int score;
+    private float score;
 
-    public Node(GameBoard last, Point move, int score) {
+    public Node(GameBoard last, Point move, float score) {
         this.last = last;
         this.move = move;
         this.score = score;

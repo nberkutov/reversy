@@ -1,8 +1,9 @@
 package client;
 
+import client.models.AiEnum;
 import client.models.RandomBotPlayer;
 import client.models.SmartBot;
-import client.models.strategies.StrangeStrategy;
+import client.models.strategies.HardStrategy;
 import exception.GameException;
 import gui.EmptyGUI;
 import gui.WindowGUI;
@@ -16,7 +17,7 @@ public class StartClient {
 
     public static void main(String[] args) {
         try {
-            Client botClient = new Client(IP, PORT, new SmartBot("strange", 3, new StrangeStrategy()), new WindowGUI());
+            Client botClient = new Client(IP, PORT, new SmartBot("strange", AiEnum.TRAVERSAL_WIDTH, 3, new HardStrategy()), new WindowGUI());
             Client humanClient = new Client(IP, PORT, new RandomBotPlayer("Random"), new EmptyGUI());
             Thread thread1 = new Thread(botClient);
             Thread thread2 = new Thread(humanClient);
