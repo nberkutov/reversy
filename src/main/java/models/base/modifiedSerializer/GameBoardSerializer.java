@@ -6,7 +6,7 @@ import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import lombok.SneakyThrows;
 import models.base.interfaces.GameBoard;
-import services.BoardUtils;
+import services.utils.BoardUtils;
 
 import java.lang.reflect.Type;
 

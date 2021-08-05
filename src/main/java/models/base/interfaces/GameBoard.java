@@ -2,6 +2,7 @@ package models.base.interfaces;
 
 import exception.GameException;
 import models.base.Cell;
+import models.board.Board;
 import models.board.Point;
 
 import java.util.Collection;
@@ -16,14 +17,20 @@ public interface GameBoard {
     void setCell(final Point point, final Cell cell) throws GameException;
 
     void reverseCell(final int x, final int y) throws GameException;
+
     void reverseCell(final Point point) throws GameException;
+
     void reverseCells(final Collection<Point> points) throws GameException;
 
     int getCountBlackCells();
+
     int getCountWhiteCells();
+
     int getCountEmpty();
 
     boolean validate(final Point point);
+
+    Board clone();
 
     String toString();
 }

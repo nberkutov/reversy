@@ -2,8 +2,7 @@ package models;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-import models.player.Player;
+import models.player.User;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -20,7 +19,7 @@ public class ClientConnection implements AutoCloseable, Serializable {
     private final Socket socket;
     private final DataInputStream in;
     private final DataOutputStream out;
-    private Player player;
+    private User user;
 
     private final Lock lock = new ReentrantLock();
 
@@ -71,4 +70,11 @@ public class ClientConnection implements AutoCloseable, Serializable {
         return Objects.hash(socket);
     }
 
+    @Override
+    public String toString() {
+        return "ClientConnection{" +
+                "socket=" + socket +
+                ", user=" + user +
+                '}';
+    }
 }

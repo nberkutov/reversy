@@ -1,7 +1,6 @@
 package models.player;
 
 import exception.GameException;
-import lombok.NoArgsConstructor;
 import models.base.interfaces.GameBoard;
 import models.board.Point;
 import services.BoardService;
@@ -9,7 +8,7 @@ import services.BoardService;
 import java.util.List;
 import java.util.Random;
 
-public class RandomBotPlayer extends Player {
+public class RandomBotPlayer extends User {
 
     public RandomBotPlayer(final int id, final String nickname) {
         super(id, nickname);

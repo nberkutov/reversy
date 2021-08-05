@@ -8,7 +8,7 @@ import models.base.PlayerColor;
 import models.base.interfaces.GameBoard;
 import models.board.Point;
 import models.game.Game;
-import models.player.Player;
+import models.player.User;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -77,6 +77,15 @@ public class BoardService {
         return board.getCountBlackCells();
     }
 
+    public static int getCountCellByPlayerColor(final GameBoard board, final PlayerColor color) throws GameException {
+        boardIsNotNull(board);
+        colorIsNotNull(color);
+        colorIsNotNone(color);
+        if (color == PlayerColor.BLACK) {
+            return getCountBlack(board);
+        }
+        return getCountWhite(board);
+    }
 
     /**
      * Функция получения количества пустых полей
@@ -88,15 +97,33 @@ public class BoardService {
     }
 
     /**
+     * Функция, которая определяет, возможны ли вообще ещё ходы
+     * Если player равен null, то выбрасывает GameException.
+     *
+     * @param board - Игровое поле
+     * @return boolean
+     */
+    public static boolean isNotPossiblePlayOnBoard(final GameBoard board) throws GameException {
+        boardIsNotNull(board);
+        if (board.getCountEmpty() == 0
+                || board.getCountBlackCells() == 0
+                || board.getCountWhiteCells() == 0) {
+            return true;
+        }
+        return getAvailableMoves(board, PlayerColor.BLACK).isEmpty()
+                && getAvailableMoves(board, PlayerColor.WHITE).isEmpty();
+    }
+
+    /**
      * Функция, которая определяет, может ли ходить игрок
      * Если player равен null, то выбрасывает GameException.
      *
      * @param board - Игровое поле
      * @return boolean
      */
-    public static boolean hasPossibleMove(final GameBoard board, final Player player) throws GameException {
-        playerIsNotNull(player);
-        return !getAvailableMoves(board, player.getColor()).isEmpty();
+    public static boolean hasPossibleMove(final GameBoard board, final User user) throws GameException {
+        playerIsNotNull(user);
+        return !getAvailableMoves(board, user.getColor()).isEmpty();
     }
 
     /**
@@ -246,6 +273,12 @@ public class BoardService {
         }
     }
 
+    private static void colorIsNotNone(final PlayerColor color) throws GameException {
+        if (color == PlayerColor.NONE) {
+            throw new GameException(GameErrorCode.INVALID_PLAYER_COLOR);
+        }
+    }
+
     /**
      * Функция провероки
      * Если board равен null, то выбрасывает GameException.
@@ -291,10 +324,10 @@ public class BoardService {
      * Функция провероки
      * Если player равен null, то выбрасывает GameException.
      *
-     * @param player - класс игрока
+     * @param user - класс игрока
      */
-    private static void playerIsNotNull(final Player player) throws GameException {
-        if (player == null) {
+    private static void playerIsNotNull(final User user) throws GameException {
+        if (user == null) {
             throw new GameException(GameErrorCode.PLAYER_NOT_FOUND);
         }
     }

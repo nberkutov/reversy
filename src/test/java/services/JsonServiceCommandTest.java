@@ -10,8 +10,9 @@ import dto.request.room.JoinRoomRequest;
 import dto.request.server.CreateGameRequest;
 import dto.response.ErrorResponse;
 import dto.response.GameResponse;
+import dto.response.game.GameBoardResponse;
+import dto.response.game.ReplayResponse;
 import dto.response.player.CreatePlayerResponse;
-import dto.response.player.GameBoardResponse;
 import dto.response.player.MessageResponse;
 import dto.response.player.SearchGameResponse;
 import dto.response.room.ListRoomResponse;
@@ -46,7 +47,7 @@ class JsonServiceCommandTest {
                 Arguments.of(CREATE_ROOM, new CreateRoomRequest()),
                 Arguments.of(JOIN_ROOM, new JoinRoomRequest()),
                 Arguments.of(GET_ROOMS, new GetRoomsRequest()),
-                Arguments.of(GET_GAME_INFO, new GetGameInfoRequest())
+                Arguments.of(GET_REPLAY_GAME, new GetReplayGameRequest())
         );
     }
 
@@ -62,6 +63,7 @@ class JsonServiceCommandTest {
                 Arguments.of(MESSAGE, new MessageResponse()),
                 Arguments.of(GAME_PLAYING, new GameBoardResponse()),
                 Arguments.of(GAME_START, new SearchGameResponse()),
+                Arguments.of(GAME_REPLAY, new ReplayResponse()),
                 Arguments.of(CREATE_PLAYER, new CreatePlayerResponse()),
                 Arguments.of(ROOM, new RoomResponse()),
                 Arguments.of(ROOMS, new ListRoomResponse())

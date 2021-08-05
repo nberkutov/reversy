@@ -22,6 +22,7 @@ import services.JsonService;
 import services.PlayerService;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.LinkedBlockingDeque;
 
 @AllArgsConstructor
@@ -30,64 +31,78 @@ public class TasksHandler extends Thread {
     private final LinkedBlockingDeque<TaskRequest> requests;
     private final LinkedBlockingDeque<ClientConnection> waiting;
 
+    public static void sendResponse(final ClientConnection connection, final GameResponse response) throws IOException, GameException {
+        TaskResponse.createAndSend(connection, response);
+    }
+
+    public static void broadcastResponse(final List<ClientConnection> connections, final GameResponse response) throws IOException, GameException {
+        for (ClientConnection connection : connections) {
+            sendResponse(connection, response);
+        }
+    }
+
     @Override
     public void run() {
-        log.info("HandlerTasks started");
-        while (true) {
-            try {
-                TaskRequest task = requests.takeFirst();
+        log.info("TasksHandler started");
+        try {
+            while (!Thread.currentThread().isInterrupted()) {
                 try {
-                    GameRequest request = task.getRequest();
-                    ClientConnection connection = task.getClient();
-                    switch (JsonService.getCommandByRequest(request)) {
-                        case CREATE_PLAYER:
-                            CreatePlayerRequest createPlayer = (CreatePlayerRequest) request;
-                            PlayerController.actionCreatePlayer(createPlayer, connection);
-                            break;
-                        case PLAYER_AUTH:
-                            AuthPlayerRequest authPlayer = (AuthPlayerRequest) request;
-                            PlayerController.actionAuthPlayer(authPlayer, connection);
-                            break;
-                        case PLAYER_LOGOUT:
-                            LogoutPlayerRequest logoutPlayer = (LogoutPlayerRequest) request;
-                            PlayerController.actionLogoutPlayer(logoutPlayer, task.getClient());
-                            break;
-                        case WANT_PLAY:
-                            WantPlayRequest wantPlay = (WantPlayRequest) request;
-                            actionWantPlay(wantPlay, connection);
-                            break;
-                        case PLAYING_MOVE:
-                            MovePlayerRequest movePlayer = (MovePlayerRequest) request;
-                            GameController.actionMovePlayer(movePlayer, connection);
-                            break;
-                        case GET_GAME_INFO:
-                            GetGameInfoRequest getGame = (GetGameInfoRequest) request;
-                            GameController.actionGetGameInfo(getGame, connection);
-                            break;
-                        case CREATE_ROOM:
-                            CreateRoomRequest createRoom = (CreateRoomRequest) request;
-                            RoomController.actionCreateRoom(createRoom, connection);
-                            break;
-                        case JOIN_ROOM:
-                            JoinRoomRequest joinRoom = (JoinRoomRequest) request;
-                            RoomController.actionJoinRoom(joinRoom, connection);
-                            break;
-                        case GET_ROOMS:
-                            GetRoomsRequest getRoomsRequest = (GetRoomsRequest) request;
-                            RoomController.actionGetRooms(getRoomsRequest, connection);
-                            break;
-                        case SEARCH_CREATE_GAME:
-                            CreateGameRequest createGame = (CreateGameRequest) request;
-                            GameController.actionCreateGame(createGame, connection);
-                            break;
+                    TaskRequest task = requests.takeFirst();
+                    try {
+                        GameRequest request = task.getRequest();
+                        ClientConnection connection = task.getClient();
+                        switch (JsonService.getCommandByRequest(request)) {
+                            case CREATE_PLAYER:
+                                CreatePlayerRequest createPlayer = (CreatePlayerRequest) request;
+                                PlayerController.actionCreatePlayer(createPlayer, connection);
+                                break;
+                            case PLAYER_AUTH:
+                                AuthPlayerRequest authPlayer = (AuthPlayerRequest) request;
+                                PlayerController.actionAuthPlayer(authPlayer, connection);
+                                break;
+                            case PLAYER_LOGOUT:
+                                LogoutPlayerRequest logoutPlayer = (LogoutPlayerRequest) request;
+                                PlayerController.actionLogoutPlayer(logoutPlayer, task.getClient());
+                                break;
+                            case WANT_PLAY:
+                                WantPlayRequest wantPlay = (WantPlayRequest) request;
+                                actionWantPlay(wantPlay, connection);
+                                break;
+                            case PLAYING_MOVE:
+                                MovePlayerRequest movePlayer = (MovePlayerRequest) request;
+                                GameController.actionMovePlayer(movePlayer, connection);
+                                break;
+                            case GET_REPLAY_GAME:
+                                GetReplayGameRequest getGame = (GetReplayGameRequest) request;
+                                GameController.actionGetReplayGame(getGame, connection);
+                                break;
+                            case CREATE_ROOM:
+                                CreateRoomRequest createRoom = (CreateRoomRequest) request;
+                                RoomController.actionCreateRoom(createRoom, connection);
+                                break;
+                            case JOIN_ROOM:
+                                JoinRoomRequest joinRoom = (JoinRoomRequest) request;
+                                RoomController.actionJoinRoom(joinRoom, connection);
+                                break;
+                            case GET_ROOMS:
+                                GetRoomsRequest getRoomsRequest = (GetRoomsRequest) request;
+                                RoomController.actionGetRooms(getRoomsRequest, connection);
+                                break;
+                            case SEARCH_CREATE_GAME:
+                                CreateGameRequest createGame = (CreateGameRequest) request;
+                                GameController.actionCreateGame(createGame, connection);
+                                break;
+                        }
+                    } catch (GameException e) {
+                        log.warn("HandlerTasks ", e);
+                        sendResponse(task.getClient(), ErrorResponse.toDto(e));
                     }
-                } catch (GameException e) {
-                    log.warn("HandlerTasks {} {}", task.getRequest(), task.getClient().getSocket(), e);
-                    sendResponse(task.getClient(), ErrorResponse.toDto(e));
+                } catch (IOException | GameException e) {
+                    log.error("Thread error ", e);
                 }
-            } catch (InterruptedException | IOException | GameException e) {
-                log.error("Thread error ", e);
             }
+        } catch (InterruptedException e) {
+            log.info("TasksHandler closed");
         }
     }
 
@@ -95,10 +110,6 @@ public class TasksHandler extends Thread {
         PlayerService.canPlayerSearchGame(connection);
         waiting.putLast(connection);
         sendResponse(connection, new MessageResponse("Search game"));
-        log.debug("player put in waiting {}", connection.getPlayer());
-    }
-
-    private void sendResponse(final ClientConnection connection, final GameResponse response) throws IOException, GameException {
-        TaskResponse.createAndSend(connection, response);
+        log.debug("player put in waiting {}", connection.getUser());
     }
 }

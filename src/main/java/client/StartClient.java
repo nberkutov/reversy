@@ -1,11 +1,14 @@
 package client;
 
+import client.models.AiEnum;
+import client.models.RandomBotPlayer;
+import client.models.SmartBot;
+import client.models.strategies.HardStrategy;
 import exception.GameException;
-import gui.TextGUI;
+import gui.EmptyGUI;
 import gui.WindowGUI;
 import lombok.extern.slf4j.Slf4j;
-import models.player.HumanConsolePayer;
-import models.player.RandomBotPlayer;
+
 
 @Slf4j
 public class StartClient {
@@ -14,8 +17,8 @@ public class StartClient {
 
     public static void main(String[] args) {
         try {
-            Client botClient = new Client(IP, PORT, new RandomBotPlayer(0, "bot1"), new WindowGUI());
-            Client humanClient = new Client(IP, PORT, new HumanConsolePayer(1, "player1"), new TextGUI());
+            Client botClient = new Client(IP, PORT, new SmartBot("strange", AiEnum.TRAVERSAL_WIDTH, 3, new HardStrategy()), new WindowGUI());
+            Client humanClient = new Client(IP, PORT, new RandomBotPlayer("Random"), new EmptyGUI());
             Thread thread1 = new Thread(botClient);
             Thread thread2 = new Thread(humanClient);
             thread1.start();

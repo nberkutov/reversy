@@ -9,4 +9,8 @@ public class GameProperties {
 
     public static final int PORT = 8081;
 
+    public static final String SERVER_FILE = System.getProperty("user.dir") + "\\" + "server.dat";
+
+    public static final String PLAYERS_FILE = System.getProperty("user.dir") + "\\" + "statistic.csv";
+
 }

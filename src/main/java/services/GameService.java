@@ -1,6 +1,6 @@
 package services;
 
-import dto.request.player.GetGameInfoRequest;
+import dto.request.player.GetReplayGameRequest;
 import dto.request.player.MovePlayerRequest;
 import dto.request.server.CreateGameRequest;
 import exception.GameErrorCode;
@@ -8,13 +8,14 @@ import exception.GameException;
 import lombok.extern.slf4j.Slf4j;
 import models.ClientConnection;
 import models.base.GameState;
+import models.base.PlayerColor;
 import models.base.PlayerState;
 import models.base.interfaces.GameBoard;
 import models.board.Point;
 import models.game.Game;
 import models.game.GameResult;
 import models.game.Room;
-import models.player.Player;
+import models.player.User;
 
 import java.util.Random;
 
@@ -27,29 +28,32 @@ public class GameService extends DataBaseService {
         connectionIsNotNullAndConnected(firstCon);
         ClientConnection secondCon = getConnectionById(createGame.getSecondPlayerId());
         connectionIsNotNullAndConnected(secondCon);
-        Player first = firstCon.getPlayer();
-        Player second = secondCon.getPlayer();
+        User first = firstCon.getUser();
+        User second = secondCon.getUser();
         if (new Random().nextBoolean()) {
             return createGame(first, second);
         }
         return createGame(second, first);
     }
 
-    public static Game getGameInfo(final GetGameInfoRequest getGame, final ClientConnection connection) throws GameException {
-        checkRequestAndConnection(getGame, connection);
-        Game game = getGameById(getGame.getGameId());
+    public static Game getReplayGame(final GetReplayGameRequest request, final ClientConnection connection) throws GameException {
+        checkRequestAndConnection(request, connection);
+        Game game = getGameById(request.getGameId());
         gameIsNotNull(game);
+        gameIsEnd(game);
         return game;
     }
 
-    public static Game createGame(final Player black, final Player white) throws GameException {
+    public static Game createGame(final User black, final User white) throws GameException {
         playerIsNotNull(black);
         playerIsNotNull(white);
         black.lock();
         white.lock();
         Game game = putGame(black, white);
         black.setState(PlayerState.PLAYING);
+        black.setNowPlaying(game);
         white.setState(PlayerState.PLAYING);
+        white.setNowPlaying(game);
         white.unlock();
         black.unlock();
         return game;
@@ -57,55 +61,70 @@ public class GameService extends DataBaseService {
 
     public static Game createGameByRoom(Room room) throws GameException {
         roomIsNotNull(room);
-        Player black = room.getBlackPlayer();
-        Player white = room.getWhitePlayer();
+        User black = room.getBlackUser();
+        User white = room.getWhiteUser();
         return createGame(black, white);
     }
 
     public static Game makePlayerMove(final MovePlayerRequest movePlayer, final ClientConnection connection) throws GameException {
         checkRequestAndConnection(movePlayer, connection);
-        Player player = connection.getPlayer();
+        User user = connection.getUser();
         Game game = getGameById(movePlayer.getGameId());
-        return makePlayerMove(game, movePlayer.getPoint(), player);
+        return makePlayerMove(game, movePlayer.getPoint(), user);
     }
 
-    public static Game makePlayerMove(final Game game, final Point point, final Player player) throws GameException {
+    public static Game makePlayerMove(final Game game, final Point point, final User user) throws GameException {
         gameIsNotNull(game);
         game.lock();
         gameIsNotEnd(game);
-        playerIsNotNull(player);
-        playerValidMove(game, player);
+        playerIsNotNull(user);
+        playerValidMove(game, user);
 
-        BoardService.makeMove(game, point, player.getColor());
+        BoardService.makeMove(game, point, user.getColor());
+        game.addMove(user.getColor(), point);
         choosingPlayerMove(game);
 
         if (gameIsFinished(game)) {
-            log.info("GameEnd {} \n{}", game, game.getBoard());
-            game.setState(GameState.END);
-            PlayerService.setPlayerStateNone(game.getBlackPlayer());
-            PlayerService.setPlayerStateNone(game.getWhitePlayer());
-            calculateStatistic(game);
+            GameResult result = getGameResult(game);
+            finishGame(result, game);
         }
 
         return game;
     }
 
-    private static void calculateStatistic(final Game game) throws GameException {
-        GameResult gameResult = getGameResult(game);
-        gameResult.getWinner().getStatistics().incrementWin();
-        gameResult.getLoser().getStatistics().incrementLose();
+    public static void finishGame(final GameResult result, final Game game) throws GameException {
+        gameIsNotNull(game);
+        gameResultIsNotNull(result);
+        log.info("GameEnd {} {}", game.getId(), result);
+        game.setResult(result);
+        calculateStatistic(result);
+        PlayerService.setPlayerStateNone(game.getBlackUser());
+        PlayerService.setPlayerStateNone(game.getWhiteUser());
+    }
 
-        game.getWhitePlayer().getStatistics().incrementPlayWhite();
-        game.getBlackPlayer().getStatistics().incrementPlayBlack();
-        game.getWhitePlayer().getStatistics().addGameResult(gameResult);
-        game.getBlackPlayer().getStatistics().addGameResult(gameResult);
-        log.info("CalculateStatistic {} {}", game.getBlackPlayer().getNickname(), game.getBlackPlayer().getStatistics());
-        log.info("CalculateStatistic {} {}", game.getWhitePlayer().getNickname(), game.getWhitePlayer().getStatistics());
+    private static void calculateStatistic(final GameResult gameResult) {
+        User winner = gameResult.getWinner();
+        User loser = gameResult.getLoser();
+
+        winner.getStatistics().incrementWin();
+        winner.getStatistics().incrementCountGames();
+        winner.getStatistics().incrementPlayerAgainst(loser);
+
+        loser.getStatistics().incrementLose();
+        loser.getStatistics().incrementCountGames();
+
+        if (winner.getColor() == PlayerColor.BLACK) {
+            winner.getStatistics().incrementPlayBlack();
+            loser.getStatistics().incrementPlayWhite();
+        } else {
+            winner.getStatistics().incrementPlayWhite();
+            loser.getStatistics().incrementPlayBlack();
+        }
     }
 
     private static void choosingPlayerMove(final Game game) throws GameException {
-        boolean blackCanMove = BoardService.hasPossibleMove(game.getBoard(), game.getBlackPlayer());
-        boolean whiteCanMove = BoardService.hasPossibleMove(game.getBoard(), game.getWhitePlayer());
+        boolean blackCanMove = BoardService.hasPossibleMove(game.getBoard(), game.getBlackUser());
+        boolean whiteCanMove = BoardService.hasPossibleMove(game.getBoard(), game.getWhiteUser());
 
         if (game.getState() == GameState.BLACK_MOVE && whiteCanMove) {
             game.setState(GameState.WHITE_MOVE);
@@ -124,30 +143,33 @@ public class GameService extends DataBaseService {
      * Функция вовзвращает результат об окончании игры
      *
      * @param game - Игра
-     * @return boolean
+     * @return GameResult
      */
-    public static GameResult getGameResult(final Game game) throws GameException {
-        if (game.getState() != GameState.END) {
-            throw new GameException(GameErrorCode.GAME_NOT_FINISHED);
-        }
+    public static GameResult getGameResult(final Game game) {
         GameBoard board = game.getBoard();
         long blackCells = BoardService.getCountBlack(board);
         long whiteCells = BoardService.getCountWhite(board);
         if (blackCells <= whiteCells) {
-            return GameResult.winner(board, game.getWhitePlayer(), game.getBlackPlayer());
+            return GameResult.winner(board, game.getWhiteUser(), game.getBlackUser());
         } else {
-            return GameResult.winner(board, game.getBlackPlayer(), game.getWhitePlayer());
+            return GameResult.winner(board, game.getBlackUser(), game.getWhiteUser());
         }
     }
 
     private static void gameIsNotEnd(final Game game) throws GameException {
-        if (gameIsFinished(game) || game.getBoard().getCountEmpty() == 0) {
+        if (gameIsFinished(game)) {
             throw new GameException(GameErrorCode.GAME_ENDED);
         }
     }
 
-    private static void playerValidMove(final Game game, final Player player) throws GameException {
-        if (!whatPlayerMoveNow(game).equals(player)) {
+    private static void gameIsEnd(final Game game) throws GameException {
+        if (!gameIsFinished(game)) {
+            throw new GameException(GameErrorCode.GAME_NOT_FINISHED);
+        }
+    }
+
+    private static void playerValidMove(final Game game, final User user) throws GameException {
+        if (!whatPlayerMoveNow(game).equals(user)) {
             throw new GameException(GameErrorCode.ILLEGAL_REQUEST);
         }
     }
@@ -156,12 +178,12 @@ public class GameService extends DataBaseService {
         return game.getState() == GameState.END;
     }
 
-    public static Player whatPlayerMoveNow(final Game game) throws GameException {
+    public static User whatPlayerMoveNow(final Game game) throws GameException {
         if (game.getState() == GameState.BLACK_MOVE) {
-            return game.getBlackPlayer();
+            return game.getBlackUser();
         }
         if (game.getState() == GameState.WHITE_MOVE) {
-            return game.getWhitePlayer();
+            return game.getWhiteUser();
         }
         throw new GameException(GameErrorCode.GAME_ENDED);
     }

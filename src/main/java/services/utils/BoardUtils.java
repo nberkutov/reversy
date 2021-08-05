@@ -1,4 +1,4 @@
-package services;
+package services.utils;
 
 import exception.GameException;
 import models.base.Cell;

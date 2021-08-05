@@ -11,12 +11,18 @@ import exception.GameException;
 import models.base.interfaces.GameBoard;
 import models.base.modifiedSerializer.GameBoardDeserializer;
 import models.base.modifiedSerializer.GameBoardSerializer;
+import models.base.modifiedSerializer.LockDeserializer;
+import models.base.modifiedSerializer.LockSerializer;
+
+import java.util.concurrent.locks.Lock;
 
 public class JsonService {
     private static final Gson GSON = new GsonBuilder()
             .enableComplexMapKeySerialization()
             .registerTypeAdapter(GameBoard.class, new GameBoardSerializer())
             .registerTypeAdapter(GameBoard.class, new GameBoardDeserializer())
+            .registerTypeAdapter(Lock.class, new LockSerializer())
+            .registerTypeAdapter(Lock.class, new LockDeserializer())
             .create();
 
     public static <T> String toJson(final T t) {

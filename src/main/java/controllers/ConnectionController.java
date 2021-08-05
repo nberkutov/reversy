@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import models.ClientConnection;
 import services.JsonService;
+import services.PlayerService;
 
 import java.io.IOException;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -26,15 +27,25 @@ public class ConnectionController extends Thread {
     @Override
     public void run() {
         log.debug("PlayerController started");
-        while (connection.isConnected()) {
-            try {
-                String msg = connection.readMsg();
-                GameRequest request = JsonService.getRequestFromMsg(msg);
-                requests.putLast(TaskRequest.create(connection, request));
-            } catch (GameException | IOException | InterruptedException e) {
-                connection.close();
-                this.interrupt();
+        try {
+            while (connection.isConnected()) {
+                try {
+                    String msg = connection.readMsg();
+                    GameRequest request = JsonService.getRequestFromMsg(msg);
+                    requests.putLast(TaskRequest.create(connection, request));
+                } catch (GameException e) {
+                    log.warn("Connection controller {}", connection, e);
+                }
             }
+        } catch (InterruptedException | IOException e) {
+            log.info("Close connect with {}", connection);
+            try {
+                connection.close();
+                PlayerService.autoLogoutPlayer(connection);
+            } catch (GameException exception) {
+                log.error("Cant logout user after leave {}", connection);
+            }
+
         }
     }
 

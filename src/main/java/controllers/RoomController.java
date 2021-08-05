@@ -30,9 +30,9 @@ public class RoomController {
     public static void actionJoinRoom(final JoinRoomRequest createRoom, final ClientConnection connection) throws IOException, GameException {
         Game game = RoomService.joinRoom(createRoom, connection);
         log.debug("action joinRoom {} {}", connection.getSocket().getPort(), createRoom);
-        sendInfoAboutGame(game, game.getBlackPlayer());
-        sendInfoAboutGame(game, game.getWhitePlayer());
-        log.info("Game created by search, {}", game);
+        sendInfoAboutGame(game, game.getBlackUser());
+        sendInfoAboutGame(game, game.getWhiteUser());
+        log.debug("Game created by Room, {}", game);
     }
 
     public static void actionGetRooms(final GetRoomsRequest getRoomsRequest, final ClientConnection connection) throws GameException, IOException {

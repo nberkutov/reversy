@@ -7,9 +7,12 @@ import models.base.GameState;
 import models.base.PlayerColor;
 import models.base.interfaces.GameBoard;
 import models.board.Board;
-import models.player.Player;
+import models.board.Point;
+import models.player.User;
 
 import java.io.Serializable;
+import java.util.LinkedList;
+import java.util.Objects;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -18,29 +21,35 @@ import java.util.concurrent.locks.ReentrantLock;
 @AllArgsConstructor
 public class Game implements Serializable {
     private int id;
-    private final Player blackPlayer;
-    private final Player whitePlayer;
+    private final User blackUser;
+    private final User whiteUser;
     private final GameBoard board;
 
     private GameState state;
     private GameResult result;
+    private final Lock lock = new ReentrantLock();
+    private LinkedList<Move> moves;
 
-    private transient final Lock lock = new ReentrantLock();
-
-    public Game(final int id, final Player first, final Player second) {
+    public Game(final int id, final User first, final User second) {
         this(new Board(), first, second);
         this.id = id;
     }
 
-    public Game(final GameBoard board, final Player first, final Player second) {
+    public Game(final GameBoard board, final User first, final User second) {
         state = GameState.BLACK_MOVE;
         result = GameResult.playing(board);
-        this.blackPlayer = first;
-        this.whitePlayer = second;
-        blackPlayer.setColor(PlayerColor.BLACK);
-        whitePlayer.setColor(PlayerColor.WHITE);
+        this.blackUser = first;
+        this.whiteUser = second;
+        blackUser.setColor(PlayerColor.BLACK);
+        whiteUser.setColor(PlayerColor.WHITE);
         this.board = board;
+        moves = new LinkedList<>();
     }
+
+    public void addMove(PlayerColor color, Point point) {
+        moves.addLast(Move.create(color, point));
+    }
+
 
     public void lock() {
         lock.lock();
@@ -54,9 +63,28 @@ public class Game implements Serializable {
     public String toString() {
         return "Game{" +
                 "id=" + id +
-                ", " + blackPlayer +
-                ", vs " + whitePlayer +
+                ", " + blackUser +
+                ", vs " + whiteUser +
                 ", state=" + state +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Game)) return false;
+        Game game = (Game) o;
+        return getId() == game.getId() &&
+                Objects.equals(getBlackUser(), game.getBlackUser()) &&
+                Objects.equals(getWhiteUser(), game.getWhiteUser()) &&
+                Objects.equals(getBoard(), game.getBoard()) &&
+                getState() == game.getState() &&
+                Objects.equals(getResult(), game.getResult()) &&
+                Objects.equals(getMoves(), game.getMoves());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId(), getBlackUser(), getWhiteUser(), getBoard(), getState(), getResult(), getMoves());
     }
 }

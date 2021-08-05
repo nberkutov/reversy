@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
-public class GetGameInfoRequest extends GameRequest {
+public class GetReplayGameRequest extends GameRequest {
     int gameId;
 }

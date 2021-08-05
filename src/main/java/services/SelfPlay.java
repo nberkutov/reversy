@@ -1,16 +1,18 @@
 package services;
 
+import client.models.Player;
 import exception.GameErrorCode;
 import exception.GameException;
 import lombok.extern.slf4j.Slf4j;
 import models.base.Cell;
 import models.base.GameState;
+import models.base.PlayerColor;
 import models.base.interfaces.GameBoard;
 import models.board.Board;
 import models.board.Point;
 import models.game.Game;
 import models.game.GameResult;
-import models.player.Player;
+import models.player.User;
 
 @Slf4j
 public class SelfPlay {
@@ -22,7 +24,11 @@ public class SelfPlay {
         this.first = first;
         this.second = second;
         GameBoard board = new Board();
-        game = new Game(board, first, second);
+        User black = new User(0, first.getNickname());
+        first.setColor(PlayerColor.BLACK);
+        User white = new User(1, second.getNickname());
+        second.setColor(PlayerColor.WHITE);
+        game = new Game(board, black, white);
     }
 
     /**
@@ -30,19 +36,21 @@ public class SelfPlay {
      *
      * @param game - Игра
      */
-    private static void playNext(final Game game) throws GameException {
+    private static void playNext(final Game game, Player first, Player second) throws GameException {
         switch (game.getState()) {
             case BLACK_MOVE:
-                if (BoardService.hasPossibleMove(game.getBoard(), game.getBlackPlayer())) {
-                    Point move = game.getBlackPlayer().move(game.getBoard());
+                if (BoardService.hasPossibleMove(game.getBoard(), game.getBlackUser())) {
+                    Point move = first.move(game.getBoard());
                     BoardService.makeMove(game.getBoard(), move, Cell.BLACK);
+                    game.addMove(first.getColor(), move);
                 }
                 game.setState(GameState.WHITE_MOVE);
                 break;
             case WHITE_MOVE:
-                if (BoardService.hasPossibleMove(game.getBoard(), game.getWhitePlayer())) {
-                    Point move = game.getWhitePlayer().move(game.getBoard());
+                if (BoardService.hasPossibleMove(game.getBoard(), game.getWhiteUser())) {
+                    Point move = second.move(game.getBoard());
                     BoardService.makeMove(game.getBoard(), move, Cell.WHITE);
+                    game.addMove(second.getColor(), move);
                 }
                 game.setState(GameState.BLACK_MOVE);
                 break;
@@ -62,13 +70,13 @@ public class SelfPlay {
         if (BoardService.getCountEmpty(game.getBoard()) == 0) {
             return true;
         }
-        return !BoardService.hasPossibleMove(game.getBoard(), game.getBlackPlayer())
-                && !BoardService.hasPossibleMove(game.getBoard(), game.getWhitePlayer());
+        return !BoardService.hasPossibleMove(game.getBoard(), game.getBlackUser())
+                && !BoardService.hasPossibleMove(game.getBoard(), game.getWhiteUser());
     }
 
     public GameResult play() throws GameException {
         while (game.getState() != GameState.END) {
-            playNext(game);
+            playNext(game, first, second);
         }
 
         log.debug("DEBUG finish \n{}", game.getResult().getBoard());
@@ -83,9 +91,9 @@ public class SelfPlay {
         long blackCells = BoardService.getCountBlack(board);
         long whiteCells = BoardService.getCountWhite(board);
         if (blackCells <= whiteCells) {
-            return GameResult.winner(board, game.getWhitePlayer(), game.getBlackPlayer());
+            return GameResult.winner(board, game.getWhiteUser(), game.getBlackUser());
         } else {
-            return GameResult.winner(board, game.getBlackPlayer(), game.getWhitePlayer());
+            return GameResult.winner(board, game.getBlackUser(), game.getWhiteUser());
         }
     }
 }

@@ -10,7 +10,7 @@ import dto.response.player.MessageResponse;
 import exception.GameException;
 import lombok.extern.slf4j.Slf4j;
 import models.ClientConnection;
-import models.player.Player;
+import models.player.User;
 import services.PlayerService;
 
 import java.io.IOException;
@@ -19,15 +19,15 @@ import java.io.IOException;
 public class PlayerController {
 
     public static void actionCreatePlayer(final CreatePlayerRequest createPlayer, final ClientConnection connection) throws IOException, GameException {
-        Player player = PlayerService.createPlayer(createPlayer, connection);
+        User user = PlayerService.createPlayer(createPlayer, connection);
         log.debug("action createPlayer {} {}", connection.getSocket().getPort(), createPlayer);
-        sendResponse(connection, CreatePlayerResponse.toDto(player));
+        sendResponse(connection, CreatePlayerResponse.toDto(user));
     }
 
     public static void actionAuthPlayer(final AuthPlayerRequest authPlayer, final ClientConnection connection) throws IOException, GameException {
-        Player player = PlayerService.authPlayer(authPlayer, connection);
+        User user = PlayerService.authPlayer(authPlayer, connection);
         log.debug("action authPlayer {} {}", connection.getSocket().getPort(), authPlayer);
-        sendResponse(connection, CreatePlayerResponse.toDto(player));
+        sendResponse(connection, CreatePlayerResponse.toDto(user));
     }
 
     public static void actionLogoutPlayer(final LogoutPlayerRequest logoutPlayer, final ClientConnection connection) throws IOException, GameException {

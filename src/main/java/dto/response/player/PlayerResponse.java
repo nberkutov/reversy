@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import models.player.Player;
+import models.player.User;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -14,10 +14,10 @@ import models.player.Player;
 public class PlayerResponse extends GameResponse {
     private String nickname;
 
-    public static PlayerResponse toDto(Player player) {
-        if (player == null) {
+    public static PlayerResponse toDto(User user) {
+        if (user == null) {
             return null;
         }
-        return new PlayerResponse(player.getNickname());
+        return new PlayerResponse(user.getNickname());
     }
 }

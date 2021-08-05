@@ -18,7 +18,7 @@ public enum CommandRequest {
     CREATE_ROOM("create_room", CreateRoomRequest.class),
     JOIN_ROOM("join_room", JoinRoomRequest.class),
     GET_ROOMS("get_rooms", GetRoomsRequest.class),
-    GET_GAME_INFO("get_game_info", GetGameInfoRequest.class);
+    GET_REPLAY_GAME("get_replay_game", GetReplayGameRequest.class);
 
     private final String commandName;
     private final Class request;
