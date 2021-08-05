@@ -4,6 +4,7 @@ import client.models.AiEnum;
 import client.models.Player;
 import client.models.RandomBotPlayer;
 import client.models.SmartBot;
+import client.models.strategies.HardStrategy;
 import client.models.strategies.StrangeStrategy;
 import exception.GameException;
 import models.game.GameResult;
@@ -22,9 +23,9 @@ class SelfPlayTest {
 
     @Test
     void test1kGamesWithStats() throws GameException {
-        int games = 1000;
-        Player bot1 = new SmartBot("minimax", AiEnum.TRAVERSAL_DEEP, 3, new StrangeStrategy());
-        Player bot2 = new RandomBotPlayer("RandomBot");
+        int games = 300;
+        Player bot1 = new SmartBot("myBot", AiEnum.MY_BOT, 4, new StrangeStrategy());
+        Player bot2 = new SmartBot("two", AiEnum.EXPECT_MAX, 3, new HardStrategy());
         int win1 = 0;
         int win2 = 0;
         float maxTime = 0;

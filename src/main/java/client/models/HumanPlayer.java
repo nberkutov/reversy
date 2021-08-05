@@ -1,6 +1,7 @@
 package client.models;
 
 import exception.GameException;
+import models.base.GameState;
 import models.base.interfaces.GameBoard;
 import models.board.Point;
 import services.BoardService;
@@ -35,5 +36,10 @@ public class HumanPlayer extends Player {
             }
             System.out.println("Неверный ход.");
         }
+    }
+
+    @Override
+    public void triggerAfterGameEnd(GameState state, GameBoard board) {
+
     }
 }

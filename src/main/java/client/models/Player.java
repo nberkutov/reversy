@@ -4,6 +4,7 @@ import exception.GameException;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import models.base.GameState;
 import models.base.PlayerColor;
 import models.base.interfaces.GameBoard;
 import models.board.Point;
@@ -20,4 +21,6 @@ public abstract class Player {
     }
 
     public abstract Point move(final GameBoard board) throws GameException;
+
+    public abstract void triggerAfterGameEnd(final GameState state, final GameBoard board);
 }
