@@ -45,7 +45,7 @@ public class MonteCarloTreeSearch {
             }
 
             Node nodeToExplore = promisingNode;
-            if (promisingNode.getChildArray().size() > 0) {
+            if (!promisingNode.getChildArray().isEmpty()) {
                 nodeToExplore = promisingNode.getRandomChildNode();
             }
             PlayerColor playoutResult = simulateRandomPlayout(nodeToExplore);
@@ -66,8 +66,8 @@ public class MonteCarloTreeSearch {
 
     private Node selectPromisingNode(Node rootNode) {
         Node node = rootNode;
-        while (node.getChildArray().size() != 0) {
-            node = UCT.findBestNodeWithUCT(node);
+        while (!node.getChildArray().isEmpty()) {
+            node = UpperConfidenceBoundTrees.findBestNodeWithUCT(node);
         }
         return node;
     }

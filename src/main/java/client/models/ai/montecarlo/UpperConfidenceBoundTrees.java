@@ -5,13 +5,17 @@ import client.models.ai.montecarlo.tree.Node;
 import java.util.Collections;
 import java.util.Comparator;
 
-public class UCT {
+//https://www.baeldung.com/java-monte-carlo-tree-search
+public class UpperConfidenceBoundTrees {
+
+    private UpperConfidenceBoundTrees() {
+    }
 
     public static double uctValue(int totalVisit, double nodeWinScore, int nodeVisit) {
         if (nodeVisit == 0) {
             return Integer.MAX_VALUE;
         }
-        return (nodeWinScore / (double) nodeVisit) + 1.41 * Math.sqrt(Math.log(totalVisit) / (double) nodeVisit);
+        return (nodeWinScore / nodeVisit) + 1.41 * Math.sqrt(Math.log(totalVisit) / nodeVisit);
     }
 
     static Node findBestNodeWithUCT(Node node) {
