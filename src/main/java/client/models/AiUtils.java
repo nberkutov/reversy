@@ -7,15 +7,20 @@ import client.models.ai.minimax.OneThreadMinimax;
 import client.models.ai.minimax.tree.Tree;
 import client.models.ai.montecarlo.MonteCarloTreeSearch;
 import client.models.ai.myai.MyBot;
+import client.models.ai.neural.Neural;
+import client.models.ai.neural.NeuralGame;
 import client.models.ai.traversal.HeaderThread;
 import client.models.ai.traversal.TraversalEnum;
 import client.models.strategies.SimpleStrategy;
 import client.models.strategies.Strategy;
 import exception.GameErrorCode;
 import exception.GameException;
+import models.GameProperties;
 import models.base.PlayerColor;
 import models.base.interfaces.GameBoard;
 import models.board.Point;
+import org.encog.ml.genetic.MLMethodGeneticAlgorithm;
+import org.encog.neural.networks.BasicNetwork;
 import services.BoardService;
 
 import java.util.List;
@@ -25,10 +30,15 @@ import java.util.concurrent.ForkJoinTask;
 
 public class AiUtils {
 
+    private AiUtils() {
+    }
+
     private static final Strategy strategyBot = new SimpleStrategy();
 
     public static Point getPointByAi(final GameBoard board, final AiEnum ai, final PlayerColor color, final int perem, final Strategy strategyPlayer) throws GameException {
         switch (ai) {
+            case NEURAL:
+                return getPointByNeural(board, color);
             case MINIMAX:
                 return getPointByMinimax(board, color, perem, strategyPlayer);
             case MULTI_MINIMAX:
@@ -46,6 +56,15 @@ public class AiUtils {
             default:
                 return getPointByRandom(board, color);
         }
+    }
+
+    private static Point getPointByNeural(GameBoard board, PlayerColor color) throws GameException {
+        final String path = GameProperties.NEURAL_FILE;
+        final MLMethodGeneticAlgorithm train = Neural.loadOrCreate(board, color, path);
+        Neural.training(train);
+        Neural.save(train, path);
+        final NeuralGame neuralGame = new NeuralGame((BasicNetwork) train.getMethod(), color, board);
+        return neuralGame.getNeuralMove();
     }
 
     private static Point getPointByTraversal(GameBoard board, TraversalEnum option, final PlayerColor color) throws GameException {
