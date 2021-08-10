@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 
 
 @Data
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode
 @NoArgsConstructor
-public class WantPlayRequest extends GameRequest {
+public class WantPlayRequest implements GameRequest {
 }
