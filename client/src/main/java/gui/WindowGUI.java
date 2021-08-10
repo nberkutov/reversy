@@ -25,7 +25,7 @@ public class WindowGUI implements GameGUI {
     }
 
     @Override
-    public void updateGUI(GameBoard board, GameState gameState, String opponent) {
+    public void updateGUI(final GameBoard board, final GameState gameState, final String opponent) {
         gameWindow.updateGUI(board, gameState, opponent);
     }
 }
@@ -42,7 +42,7 @@ class GameWindow extends JFrame {
     private GameBoard board;
 
     public GameWindow() {
-        super("Reversi Client");
+        super("Reversi client.Client");
         board = new Board();
         int size = CELL_SIZE * BOARD_SIZE;
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -130,11 +130,11 @@ class GameWindow extends JFrame {
             addMouseListener(new BoardMouseListener());
             addMouseMotionListener(new MouseMotionListener() {
                 @Override
-                public void mouseDragged(MouseEvent mouseEvent) {
+                public void mouseDragged(final MouseEvent mouseEvent) {
                 }
 
                 @Override
-                public void mouseMoved(MouseEvent mouseEvent) {
+                public void mouseMoved(final MouseEvent mouseEvent) {
                     mouseX = mouseEvent.getX();
                     mouseY = mouseEvent.getY();
                     repaint();
@@ -149,17 +149,17 @@ class GameWindow extends JFrame {
         }
 
         @Override
-        public void paint(Graphics g) {
+        public void paint(final Graphics g) {
             super.paint(g);
-            Graphics2D g2 = (Graphics2D) g;
+            final Graphics2D g2 = (Graphics2D) g;
             float length = CELL_SIZE * BOARD_SIZE;
 
             g2.setColor(Color.BLACK);
             for (int i = 0; i < BOARD_SIZE + 1; i++) {
-                float coordinate = i * CELL_SIZE;
-                Line2D verticalLine =
+                final float coordinate = i * CELL_SIZE;
+                final Line2D verticalLine =
                         new Line2D.Float(coordinate, 0, coordinate, length);
-                Line2D horizontalLine =
+                final Line2D horizontalLine =
                         new Line2D.Float(0, coordinate, length, coordinate);
                 g2.draw(verticalLine);
                 g2.draw(horizontalLine);
@@ -168,8 +168,8 @@ class GameWindow extends JFrame {
             for (int y = 0; y < board.getSize(); y++) {
                 for (int x = 0; x < board.getSize(); x++) {
                     try {
-                        Cell prevCell = prevBoard.getCell(x, y);
-                        Cell cell = board.getCell(x, y);
+                        final Cell prevCell = prevBoard.getCell(x, y);
+                        final Cell cell = board.getCell(x, y);
                         if (cell == Cell.EMPTY) {
                             continue;
                         }
@@ -209,29 +209,29 @@ class GameWindow extends JFrame {
         class BoardMouseListener implements MouseListener {
 
             @Override
-            public void mouseClicked(MouseEvent mouseEvent) {
+            public void mouseClicked(final MouseEvent mouseEvent) {
                 mouseX = mouseEvent.getX();
                 mouseY = mouseEvent.getY();
                 repaint();
             }
 
             @Override
-            public void mousePressed(MouseEvent mouseEvent) {
+            public void mousePressed(final MouseEvent mouseEvent) {
 
             }
 
             @Override
-            public void mouseReleased(MouseEvent mouseEvent) {
+            public void mouseReleased(final MouseEvent mouseEvent) {
 
             }
 
             @Override
-            public void mouseEntered(MouseEvent mouseEvent) {
+            public void mouseEntered(final MouseEvent mouseEvent) {
 
             }
 
             @Override
-            public void mouseExited(MouseEvent mouseEvent) {
+            public void mouseExited(final MouseEvent mouseEvent) {
 
             }
         }

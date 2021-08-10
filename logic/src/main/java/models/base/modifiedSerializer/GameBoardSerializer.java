@@ -14,7 +14,7 @@ public class GameBoardSerializer implements JsonSerializer<GameBoard> {
 
     @SneakyThrows
     @Override
-    public JsonElement serialize(GameBoard gameBoard, Type type, JsonSerializationContext jsonSerializationContext) {
+    public JsonElement serialize(final GameBoard gameBoard, final Type type, final JsonSerializationContext jsonSerializationContext) {
         return new JsonPrimitive(BoardUtils.toString(gameBoard));
     }
 }

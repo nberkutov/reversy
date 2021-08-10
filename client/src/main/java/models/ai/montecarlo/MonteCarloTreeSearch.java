@@ -74,8 +74,8 @@ public class MonteCarloTreeSearch {
     }
 
     private void expandNode(Node node) throws ServerException {
-        List<State> possibleStates = node.getState().getAllPossibleStates();
-        for (State state : possibleStates) {
+        final List<State> possibleStates = node.getState().getAllPossibleStates();
+        for (final State state : possibleStates) {
             Node newNode = new Node(state);
             newNode.setParent(node);
             newNode.getState().setColorMove(node.getState().getOpponent());

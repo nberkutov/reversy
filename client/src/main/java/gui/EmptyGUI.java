@@ -8,7 +8,7 @@ import models.base.interfaces.GameBoard;
 @NoArgsConstructor
 public class EmptyGUI implements GameGUI {
     @Override
-    public void updateGUI(GameBoard board, GameState gameState, String opponent) throws ServerException {
+    public void updateGUI(final GameBoard board, final GameState gameState, final String opponent) throws ServerException {
 
     }
 }

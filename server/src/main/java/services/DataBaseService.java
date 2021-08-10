@@ -134,7 +134,7 @@ public class DataBaseService implements Serializable {
      *
      * @param user - класс игрока
      */
-    protected static void playerIsNotNull(final User user) throws ServerException {
+    protected static void userIsNotNull(final User user) throws ServerException {
         if (user == null) {
             throw new ServerException(GameErrorCode.PLAYER_NOT_FOUND);
         }
@@ -158,7 +158,7 @@ public class DataBaseService implements Serializable {
         }
     }
 
-    protected static void playerIsNotStateNone(final User user) throws ServerException {
+    protected static void userIsNotStateNone(final User user) throws ServerException {
         if (user.getState() != PlayerState.NONE) {
             throw new ServerException(GameErrorCode.PLAYER_CANT_PERFORM);
         }

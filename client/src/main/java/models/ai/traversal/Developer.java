@@ -74,7 +74,7 @@ public class Developer extends Thread {
             return;
         }
 
-        for (Point p : BoardLogic.getAvailableMoves(board, color)) {
+        for (final Point p : BoardLogic.getAvailableMoves(board, color)) {
             final GameBoard newB = board.clone();
             BoardLogic.makeMove(newB, p, Cell.valueOf(color));
             PlayerColor nextMoveColor = color.getOpponent();

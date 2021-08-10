@@ -1,22 +1,18 @@
 package models.ai.minimax.tree;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import models.base.interfaces.GameBoard;
 import models.board.Point;
 
 @Data
+@AllArgsConstructor
 @EqualsAndHashCode
 public class Node {
-    private GameBoard last;
-    private Point move;
-    private float score;
-
-    public Node(GameBoard last, Point move, float score) {
-        this.last = last;
-        this.move = move;
-        this.score = score;
-    }
+    private final GameBoard last;
+    private final Point move;
+    private final float score;
 
     @Override
     public String toString() {

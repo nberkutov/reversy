@@ -2,7 +2,6 @@ package services;
 
 import dto.request.player.GetReplayGameRequest;
 import dto.request.player.MovePlayerRequest;
-import dto.request.server.CreateGameRequest;
 import exception.GameErrorCode;
 import exception.ServerException;
 import logic.BoardLogic;
@@ -24,15 +23,14 @@ import java.util.Random;
 @Slf4j
 public class GameService extends DataBaseService {
 
-    public static Game createGameBySearch(final CreateGameRequest createGame,
-                                          final ClientConnection connection) throws ServerException {
-        checkRequestAndConnection(createGame, connection);
-        ClientConnection firstCon = getConnectionById(createGame.getFirstPlayerId());
-        connectionIsNotNullAndConnected(firstCon);
-        ClientConnection secondCon = getConnectionById(createGame.getSecondPlayerId());
-        connectionIsNotNullAndConnected(secondCon);
-        User first = firstCon.getUser();
-        User second = secondCon.getUser();
+    public static Game createGameBySearch(final ClientConnection firstC,
+                                          final ClientConnection secondC) throws ServerException {
+        connectionIsNotNullAndConnected(firstC);
+        connectionIsNotNullAndConnected(secondC);
+        final User first = firstC.getUser();
+        final User second = secondC.getUser();
+        userIsNotNull(first);
+        userIsNotNull(second);
         if (new Random().nextBoolean()) {
             return createGame(first, second);
         }
@@ -42,18 +40,18 @@ public class GameService extends DataBaseService {
     public static Game getReplayGame(final GetReplayGameRequest request,
                                      final ClientConnection connection) throws ServerException {
         checkRequestAndConnection(request, connection);
-        Game game = getGameById(request.getGameId());
+        final Game game = getGameById(request.getGameId());
         gameIsNotNull(game);
         gameIsEnd(game);
         return game;
     }
 
     public static Game createGame(final User black, final User white) throws ServerException {
-        playerIsNotNull(black);
-        playerIsNotNull(white);
+        userIsNotNull(black);
+        userIsNotNull(white);
         black.lock();
         white.lock();
-        Game game = putGame(black, white);
+        final Game game = putGame(black, white);
         black.setState(PlayerState.PLAYING);
         black.setNowPlaying(game);
         white.setState(PlayerState.PLAYING);
@@ -65,15 +63,15 @@ public class GameService extends DataBaseService {
 
     public static Game createGameByRoom(Room room) throws ServerException {
         roomIsNotNull(room);
-        User black = room.getBlackUser();
-        User white = room.getWhiteUser();
+        final User black = room.getBlackUser();
+        final User white = room.getWhiteUser();
         return createGame(black, white);
     }
 
     public static Game makePlayerMove(final MovePlayerRequest movePlayer, final ClientConnection connection) throws ServerException {
         checkRequestAndConnection(movePlayer, connection);
-        User user = connection.getUser();
-        Game game = getGameById(movePlayer.getGameId());
+        final User user = connection.getUser();
+        final Game game = getGameById(movePlayer.getGameId());
         return makePlayerMove(game, movePlayer.getPoint(), user);
     }
 
@@ -81,7 +79,7 @@ public class GameService extends DataBaseService {
         gameIsNotNull(game);
         game.lock();
         gameIsNotEnd(game);
-        playerIsNotNull(user);
+        userIsNotNull(user);
         playerValidMove(game, user);
 
         BoardLogic.makeMove(game.getBoard(), point, Cell.valueOf(user.getColor()));
@@ -107,8 +105,8 @@ public class GameService extends DataBaseService {
     }
 
     private static void calculateStatistic(final GameResult gameResult) {
-        User winner = gameResult.getWinner();
-        User loser = gameResult.getLoser();
+        final User winner = gameResult.getWinner();
+        final User loser = gameResult.getLoser();
 
         winner.getStatistics().incrementWin();
         winner.getStatistics().incrementCountGames();
@@ -127,8 +125,8 @@ public class GameService extends DataBaseService {
     }
 
     private static void choosingPlayerMove(final Game game) throws ServerException {
-        boolean blackCanMove = BoardLogic.canMove(game.getBoard(), game.getBlackUser().getColor());
-        boolean whiteCanMove = BoardLogic.canMove(game.getBoard(), game.getWhiteUser().getColor());
+        final boolean blackCanMove = BoardLogic.canMove(game.getBoard(), game.getBlackUser().getColor());
+        final boolean whiteCanMove = BoardLogic.canMove(game.getBoard(), game.getWhiteUser().getColor());
 
         if (game.getState() == GameState.BLACK_MOVE && whiteCanMove) {
             game.setState(GameState.WHITE_MOVE);
@@ -150,9 +148,9 @@ public class GameService extends DataBaseService {
      * @return GameResult
      */
     public static GameResult getGameResult(final Game game) {
-        GameBoard board = game.getBoard();
-        long blackCells = BoardLogic.getCountBlack(board);
-        long whiteCells = BoardLogic.getCountWhite(board);
+        final GameBoard board = game.getBoard();
+        final long blackCells = BoardLogic.getCountBlack(board);
+        final long whiteCells = BoardLogic.getCountWhite(board);
         if (blackCells <= whiteCells) {
             return GameResult.winner(board, game.getWhiteUser(), game.getBlackUser());
         } else {

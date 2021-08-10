@@ -12,21 +12,21 @@ import java.util.List;
 
 @Data
 public class Node {
-    private State state;
+    private final State state;
     private Node parent;
-    private List<Node> childArray;
+    private final List<Node> childArray;
 
-    public Node(GameBoard board, PlayerColor color) {
+    public Node(final GameBoard board, final PlayerColor color) {
         this.state = new State(board, color);
         childArray = new ArrayList<>();
     }
 
-    public Node(State state) {
+    public Node(final State state) {
         this.state = state;
         childArray = new ArrayList<>();
     }
 
-    public Node(State state, Node parent, List<Node> childArray) {
+    public Node(final State state, final Node parent, final List<Node> childArray) {
         this.state = state;
         this.parent = parent;
         this.childArray = childArray;
@@ -35,17 +35,18 @@ public class Node {
     public Node(Node node) {
         this.childArray = new ArrayList<>();
         this.state = new State(node.getState());
-        if (node.getParent() != null)
+        if (node.getParent() != null) {
             this.parent = node.getParent();
-        List<Node> childArray = node.getChildArray();
-        for (Node child : childArray) {
+        }
+        final List<Node> childArray = node.getChildArray();
+        for (final Node child : childArray) {
             this.childArray.add(new Node(child));
         }
     }
 
     public Node getRandomChildNode() {
-        int noOfPossibleMoves = childArray.size();
-        int selectRandom = (int) (Math.random() * noOfPossibleMoves);
+        final int noOfPossibleMoves = childArray.size();
+        final int selectRandom = (int) (Math.random() * noOfPossibleMoves);
         return this.childArray.get(selectRandom);
     }
 

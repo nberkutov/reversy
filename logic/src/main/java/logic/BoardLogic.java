@@ -18,6 +18,9 @@ import static models.GameProperties.BOARD_SIZE;
 @Slf4j
 public class BoardLogic {
 
+    private BoardLogic() {
+    }
+
     /**
      * Функция ищет всевозможные ходы, а в последствиии переворчивает фишки
      * Если нет возможных ходов, то выбрасывает GameException.
@@ -30,14 +33,14 @@ public class BoardLogic {
         boardIsNotNull(board);
         checkPointIsInside(point);
         checkCellIsEmpty(cell);
-        List<Point> moves = getCellInAllDirection(board, point, cell);
+        final List<Point> moves = getCellInAllDirection(board, point, cell);
 
         if (moves.isEmpty()) {
             throw new ServerException(GameErrorCode.INVALID_MOVE);
         }
 
-        Set<Point> pointsForReverse = new HashSet<>();
-        for (Point target : moves) {
+        final Set<Point> pointsForReverse = new HashSet<>();
+        for (final Point target : moves) {
             pointsForReverse.addAll(getPointsForReverse(point, target));
         }
         board.reverseCells(pointsForReverse);
@@ -137,7 +140,7 @@ public class BoardLogic {
     public static List<Point> getAvailableMoves(final GameBoard board, final Cell cell) throws ServerException {
         boardIsNotNull(board);
         checkCellIsEmpty(cell);
-        Set<Point> points = new HashSet<>();
+        final Set<Point> points = new HashSet<>();
         for (int i = 0; i < board.getSize(); i++) {
             for (int j = 0; j < board.getSize(); j++) {
                 Point checkPoint = new Point(i, j);
@@ -161,18 +164,18 @@ public class BoardLogic {
         boardIsNotNull(board);
         checkPointIsInside(point);
         checkCellIsEmpty(cell);
-        Set<Point> points = new HashSet<>();
+        final Set<Point> points = new HashSet<>();
         for (int i = -1; i <= 1; i++) {
             for (int j = -1; j <= 1; j++) {
                 if (i == 0 && j == 0) {
                     continue;
                 }
 
-                Point checkPoint = new Point(point.getX() + i, point.getY() + j);
+                final Point checkPoint = new Point(point.getX() + i, point.getY() + j);
                 if (board.validate(checkPoint)
                         && !isCellEmpty(board, checkPoint)
                         && !board.getCell(checkPoint).equals(cell)) {
-                    Point found = getPointInDirection(board, checkPoint, cell, i, j);
+                    final Point found = getPointInDirection(board, checkPoint, cell, i, j);
                     if (found != null) {
                         points.add(found);
                     }
@@ -192,8 +195,8 @@ public class BoardLogic {
     private static Set<Point> getPointsForReverse(final Point point, final Point target) throws ServerException {
         checkPointIsInside(point);
         checkPointIsInside(target);
-        Set<Point> points = new HashSet<>();
-        Point p = new Point(point.getX(), point.getY());
+        final Set<Point> points = new HashSet<>();
+        final Point p = new Point(point.getX(), point.getY());
         while (!p.equals(target)) {
             if (p.getX() < target.getX()) {
                 p.setX(p.getX() + 1);
@@ -222,7 +225,7 @@ public class BoardLogic {
         boardIsNotNull(board);
         checkPointIsInside(point);
         checkCellIsEmpty(cell);
-        Point p = new Point(point.getX(), point.getY());
+        final Point p = new Point(point.getX(), point.getY());
         do {
             p.setX(p.getX() + difX);
             p.setY(p.getY() + difY);

@@ -11,7 +11,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class LockDeserializer implements JsonDeserializer<Lock> {
     @Override
-    public Lock deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
+    public Lock deserialize(final JsonElement jsonElement, final Type type, final JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
         return new ReentrantLock();
     }
 }

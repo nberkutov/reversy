@@ -1,11 +1,12 @@
 import exception.ServerException;
 import models.Player;
 import models.base.PlayerColor;
-import models.base.SmartBot;
+import models.players.SmartBot;
 import models.strategies.MinimaxStrategy;
 import models.strategies.RandomStrategy;
 import models.strategies.algorithms.HardAlgorithm;
 import org.junit.jupiter.api.Test;
+import selfplay.SelfPlay;
 
 
 class SelfPlayTest {

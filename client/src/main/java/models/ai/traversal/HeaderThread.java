@@ -63,7 +63,7 @@ public class HeaderThread extends Thread {
             @Override
             public void run() {
                 int minDeathInDev = 100;
-                for (Developer dev : developers) {
+                for (final Developer dev : developers) {
                     minDeathInDev = Math.min(minDeathInDev, dev.getMaxDeath());
                 }
                 options.setMaxDeath(minDeathInDev);
@@ -74,7 +74,7 @@ public class HeaderThread extends Thread {
     }
 
     private void closeDevelopers() throws InterruptedException {
-        for (Developer dev : developers) {
+        for (final Developer dev : developers) {
             dev.setStopWork(true);
             tasks.putFirst(Task.create(null));
         }
@@ -88,7 +88,7 @@ public class HeaderThread extends Thread {
     @Override
     public void run() {
         tasks.add(Task.create(root));
-        for (Developer d : developers) {
+        for (final Developer d : developers) {
             d.start();
         }
         Node maxGoodNode = null;
@@ -107,7 +107,7 @@ public class HeaderThread extends Thread {
                     }
                 }
                 boolean finish = false;
-                for (Developer dev : developers) {
+                for (final Developer dev : developers) {
                     if (dev.isStopWork()) {
                         finish = true;
                         break;
@@ -125,7 +125,7 @@ public class HeaderThread extends Thread {
 
         endResult = getNodeAfterRoot(root, maxGoodNode);
 
-        for (Developer dev : developers) {
+        for (final Developer dev : developers) {
             dev.join();
         }
     }

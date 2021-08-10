@@ -108,7 +108,7 @@ public class DataBase implements Serializable, Cloneable {
     }
 
     public void removeAllConnects() {
-        for (Integer id : connects.keySet()) {
+        for (final Integer id : connects.keySet()) {
             ClientConnection connection = connects.get(id);
             User user = connection.getUser();
             if (user != null) {

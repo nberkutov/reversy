@@ -1,25 +1,20 @@
 package controllers.handlers;
 
-import controllers.GameController;
-import controllers.PlayerController;
-import controllers.RoomController;
+import controllers.*;
+import controllers.mapper.Mapper;
 import dto.request.GameRequest;
-import dto.request.TaskRequest;
 import dto.request.player.*;
 import dto.request.room.CreateRoomRequest;
 import dto.request.room.GetRoomsRequest;
 import dto.request.room.JoinRoomRequest;
-import dto.request.server.CreateGameRequest;
 import dto.response.ErrorResponse;
 import dto.response.GameResponse;
-import dto.response.TaskResponse;
-import dto.response.player.MessageResponse;
 import exception.ServerException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import models.ClientConnection;
-import services.JsonService;
 import services.PlayerService;
+import utils.JsonService;
 
 import java.io.IOException;
 import java.util.List;
@@ -36,7 +31,7 @@ public class TasksHandler extends Thread {
     }
 
     public static void broadcastResponse(final List<ClientConnection> connections, final GameResponse response) throws IOException, ServerException {
-        for (ClientConnection connection : connections) {
+        for (final ClientConnection connection : connections) {
             sendResponse(connection, response);
         }
     }
@@ -88,10 +83,6 @@ public class TasksHandler extends Thread {
                                 GetRoomsRequest getRoomsRequest = (GetRoomsRequest) request;
                                 RoomController.actionGetRooms(getRoomsRequest, connection);
                                 break;
-                            case SEARCH_CREATE_GAME:
-                                CreateGameRequest createGame = (CreateGameRequest) request;
-                                GameController.actionCreateGame(createGame, connection);
-                                break;
                         }
                     } catch (ServerException e) {
                         log.warn("HandlerTasks {} {}", e.getMessage(), task.getClient());
@@ -109,7 +100,7 @@ public class TasksHandler extends Thread {
     public void actionWantPlay(final WantPlayRequest wantPlay, final ClientConnection connection) throws InterruptedException, IOException, ServerException {
         PlayerService.canPlayerSearchGame(connection);
         waiting.putLast(connection);
-        sendResponse(connection, new MessageResponse("Search game"));
+        sendResponse(connection, Mapper.toDto("Search game"));
         log.debug("player put in waiting {}", connection.getUser());
     }
 }

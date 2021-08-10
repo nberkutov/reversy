@@ -1,14 +1,20 @@
 package controllers.handlers;
 
-import dto.request.TaskRequest;
-import dto.request.server.CreateGameRequest;
+import controllers.TaskRequest;
+import dto.response.ErrorResponse;
 import exception.ServerException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import models.ClientConnection;
+import models.game.Game;
+import services.GameService;
 import services.PlayerService;
 
+import java.io.IOException;
 import java.util.concurrent.LinkedBlockingDeque;
+
+import static controllers.GameController.sendInfoAboutGame;
+import static controllers.handlers.TasksHandler.sendResponse;
 
 @Slf4j
 @AllArgsConstructor
@@ -48,8 +54,21 @@ public class GameSearcher extends Thread {
         }
     }
 
-    private void linkPlayersForGame(final ClientConnection first, final ClientConnection second) throws InterruptedException {
-        requests.putLast(new TaskRequest(PlayerService.getConnectionById(first.getUser().getId()), CreateGameRequest.toDto(first.getUser(), second.getUser())));
+    private void linkPlayersForGame(final ClientConnection first, final ClientConnection second) throws InterruptedException, ServerException {
+        try {
+            final Game game = GameService.createGameBySearch(first, second);
+            sendInfoAboutGame(game, game.getBlackUser());
+            sendInfoAboutGame(game, game.getWhiteUser());
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ServerException e) {
+            try {
+                sendResponse(first, ErrorResponse.toDto(e));
+                sendResponse(second, ErrorResponse.toDto(e));
+            } catch (IOException io) {
+                log.error("GameSearcher {}", io.getMessage());
+            }
+        }
     }
 
 }

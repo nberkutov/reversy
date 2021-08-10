@@ -7,7 +7,7 @@ public enum Cell implements Serializable {
 
     private final int id;
 
-    Cell(int id) {
+    Cell(final int id) {
         this.id = id;
     }
 

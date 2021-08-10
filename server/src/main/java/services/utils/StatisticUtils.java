@@ -31,8 +31,8 @@ public class StatisticUtils {
             list.add(HEADING);
             list.addAll(playersToListString(users));
 
-            for (String[] m : list) {
-                for (String s : m) {
+            for (final String[] m : list) {
+                for (final String s : m) {
                     writer.append(s).append(DEFAULT_SEPARATOR);
                 }
                 writer.append(CSVWriter.DEFAULT_LINE_END);
@@ -44,8 +44,8 @@ public class StatisticUtils {
     }
 
     private static List<String[]> playersToListString(final List<User> users) {
-        List<String[]> list = new ArrayList<>();
-        for (User user : users) {
+        final List<String[]> list = new ArrayList<>();
+        for (final User user : users) {
             list.add(playerToString(user));
         }
         return list;
@@ -64,8 +64,8 @@ public class StatisticUtils {
     }
 
     private static String listAgainst(final User user) {
-        StringBuilder str = new StringBuilder();
-        for (Map.Entry<String, Integer> entry : user.getStatistics().getWinsAgainst().entrySet()) {
+        final StringBuilder str = new StringBuilder();
+        for (final Map.Entry<String, Integer> entry : user.getStatistics().getWinsAgainst().entrySet()) {
             str.append(entry.getKey());
             str.append(" - ");
             str.append(entry.getValue());

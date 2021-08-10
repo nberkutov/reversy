@@ -2,7 +2,6 @@ package models.base.interfaces;
 
 import exception.ServerException;
 import models.base.Cell;
-import models.board.Board;
 import models.board.Point;
 
 import java.util.Collection;
@@ -32,7 +31,7 @@ public interface GameBoard {
 
     boolean validate(final Point point);
 
-    Board clone();
+    GameBoard clone();
 
     String toString();
 }

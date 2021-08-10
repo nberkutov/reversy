@@ -12,6 +12,8 @@
         <module>client</module>
         <module>server</module>
         <module>logic</module>
+        <module>dto</module>
+        <module>vyacheslav</module>
     </modules>
 
     <properties>

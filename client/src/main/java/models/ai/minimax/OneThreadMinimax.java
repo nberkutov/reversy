@@ -39,7 +39,7 @@ public class OneThreadMinimax {
 
         if (moveColor == info.getMyColor()) {
             int maxEval = Integer.MIN_VALUE;
-            for (Point point : listMoves) {
+            for (final Point point : listMoves) {
                 int eval = simulationMove(board, point, moveColor, depth + 1);
 
                 if (maxEval <= eval) {
@@ -58,7 +58,7 @@ public class OneThreadMinimax {
 
         int minEval = Integer.MAX_VALUE;
 
-        for (Point point : listMoves) {
+        for (final Point point : listMoves) {
             int eval = -1 * simulationMove(board, point, moveColor, depth + 1);
 
             minEval = Math.min(minEval, eval);

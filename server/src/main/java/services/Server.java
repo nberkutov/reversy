@@ -2,7 +2,7 @@ package services;
 
 import controllers.handlers.ServerHandler;
 import controllers.handlers.TasksHandler;
-import dto.response.player.MessageResponse;
+import controllers.mapper.Mapper;
 import exception.ServerException;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -95,13 +95,13 @@ public class Server extends Thread implements AutoCloseable {
 
     public void closeAllConnects() {
         broadcastMessage("The server kicked you");
-        for (ClientConnection connection : dataBase.getAllConnection()) {
+        for (final ClientConnection connection : dataBase.getAllConnection()) {
             connection.close();
         }
     }
 
     public void saveStatistic(final String path) {
-        List<User> userList = dataBase.getAllPlayers();
+        final List<User> userList = dataBase.getAllPlayers();
         try {
             StatisticUtils.saveStatistic(userList, path);
             log.info("Statistic save in {}", path);
@@ -113,7 +113,7 @@ public class Server extends Thread implements AutoCloseable {
     public void saveServerFile(final String path) {
         if (path != null) {
             try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(new File(path)))) {
-                DataBase dataBase = Server.dataBase.clone();
+                final DataBase dataBase = Server.dataBase.clone();
                 dataBase.removeAllConnects();
                 oos.writeObject(dataBase);
                 log.info("Server successfully save database in {}", path);
@@ -130,9 +130,8 @@ public class Server extends Thread implements AutoCloseable {
 
     private void broadcastMessage(final String message) {
         try {
-            List<ClientConnection> list = dataBase.getAllConnection();
-            MessageResponse messageResponse = new MessageResponse(message);
-            TasksHandler.broadcastResponse(list, messageResponse);
+            final List<ClientConnection> list = dataBase.getAllConnection();
+            TasksHandler.broadcastResponse(list, Mapper.toDto(message));
         } catch (IOException | ServerException e) {
             log.warn("Broadcast message don't send {}", message);
         }
@@ -140,10 +139,10 @@ public class Server extends Thread implements AutoCloseable {
 
     public void getInfoGame() {
         try {
-            Scanner scanner = new Scanner(System.in);
+            final Scanner scanner = new Scanner(System.in);
             System.out.println("Enter the id: ");
             int id = scanner.nextInt();
-            Game game = dataBase.getGameById(id);
+            final Game game = dataBase.getGameById(id);
             if (game != null) {
                 System.out.println(game);
                 return;
@@ -156,10 +155,10 @@ public class Server extends Thread implements AutoCloseable {
 
     public void getInfoRoom() {
         try {
-            Scanner scanner = new Scanner(System.in);
+            final Scanner scanner = new Scanner(System.in);
             System.out.println("Enter the id: ");
-            int id = scanner.nextInt();
-            Room room = dataBase.getRoomById(id);
+            final int id = scanner.nextInt();
+            final Room room = dataBase.getRoomById(id);
             if (room != null) {
                 System.out.println(room);
                 return;
@@ -170,10 +169,10 @@ public class Server extends Thread implements AutoCloseable {
     }
 
     public void getInfoUser() {
-        Scanner scanner = new Scanner(System.in);
+        final Scanner scanner = new Scanner(System.in);
         System.out.println("Enter the nickname: ");
-        String nickname = scanner.nextLine().trim().toLowerCase();
-        User user = dataBase.getPlayerByNickname(nickname);
+        final String nickname = scanner.nextLine().trim().toLowerCase();
+        final User user = dataBase.getPlayerByNickname(nickname);
         if (user == null) {
             log.warn("User not found with {}", nickname);
             return;

@@ -9,7 +9,7 @@ import java.util.TreeMap;
 
 @Data
 public class Tree {
-    private TreeMap<Vertex, Node> tree;
+    private final TreeMap<Vertex, Node> tree;
 
     public Tree() {
         tree = new TreeMap<>();

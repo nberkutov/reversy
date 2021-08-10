@@ -24,7 +24,7 @@ import static models.GameProperties.BOARD_SIZE;
 @EqualsAndHashCode
 public class Board implements Serializable, GameBoard {
     private final Map<Point, Cell> cells;
-    private int size;
+    private final int size;
     private int countBlackCells = 0;
     private int countWhiteCells = 0;
     private int countEmpty;
@@ -79,7 +79,7 @@ public class Board implements Serializable, GameBoard {
      * @param cell новое состояние
      * @throws ServerException
      */
-    public void setCell(final int x, final int y, Cell cell) throws ServerException {
+    public void setCell(final int x, final int y, final Cell cell) throws ServerException {
         setCell(new Point(x, y), cell);
     }
 
@@ -92,7 +92,7 @@ public class Board implements Serializable, GameBoard {
     public void setCell(final Point point, final Cell cell) throws ServerException {
         validatePoint(point);
         checkCellIsNull(cell);
-        Cell before = getCell(point);
+        final Cell before = getCell(point);
         switch (before) {
             case EMPTY: {
                 countEmpty--;
@@ -170,7 +170,7 @@ public class Board implements Serializable, GameBoard {
         if (points == null) {
             throw new ServerException(GameErrorCode.POINTS_NOT_FOUND);
         }
-        for (Point p : points) {
+        for (final Point p : points) {
             reverseCell(p);
         }
     }
@@ -203,8 +203,8 @@ public class Board implements Serializable, GameBoard {
     @SneakyThrows
     @Override
     public Board clone() {
-        Board board = new Board();
-        for (Map.Entry<Point, Cell> entry : getCells().entrySet()) {
+        final Board board = new Board();
+        for (final Map.Entry<Point, Cell> entry : getCells().entrySet()) {
             board.setCell(entry.getKey(), entry.getValue());
         }
         return board;

@@ -6,8 +6,8 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class Vertex implements Comparable {
-    private int depth;
-    private float score;
+    private final int depth;
+    private final float score;
 
     @Override
     public String toString() {

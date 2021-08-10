@@ -18,8 +18,8 @@ public class TextGUI implements GameGUI {
         tiles.put(Cell.WHITE, "⊛");
     }
 
-    public void updateGUI(GameBoard board, GameState gameState, String opponent) throws ServerException {
-        StringBuilder boardBuilder = new StringBuilder();
+    public void updateGUI(final GameBoard board, final GameState gameState, final String opponent) throws ServerException {
+        final StringBuilder boardBuilder = new StringBuilder();
         switch (gameState) {
             case BLACK_MOVE:
                 boardBuilder.append("ХОД ЧЕРНЫХ");

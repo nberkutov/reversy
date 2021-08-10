@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import models.base.GameState;
+import models.base.Move;
 import models.base.PlayerColor;
 import models.base.interfaces.GameBoard;
 import models.board.Board;

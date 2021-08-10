@@ -1,9 +1,9 @@
 package controllers.handlers;
 
 import controllers.ConnectionController;
-import dto.request.TaskRequest;
-import dto.response.TaskResponse;
-import dto.response.player.MessageResponse;
+import controllers.TaskRequest;
+import controllers.TaskResponse;
+import controllers.mapper.Mapper;
 import exception.ServerException;
 import lombok.extern.slf4j.Slf4j;
 import models.ClientConnection;
@@ -46,8 +46,8 @@ public class ServerHandler implements AutoCloseable {
     }
 
     private void motdForPlayer(final ClientConnection connection) throws IOException, ServerException {
-        TaskResponse.createAndSend(connection, new MessageResponse("Welcome to our server"));
-        TaskResponse.createAndSend(connection, new MessageResponse("Whats you name?"));
+        TaskResponse.createAndSend(connection, Mapper.toDto("Welcome to our server"));
+        TaskResponse.createAndSend(connection, Mapper.toDto("Whats you name?"));
     }
 
     public void close() {

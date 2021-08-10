@@ -22,5 +22,7 @@ public abstract class Player {
 
     public abstract Point move(final GameBoard board) throws ServerException;
 
-    public abstract void triggerAfterGameEnd(final GameState state, final GameBoard board) throws ServerException;
+    public abstract void triggerMoveOpponent(final GameBoard board) throws ServerException;
+
+    public abstract void triggerGameEnd(final GameState state, final GameBoard board) throws ServerException;
 }

@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class UserServicesTest {
-    private static Server server = new Server();
+    private static final Server server = new Server();
 
     private static Stream<Arguments> getCreatePlayerByNickname() {
         return Stream.of(
@@ -42,9 +42,9 @@ public class UserServicesTest {
         final int PORT = 8086;
         final String IP = "127.0.0.1";
         DataBaseService.clearAll();
-        ServerSocket socket = new ServerSocket(PORT);
-        Socket client = new Socket(IP, PORT);
-        ClientConnection connection = new ClientConnection(client);
+        final ServerSocket socket = new ServerSocket(PORT);
+        final Socket client = new Socket(IP, PORT);
+        final ClientConnection connection = new ClientConnection(client);
         try {
             PlayerService.createPlayer(request, connection);
         } catch (ServerException e) {
@@ -88,12 +88,12 @@ public class UserServicesTest {
             assertEquals(e.getErrorCode(), GameErrorCode.CONNECTION_LOST);
         }
 
-        ServerSocket socket = new ServerSocket(PORT);
-        Socket client = new Socket(IP, PORT);
-        ClientConnection connection = new ClientConnection(client);
-        Socket client2 = new Socket(IP, PORT);
-        ClientConnection connection2 = new ClientConnection(client2);
-        User user = PlayerService.createPlayer(new CreatePlayerRequest("Boooot"), connection);
+        final ServerSocket socket = new ServerSocket(PORT);
+        final Socket client = new Socket(IP, PORT);
+        final ClientConnection connection = new ClientConnection(client);
+        final Socket client2 = new Socket(IP, PORT);
+        final ClientConnection connection2 = new ClientConnection(client2);
+        PlayerService.createPlayer(new CreatePlayerRequest("Boooot"), connection);
 
         try {
             PlayerService.createPlayer(new CreatePlayerRequest("Boooot"), connection);
@@ -141,11 +141,11 @@ public class UserServicesTest {
             assertEquals(e.getErrorCode(), GameErrorCode.CONNECTION_LOST);
         }
 
-        ServerSocket socket = new ServerSocket(PORT);
-        Socket client = new Socket(IP, PORT);
-        ClientConnection connection = new ClientConnection(client);
-        Socket client2 = new Socket(IP, PORT);
-        ClientConnection connection2 = new ClientConnection(client2);
+        final ServerSocket socket = new ServerSocket(PORT);
+        final Socket client = new Socket(IP, PORT);
+        final ClientConnection connection = new ClientConnection(client);
+        final Socket client2 = new Socket(IP, PORT);
+        final ClientConnection connection2 = new ClientConnection(client2);
         PlayerService.createPlayer(new CreatePlayerRequest("Boooot"), connection);
 
         try {
@@ -180,10 +180,10 @@ public class UserServicesTest {
             assertEquals(e.getErrorCode(), GameErrorCode.PLAYER_NOT_FOUND);
         }
 
-        ServerSocket socket = new ServerSocket(PORT);
-        Socket client = new Socket(IP, PORT);
-        ClientConnection connection = new ClientConnection(client);
-        User user = PlayerService.createPlayer(new CreatePlayerRequest("Booooot"), connection);
+        final ServerSocket socket = new ServerSocket(PORT);
+        final Socket client = new Socket(IP, PORT);
+        final ClientConnection connection = new ClientConnection(client);
+        final User user = PlayerService.createPlayer(new CreatePlayerRequest("Booooot"), connection);
         user.setState(PlayerState.SEARCH_GAME);
         try {
             PlayerService.canPlayerSearchGame(user);
@@ -204,7 +204,7 @@ public class UserServicesTest {
 
     @Test
     void setNoneStatePlayer() throws ServerException {
-        User user = new RandomBotPlayer(0, "bot");
+        final User user = new RandomBotPlayer(0, "bot");
         user.setState(PlayerState.PLAYING);
         PlayerService.setPlayerStateNone(user);
         assertEquals(user.getState(), PlayerState.NONE);

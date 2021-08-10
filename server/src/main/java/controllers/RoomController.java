@@ -1,12 +1,10 @@
 package controllers;
 
+import controllers.mapper.Mapper;
 import dto.request.room.CreateRoomRequest;
 import dto.request.room.GetRoomsRequest;
 import dto.request.room.JoinRoomRequest;
 import dto.response.GameResponse;
-import dto.response.TaskResponse;
-import dto.response.room.ListRoomResponse;
-import dto.response.room.RoomResponse;
 import exception.ServerException;
 import lombok.extern.slf4j.Slf4j;
 import models.ClientConnection;
@@ -24,7 +22,7 @@ public class RoomController {
     public static void actionCreateRoom(final CreateRoomRequest createRoom, final ClientConnection connection) throws IOException, ServerException, ServerException {
         Room room = RoomService.createRoom(createRoom, connection);
         log.debug("action createRoom {} {}", connection.getSocket().getPort(), createRoom);
-        sendResponse(connection, RoomResponse.toDto(room));
+        sendResponse(connection, Mapper.toDto(room));
     }
 
     public static void actionJoinRoom(final JoinRoomRequest createRoom, final ClientConnection connection) throws IOException, ServerException {
@@ -38,7 +36,7 @@ public class RoomController {
     public static void actionGetRooms(final GetRoomsRequest getRoomsRequest, final ClientConnection connection) throws ServerException, IOException {
         List<Room> rooms = RoomService.getRooms(getRoomsRequest, connection);
         log.debug("action getRooms {} {}", connection.getSocket().getPort(), getRoomsRequest);
-        sendResponse(connection, ListRoomResponse.toDto(rooms));
+        sendResponse(connection, Mapper.toDto(rooms));
     }
 
 

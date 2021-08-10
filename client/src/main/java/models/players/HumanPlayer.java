@@ -24,11 +24,11 @@ public class HumanPlayer extends Player {
             String input = scanner.nextLine();
             String[] args = input.trim().split("[ ]+");
             try {
-                int x = Integer.parseInt(args[0]) - 1;
-                int y = Integer.parseInt(args[1]) - 1;
-                Point move = new Point(x, y);
+                final int x = Integer.parseInt(args[0]) - 1;
+                final int y = Integer.parseInt(args[1]) - 1;
+                final Point move = new Point(x, y);
                 System.out.println("move " + x + " " + y);
-                List<Point> availableMoves = BoardLogic.getAvailableMoves(board, color);
+                final List<Point> availableMoves = BoardLogic.getAvailableMoves(board, color);
                 if (availableMoves.contains(move)) {
                     return move;
                 }
@@ -40,7 +40,12 @@ public class HumanPlayer extends Player {
     }
 
     @Override
-    public void triggerAfterGameEnd(GameState state, GameBoard board) {
+    public void triggerMoveOpponent(GameBoard board) throws ServerException {
+
+    }
+
+    @Override
+    public void triggerGameEnd(GameState state, GameBoard board) {
 
     }
 }

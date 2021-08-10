@@ -19,7 +19,7 @@ public class State {
     private int visitCount;
     private double winScore;
 
-    public State(GameBoard board, PlayerColor color) {
+    public State(final GameBoard board, final PlayerColor color) {
         this.board = board;
         this.colorMove = color;
     }
@@ -32,7 +32,7 @@ public class State {
         this.winScore = state.getWinScore();
     }
 
-    public State(GameBoard board, Point move) {
+    public State(final GameBoard board, final Point move) {
         this.board = board.clone();
         this.move = move;
     }
@@ -43,10 +43,10 @@ public class State {
     }
 
     public List<State> getAllPossibleStates() throws ServerException {
-        List<State> possibleStates = new ArrayList<>();
-        List<Point> availablePositions = BoardLogic.getAvailableMoves(board, colorMove);
-        for (Point p : availablePositions) {
-            State newState = new State(board, p);
+        final List<State> possibleStates = new ArrayList<>();
+        final List<Point> availablePositions = BoardLogic.getAvailableMoves(board, colorMove);
+        for (final Point p : availablePositions) {
+            final State newState = new State(board, p);
             newState.setColorMove(colorMove);
             BoardLogic.makeMove(newState.getBoard(), p, Cell.valueOf(newState.getColorMove()));
             possibleStates.add(newState);
@@ -59,32 +59,16 @@ public class State {
         this.visitCount++;
     }
 
-    void addScore(double score) {
+    void addScore(final double score) {
         if (this.winScore != Integer.MIN_VALUE)
             this.winScore += score;
     }
 
     void randomPlay() throws ServerException {
-        List<Point> availablePositions = BoardLogic.getAvailableMoves(board, colorMove);
-        int totalPossibilities = availablePositions.size();
-        int selectRandom = (int) (Math.random() * totalPossibilities);
+        final List<Point> availablePositions = BoardLogic.getAvailableMoves(board, colorMove);
+        final int totalPossibilities = availablePositions.size();
+        final int selectRandom = (int) (Math.random() * totalPossibilities);
         BoardLogic.makeMove(board, availablePositions.get(selectRandom), Cell.valueOf(colorMove));
-    }
-
-
-    void maxHeuristicsPlay() throws ServerException {
-        Point maxEvalMove = null;
-        int maxEval = Integer.MIN_VALUE;
-        for (Point move : BoardLogic.getAvailableMoves(board, colorMove)) {
-            GameBoard gb = board.clone();
-            BoardLogic.makeMove(gb, move, Cell.valueOf(colorMove));
-            int eval = BoardLogic.getCountCellByPlayerColor(gb, colorMove);
-            if (eval > maxEval) {
-                maxEval = eval;
-                maxEvalMove = move;
-            }
-        }
-        BoardLogic.makeMove(board, maxEvalMove, Cell.valueOf(colorMove));
     }
 
     void togglePlayer() throws ServerException {

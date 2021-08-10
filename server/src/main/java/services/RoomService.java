@@ -20,12 +20,12 @@ public class RoomService extends DataBaseService {
 
     public static Room createRoom(final CreateRoomRequest createRoom, final ClientConnection connection) throws ServerException {
         checkRequestAndConnection(createRoom, connection);
-        User user = connection.getUser();
-        playerIsNotNull(user);
+        final User user = connection.getUser();
+        userIsNotNull(user);
         try {
             user.lock();
-            playerIsNotStateNone(user);
-            Room room = putRoom();
+            userIsNotStateNone(user);
+            final Room room = putRoom();
             PlayerColor color = createRoom.getColor();
             setPlayerInRoom(room, user, color);
             user.setState(PlayerState.WAITING_ROOM);
@@ -37,14 +37,14 @@ public class RoomService extends DataBaseService {
 
     public static Game joinRoom(final JoinRoomRequest joinRoom, final ClientConnection connection) throws ServerException {
         checkRequestAndConnection(joinRoom, connection);
-        User user = connection.getUser();
-        playerIsNotNull(user);
-        Room room = getRoomById(joinRoom.getId());
+        final User user = connection.getUser();
+        userIsNotNull(user);
+        final Room room = getRoomById(joinRoom.getId());
         roomIsNotNull(room);
         try {
             room.lock();
             roomIsNotClosed(room);
-            playerIsNotStateNone(user);
+            userIsNotStateNone(user);
             takeFreeColorInRoom(room, user);
             room.setState(RoomState.CLOSE);
             return GameService.createGameByRoom(room);
@@ -56,8 +56,8 @@ public class RoomService extends DataBaseService {
     public static List<Room> getRooms(final GetRoomsRequest getRooms, final ClientConnection connection) throws ServerException {
         checkRequestAndConnection(getRooms, connection);
         validateRequest(getRooms);
-        boolean needClose = getRooms.isNeedClose();
-        int limit = getRooms.getLimit();
+        final boolean needClose = getRooms.isNeedClose();
+        final int limit = getRooms.getLimit();
         return DataBaseService.getRooms(needClose, limit);
     }
 

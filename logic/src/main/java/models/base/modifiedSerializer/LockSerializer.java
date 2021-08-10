@@ -10,7 +10,7 @@ import java.util.concurrent.locks.Lock;
 
 public class LockSerializer implements JsonSerializer<Lock> {
     @Override
-    public JsonElement serialize(Lock lock, Type type, JsonSerializationContext jsonSerializationContext) {
+    public JsonElement serialize(final Lock lock, final Type type, final JsonSerializationContext jsonSerializationContext) {
         return new JsonPrimitive("Locker");
     }
 }

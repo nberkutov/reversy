@@ -7,8 +7,12 @@ import models.board.Board;
 
 
 public class BoardUtils {
+
+    private BoardUtils() {
+    }
+
     public static String toString(final GameBoard board) throws ServerException {
-        StringBuilder boardBuilder = new StringBuilder();
+        final StringBuilder boardBuilder = new StringBuilder();
         for (int y = 0; y < board.getSize(); y++) {
             for (int x = 0; x < board.getSize(); x++) {
                 char c = '0';
@@ -28,12 +32,12 @@ public class BoardUtils {
         return boardBuilder.toString();
     }
 
-    public static Board fromString(final String string) throws ServerException {
-        Board board = new Board();
+    public static GameBoard fromString(final String string) throws ServerException {
+        final Board board = new Board();
         int k = 0;
         for (int i = 0; i < string.length(); i++) {
-            int x = k % board.getSize();
-            int y = k / board.getSize();
+            final int x = k % board.getSize();
+            final int y = k / board.getSize();
             switch (string.charAt(i)) {
                 case '0':
                     board.setCell(x, y, Cell.EMPTY);

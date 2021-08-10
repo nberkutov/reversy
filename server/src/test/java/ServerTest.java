@@ -25,8 +25,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import services.DataBaseService;
-import services.JsonService;
 import services.Server;
+import utils.JsonService;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -39,7 +39,7 @@ import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ServerTest {
-    private static Server server = new Server();
+    private static final Server server = new Server();
     private static int PORT;
     private static final String IP = "127.0.0.1";
 
@@ -55,9 +55,9 @@ class ServerTest {
     }
 
     private static ClientConnection createConnection(String ip, int port, String name) throws IOException, ServerException, InterruptedException {
-        Socket client = new Socket(ip, port);
-        ClientConnection connection = new ClientConnection(client);
-        CreatePlayerRequest request = new CreatePlayerRequest(name);
+        final Socket client = new Socket(ip, port);
+        final ClientConnection connection = new ClientConnection(client);
+        final CreatePlayerRequest request = new CreatePlayerRequest(name);
         sendRequest(connection, request);
         return connection;
     }
@@ -82,15 +82,15 @@ class ServerTest {
 
     @Test
     void createGameOnServer() throws IOException, ServerException, InterruptedException {
-        ClientConnection connectionBot1 = createConnection(IP, PORT, "Bot1");
+        final ClientConnection connectionBot1 = createConnection(IP, PORT, "Bot1");
 
-        User bot1 = DataBaseService.getAllPlayers().get(0);
+        final User bot1 = DataBaseService.getAllPlayers().get(0);
         assertEquals(DataBaseService.getAllPlayers().size(), 1);
 
-        ClientConnection connectionBot2 = createConnection(IP, PORT, "Bot2");
+        final ClientConnection connectionBot2 = createConnection(IP, PORT, "Bot2");
 
         assertEquals(DataBaseService.getAllPlayers().size(), 2);
-        User bot2 = DataBaseService.getAllPlayers().get(1);
+        final User bot2 = DataBaseService.getAllPlayers().get(1);
 
         wantPlay(connectionBot1);
 
@@ -105,12 +105,12 @@ class ServerTest {
 
     @Test
     void playGameOnServer() throws IOException, ServerException, InterruptedException {
-        ClientConnection connectionBot1 = createConnection(IP, PORT, "Bot1");
-        ClientConnection connectionBot2 = createConnection(IP, PORT, "Bot2");
+        final ClientConnection connectionBot1 = createConnection(IP, PORT, "Bot1");
+        final ClientConnection connectionBot2 = createConnection(IP, PORT, "Bot2");
 
-        AtomicBoolean gameIsNotFinish = new AtomicBoolean(true);
-        LinkedBlockingDeque<GameResponse> responsesBot1 = new LinkedBlockingDeque<>();
-        LinkedBlockingDeque<GameResponse> responsesBot2 = new LinkedBlockingDeque<>();
+        final AtomicBoolean gameIsNotFinish = new AtomicBoolean(true);
+        final LinkedBlockingDeque<GameResponse> responsesBot1 = new LinkedBlockingDeque<>();
+        final LinkedBlockingDeque<GameResponse> responsesBot2 = new LinkedBlockingDeque<>();
 
         //get
         new Thread(() -> {
@@ -125,7 +125,7 @@ class ServerTest {
         //handler
         new Thread(() -> {
             try {
-                User player = new RandomBotPlayer(0, "Bot0");
+                final User player = new RandomBotPlayer(0, "Bot0");
                 while (gameIsNotFinish.get()) {
                     GameResponse response = responsesBot1.takeFirst();
                     switch (JsonService.getCommandByResponse(response)) {
@@ -165,7 +165,7 @@ class ServerTest {
         //handler
         Thread threadBot2 = new Thread(() -> {
             try {
-                User player = new RandomBotPlayer(0, "Bot1");
+                final User player = new RandomBotPlayer(0, "Bot1");
                 while (gameIsNotFinish.get()) {
                     GameResponse response = responsesBot2.takeFirst();
                     switch (JsonService.getCommandByResponse(response)) {
@@ -203,14 +203,14 @@ class ServerTest {
 
     @Test
     void createRoomOnServer() throws IOException, ServerException, InterruptedException {
-        ClientConnection connectionBot1 = createConnection(IP, PORT, "Bot1");
-        ClientConnection connectionBot2 = createConnection(IP, PORT, "Bot2");
+        final ClientConnection connectionBot1 = createConnection(IP, PORT, "Bot1");
+        final ClientConnection connectionBot2 = createConnection(IP, PORT, "Bot2");
 
         assertTrue(DataBaseService.getAllGames().isEmpty());
         sendRequest(connectionBot1, new CreateRoomRequest(PlayerColor.WHITE));
         assertEquals(DataBaseService.getAllRooms().size(), 1);
         assertEquals(DataBaseService.getAllRooms().get(0).getState(), RoomState.OPEN);
-        Room room = DataBaseService.getAllRooms().get(0);
+        final Room room = DataBaseService.getAllRooms().get(0);
         assertTrue(DataBaseService.getAllGames().isEmpty());
 
         sendRequest(connectionBot2, new JoinRoomRequest(room.getId()));
@@ -223,22 +223,22 @@ class ServerTest {
     void play10players1000GamesOnServer() throws IOException, ServerException, InterruptedException {
         final int needPlayGames = 1000;
 
-        List<Thread> threads = new ArrayList<>();
+        final List<Thread> threads = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
             threads.add(createClientForPlay(PORT, IP, i, needPlayGames));
         }
-        for (Thread th : threads) {
+        for (final Thread th : threads) {
             th.join();
         }
-        for (Game game : DataBaseService.getAllGames()) {
+        for (final Game game : DataBaseService.getAllGames()) {
             assertEquals(game.getState(), GameState.END);
         }
     }
 
     private Thread createClientForPlay(final int PORT, String IP, int i, int needPlayGames) throws ServerException, InterruptedException, IOException {
-        ClientConnection connection = createConnection(IP, PORT, "Bot" + i);
-        AtomicBoolean play = new AtomicBoolean(true);
-        LinkedBlockingDeque<GameResponse> responsesBot = new LinkedBlockingDeque<>();
+        final ClientConnection connection = createConnection(IP, PORT, "Bot" + i);
+        final AtomicBoolean play = new AtomicBoolean(true);
+        final LinkedBlockingDeque<GameResponse> responsesBot = new LinkedBlockingDeque<>();
 
         //get
         new Thread(() -> {
@@ -253,7 +253,7 @@ class ServerTest {
         //handler
         Thread thread = new Thread(() -> {
             try {
-                User player = new RandomBotPlayer(0, "Bot0");
+                final User player = new RandomBotPlayer(0, "Bot0");
                 while (play.get()) {
                     GameResponse response = responsesBot.takeFirst();
                     switch (JsonService.getCommandByResponse(response)) {
@@ -295,11 +295,11 @@ class ServerTest {
         if (user == null || connection == null || response == null) {
             fail();
         }
-        PlayerColor color = user.getColor();
+        final PlayerColor color = user.getColor();
         try {
             if (nowMoveByMe(color, response.getState())) {
-                GameBoard board = response.getBoard();
-                Point move = user.move(board);
+                final GameBoard board = response.getBoard();
+                final Point move = user.move(board);
                 fastSendRequest(connection, MovePlayerRequest.toDto(response.getGameId(), move));
             }
         } catch (IOException | ServerException e) {
@@ -319,22 +319,22 @@ class ServerTest {
     void getReplayGameOnServer() throws IOException, ServerException, InterruptedException {
         final int needPlayGames = 1;
 
-        List<Thread> threads = new ArrayList<>();
+        final List<Thread> threads = new ArrayList<>();
         for (int i = 0; i < 2; i++) {
             threads.add(createClientForPlay(PORT, IP, i, needPlayGames));
         }
-        for (Thread th : threads) {
+        for (final Thread th : threads) {
             th.join();
         }
-        for (Game game : DataBaseService.getAllGames()) {
+        for (final Game game : DataBaseService.getAllGames()) {
             assertEquals(game.getState(), GameState.END);
         }
 
-        LinkedBlockingDeque<GameResponse> responsesBot3 = new LinkedBlockingDeque<>();
-        ClientConnection connectionBot3 = createConnection(IP, PORT, "BotReplay");
-        Game game = DataBaseService.getAllGames().get(0);
+        final LinkedBlockingDeque<GameResponse> responsesBot3 = new LinkedBlockingDeque<>();
+        final ClientConnection connectionBot3 = createConnection(IP, PORT, "BotReplay");
+        final Game game = DataBaseService.getAllGames().get(0);
 
-        AtomicBoolean needGetInfo = new AtomicBoolean(true);
+        final AtomicBoolean needGetInfo = new AtomicBoolean(true);
 
         new Thread(() -> {
             try {
@@ -346,7 +346,7 @@ class ServerTest {
             }
         }).start();
 
-        Thread threadBot3 = new Thread(() -> {
+        final Thread threadBot3 = new Thread(() -> {
             try {
                 while (needGetInfo.get()) {
                     GameResponse response = responsesBot3.takeFirst();

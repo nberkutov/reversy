@@ -10,7 +10,7 @@ public enum PlayerColor implements Serializable {
 
     private final int id;
 
-    PlayerColor(int id) {
+    PlayerColor(final int id) {
         this.id = id;
     }
 

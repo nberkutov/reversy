@@ -6,6 +6,6 @@ import models.base.GameState;
 import models.base.interfaces.GameBoard;
 
 public interface GameGUI {
-    void updateGUI(GameBoard board, GameState gameState, String opponent) throws ServerException;
+    void updateGUI(final GameBoard board, final GameState gameState, final String opponent) throws ServerException;
 
 }

@@ -3,14 +3,15 @@ package services;
 import exception.GameErrorCode;
 import exception.ServerException;
 import logic.BoardLogic;
+import logic.BoardUtils;
 import models.base.Cell;
 import models.base.PlayerColor;
+import models.base.interfaces.GameBoard;
 import models.board.Board;
 import models.board.Point;
 import models.player.RandomBotPlayer;
 import models.player.User;
 import org.junit.jupiter.api.Test;
-import services.utils.BoardUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,7 +24,7 @@ class BoardLogicTest {
 
     @Test
     void testGetCellInAllDirection() throws ServerException {
-        String s = ""
+        final String s = ""
                 + "0 0 0 0 0 0 0 0"
                 + "0 0 0 w b 0 0 0"
                 + "0 0 0 b w w 0 0"
@@ -32,10 +33,10 @@ class BoardLogicTest {
                 + "0 0 0 0 b 0 0 0"
                 + "0 0 0 0 0 0 0 0"
                 + "0 0 0 0 0 0 0 0";
-        Board board = BoardUtils.fromString(s);
+        final GameBoard board = BoardUtils.fromString(s);
 
 
-        List<Point> result = BoardLogic.getCellInAllDirection(board, new Point(4, 6), Cell.WHITE);
+        final List<Point> result = BoardLogic.getCellInAllDirection(board, new Point(4, 6), Cell.WHITE);
         assertEquals(result.size(), 1);
         assertEquals(result.get(0).getX(), 4);
         assertEquals(result.get(0).getY(), 2);
@@ -48,7 +49,7 @@ class BoardLogicTest {
 
     @Test
     void testMove() throws ServerException {
-        String before = ""
+        final String before = ""
                 + "0 b b b b b b w"
                 + "b b b b b b b b"
                 + "b b b b b b b b"
@@ -57,9 +58,9 @@ class BoardLogicTest {
                 + "b b b b b b b b"
                 + "b b b b b b b b"
                 + "w b b b b b b w";
-        Board a = BoardUtils.fromString(before);
+        final GameBoard a = BoardUtils.fromString(before);
         BoardLogic.makeMove(a, new Point(0, 0), Cell.WHITE);
-        String after = ""
+        final String after = ""
                 + "w w w w w w w w"
                 + "w w b b b b b b"
                 + "w b w b b b b b"
@@ -68,13 +69,13 @@ class BoardLogicTest {
                 + "w b b b b w b b"
                 + "w b b b b b w b"
                 + "w b b b b b b w";
-        Board b = BoardUtils.fromString(after);
+        final GameBoard b = BoardUtils.fromString(after);
         assertEquals(a, b);
     }
 
     @Test
     void testMove2() throws ServerException {
-        String before = ""
+        final String before = ""
                 + "w b b b w b b w"
                 + "b b b b b b b b"
                 + "b b b b b b b b"
@@ -83,10 +84,10 @@ class BoardLogicTest {
                 + "b b b b b b b b"
                 + "b b b b b b b b"
                 + "w b b b w b b w";
-        Board a = BoardUtils.fromString(before);
+        final GameBoard a = BoardUtils.fromString(before);
 
         BoardLogic.makeMove(a, new Point(4, 4), Cell.WHITE);
-        String after = ""
+        final String after = ""
                 + "w b b b w b b w"
                 + "b w b b w b b b"
                 + "b b w b w b b b"
@@ -95,13 +96,13 @@ class BoardLogicTest {
                 + "b b b b w w b b"
                 + "b b b b w b w b"
                 + "w b b b w b b w";
-        Board b = BoardUtils.fromString(after);
+        final GameBoard b = BoardUtils.fromString(after);
         assertEquals(a, b);
     }
 
     @Test
     void testGetAvailableMoves2() throws ServerException {
-        String boardStr = ""
+        final String boardStr = ""
                 + "00000000"
                 + "00000000"
                 + "00bbb000"
@@ -110,7 +111,7 @@ class BoardLogicTest {
                 + "00000000"
                 + "00000000"
                 + "00000000";
-        Board board = BoardUtils.fromString(boardStr);
+        final GameBoard board = BoardUtils.fromString(boardStr);
 
         assertEquals(8, BoardLogic.getAvailableMoves(board, Cell.WHITE).size());
         assertEquals(BoardLogic.getAvailableMoves(board, Cell.BLACK).size(), 0);
@@ -118,7 +119,7 @@ class BoardLogicTest {
 
     @Test
     void testGetAvailableMoves() throws ServerException {
-        String s = ""
+        final String s = ""
                 + "0 0 0 0 0 0 0 0"
                 + "0 0 0 0 0 0 0 0"
                 + "0 0 0 0 0 0 0 0"
@@ -127,9 +128,9 @@ class BoardLogicTest {
                 + "0 0 0 0 0 0 0 0"
                 + "0 0 0 0 0 0 0 0"
                 + "0 0 0 0 0 0 0 0";
-        Board board = BoardUtils.fromString(s);
+        final GameBoard board = BoardUtils.fromString(s);
 
-        List<Point> points = BoardLogic.getAvailableMoves(board, Cell.WHITE);
+        final List<Point> points = BoardLogic.getAvailableMoves(board, Cell.WHITE);
         assertEquals(points.size(), 4);
         assertTrue(points.contains(new Point(4, 2)));
         assertTrue(points.contains(new Point(5, 3)));
@@ -139,7 +140,7 @@ class BoardLogicTest {
 
     @Test
     void testIsPossibleMove() throws ServerException, ServerException {
-        String boardStr = ""
+        final String boardStr = ""
                 + "0 0 0 0 0 0 0 0"
                 + "0 0 0 0 0 0 0 0"
                 + "0 0 0 0 0 0 0 0"
@@ -148,15 +149,15 @@ class BoardLogicTest {
                 + "0 0 0 0 0 0 0 0"
                 + "0 0 0 0 0 0 0 0"
                 + "0 0 0 0 0 0 0 0";
-        Board board = BoardUtils.fromString(boardStr);
+        final GameBoard board = BoardUtils.fromString(boardStr);
 
-        User user = new RandomBotPlayer(0, "bot");
+        final User user = new RandomBotPlayer(0, "bot");
         user.setColor(PlayerColor.WHITE);
         assertTrue(BoardLogic.canMove(board, user.getColor()));
         user.setColor(PlayerColor.BLACK);
         assertTrue(BoardLogic.canMove(board, user.getColor()));
 
-        String two = ""
+        final String two = ""
                 + "0 0 0 0 0 0 0 0"
                 + "0 0 0 0 0 0 0 0"
                 + "0 0 0 0 0 0 0 0"
@@ -165,7 +166,7 @@ class BoardLogicTest {
                 + "0 0 0 0 0 0 0 0"
                 + "0 0 0 0 0 0 0 0"
                 + "0 0 0 0 0 0 0 0";
-        Board bs = BoardUtils.fromString(two);
+        final GameBoard bs = BoardUtils.fromString(two);
         assertFalse(BoardLogic.canMove(bs, user.getColor()));
         user.setColor(PlayerColor.WHITE);
         assertFalse(BoardLogic.canMove(bs, user.getColor()));
@@ -173,7 +174,7 @@ class BoardLogicTest {
 
     @Test
     void testIsPossibleMoveException() {
-        Board board = new Board();
+        final GameBoard board = new Board();
 
         try {
             BoardLogic.canMove(board, null);
@@ -185,7 +186,7 @@ class BoardLogicTest {
 
     @Test
     void testGetCellInAllDirectionException() {
-        Board board = new Board();
+        final GameBoard board = new Board();
 
         try {
             BoardLogic.getCellInAllDirection(board, null, Cell.WHITE);
@@ -208,14 +209,14 @@ class BoardLogicTest {
             assertEquals(e.getErrorCode(), GameErrorCode.INVALID_CELL);
         }
 
-        List<Point> forCheck = new ArrayList<>(Arrays.asList(
+        final List<Point> forCheck = new ArrayList<>(Arrays.asList(
                 new Point(-1, -1),
                 new Point(-1, 0),
                 new Point(0, -1),
                 new Point(BOARD_SIZE + 1, 0),
                 new Point(0, BOARD_SIZE + 1),
                 new Point(BOARD_SIZE + 1, BOARD_SIZE + 1)));
-        for (Point p : forCheck) {
+        for (final Point p : forCheck) {
             try {
                 BoardLogic.getCellInAllDirection(board, p, Cell.WHITE);
                 fail();
@@ -227,7 +228,7 @@ class BoardLogicTest {
 
     @Test
     void testMoveException() throws ServerException {
-        String before = ""
+        final String before = ""
                 + "0 0 0 0 0 0 0 0"
                 + "0 w b 0 0 0 0 0"
                 + "0 b w 0 0 0 0 0"
@@ -236,7 +237,7 @@ class BoardLogicTest {
                 + "0 0 0 0 0 0 0 0"
                 + "0 0 0 0 0 0 0 0"
                 + "0 0 0 0 0 0 0 0";
-        Board board = BoardUtils.fromString(before);
+        final GameBoard board = BoardUtils.fromString(before);
 
         try {
             BoardLogic.makeMove(board, new Point(1, 7), Cell.WHITE);
@@ -250,7 +251,7 @@ class BoardLogicTest {
 
     @Test
     void testGetAvailableMovesException() {
-        Board board = new Board();
+        final GameBoard board = new Board();
 
         try {
             BoardLogic.getAvailableMoves(board, (Cell) null);
@@ -270,11 +271,6 @@ class BoardLogicTest {
         } catch (ServerException e) {
             assertEquals(e.getErrorCode(), GameErrorCode.INVALID_PLAYER_COLOR);
         }
-    }
-
-    @Test
-    void testGameEnd() {
-
     }
 
 }

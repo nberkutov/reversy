@@ -173,7 +173,7 @@ public class StrangeAlgorithm implements Algorithm {
     private Point getNearestCornerPointBoard(final GameBoard board, final Point point, final Cell need) throws ServerException {
         double min = 100;
         Point result = null;
-        for (Point check : cornerPoints()) {
+        for (final Point check : cornerPoints()) {
             if (board.getCell(check) != need) {
                 continue;
             }
