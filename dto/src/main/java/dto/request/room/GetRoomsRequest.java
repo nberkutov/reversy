@@ -5,10 +5,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode
 @Data
 @AllArgsConstructor
-public class GetRoomsRequest extends GameRequest {
+public class GetRoomsRequest implements GameRequest {
     private final boolean needClose;
     private final int limit;
 

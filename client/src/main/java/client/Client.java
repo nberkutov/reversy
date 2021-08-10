@@ -90,7 +90,7 @@ public class Client extends Thread {
         try {
             while (connection.isConnected()) {
                 try {
-                    GameResponse response = ClientController.getRequest(connection);
+                    final GameResponse response = ClientController.getRequest(connection);
                     actionByResponseFromServer(response);
                 } catch (ServerException e) {
                     log.error("GameError {} {}", connection.getSocket(), e.getErrorCode());
@@ -118,7 +118,7 @@ public class Client extends Thread {
         if (response.getState() != GameState.END) {
             if (nowMoveByMe(player, response.getState())) {
                 Thread.sleep(100);
-                Point move = player.move(board);
+                final Point move = player.move(board);
                 ClientController.sendRequest(connection, MovePlayerRequest.toDto(response.getGameId(), move));
             } else {
                 player.triggerMoveOpponent(board);
