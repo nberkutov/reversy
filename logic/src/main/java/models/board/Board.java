@@ -149,9 +149,9 @@ public class Board implements Serializable, GameBoard {
      * @throws ServerException
      */
     public void reverseCell(final Point point) throws ServerException {
-        Cell cell = getCell(point);
+        final Cell cell = getCell(point);
         if (cell == Cell.EMPTY) {
-            throw new ServerException(GameErrorCode.CELL_IS_EMPTY);
+            throw new ServerException(GameErrorCode.INVALID_CELL);
         }
         if (cell == Cell.WHITE) {
             setCell(point, Cell.BLACK);

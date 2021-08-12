@@ -3,7 +3,6 @@ package logic;
 import exception.ServerException;
 import models.base.Cell;
 import models.base.interfaces.GameBoard;
-import models.board.Board;
 
 
 public class BoardUtils {
@@ -33,7 +32,7 @@ public class BoardUtils {
     }
 
     public static GameBoard fromString(final String string) throws ServerException {
-        final Board board = new Board();
+        final GameBoard board = BoardFactory.generateStartedBoard();
         int k = 0;
         for (int i = 0; i < string.length(); i++) {
             final int x = k % board.getSize();

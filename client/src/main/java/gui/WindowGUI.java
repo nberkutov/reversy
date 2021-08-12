@@ -3,6 +3,7 @@ package gui;
 import exception.ServerException;
 import models.base.Cell;
 import models.base.GameState;
+import models.base.PlayerColor;
 import models.base.interfaces.GameBoard;
 import models.board.Board;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
@@ -14,6 +15,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.Line2D;
+import java.util.function.BiConsumer;
 
 import static models.GameProperties.BOARD_SIZE;
 
@@ -21,12 +23,20 @@ public class WindowGUI implements GameGUI {
     private final GameWindow gameWindow;
 
     public WindowGUI() {
-        gameWindow = new GameWindow();
+        this(PlayerColor.NONE);
+    }
+
+    public WindowGUI(final PlayerColor color) {
+        gameWindow = new GameWindow(color.name());
     }
 
     @Override
-    public void updateGUI(final GameBoard board, final GameState gameState, final String opponent) {
+    public void updateGUI(final GameBoard board, final GameState gameState, final String opponent) throws ServerException {
         gameWindow.updateGUI(board, gameState, opponent);
+    }
+
+    public void setCallback(final BiConsumer<Integer, Integer> callback) {
+        gameWindow.setCallback(callback);
     }
 }
 
@@ -40,11 +50,12 @@ class GameWindow extends JFrame {
     private final JPanel infoPanel;
     private final BoardPanel boardPanel;
     private GameBoard board;
+    private static BiConsumer<Integer, Integer> callback;
 
-    public GameWindow() {
-        super("Reversi client.Client");
+    public GameWindow(final String title) {
+        super(title);
         board = new Board();
-        int size = CELL_SIZE * BOARD_SIZE;
+        final int size = CELL_SIZE * BOARD_SIZE;
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(size + 125, size + 50);
         setLocationRelativeTo(null);
@@ -64,6 +75,10 @@ class GameWindow extends JFrame {
         setVisible(true);
     }
 
+    public void setCallback(final BiConsumer<Integer, Integer> callback) {
+        GameWindow.callback = callback;
+    }
+
     private void initLabels() {
         infoPanel.setMaximumSize(new Dimension(120, CELL_SIZE * BOARD_SIZE));
         infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
@@ -81,7 +96,7 @@ class GameWindow extends JFrame {
     }
 
     public void updateGUI(final GameBoard board, final GameState gameState, final String opponent) {
-        String stateText;
+        final String stateText;
         switch (gameState) {
             case BLACK_MOVE:
                 stateText = "ХОД ЧЕРНЫХ";
@@ -104,6 +119,7 @@ class GameWindow extends JFrame {
         repaint();
 
         if (gameState == GameState.END) {
+
             String message = "";
             if (board.getCountBlackCells() > board.getCountWhiteCells()) {
                 message = "Победа черных";
@@ -152,7 +168,7 @@ class GameWindow extends JFrame {
         public void paint(final Graphics g) {
             super.paint(g);
             final Graphics2D g2 = (Graphics2D) g;
-            float length = CELL_SIZE * BOARD_SIZE;
+            final float length = CELL_SIZE * BOARD_SIZE;
 
             g2.setColor(Color.BLACK);
             for (int i = 0; i < BOARD_SIZE + 1; i++) {
@@ -199,7 +215,7 @@ class GameWindow extends JFrame {
                             mouseX = -1;
                             mouseY = -1;
                         }
-                    } catch (ServerException e) {
+                    } catch (final ServerException e) {
                         e.printStackTrace();
                     }
                 }
@@ -212,6 +228,11 @@ class GameWindow extends JFrame {
             public void mouseClicked(final MouseEvent mouseEvent) {
                 mouseX = mouseEvent.getX();
                 mouseY = mouseEvent.getY();
+                final int x = mouseX / CELL_SIZE;
+                final int y = mouseY / CELL_SIZE;
+                System.out.println(mouseX + " " + mouseY);
+                System.out.println(x + " " + y);
+                callback.accept(x, y);
                 repaint();
             }
 

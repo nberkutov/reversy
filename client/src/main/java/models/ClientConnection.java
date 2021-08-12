@@ -1,5 +1,7 @@
 package models;
 
+import exception.GameErrorCode;
+import exception.ServerException;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -19,7 +21,6 @@ public class ClientConnection implements AutoCloseable, Serializable {
     private final DataInputStream in;
     private final DataOutputStream out;
 
-
     private final Lock lock = new ReentrantLock();
 
     public ClientConnection(final Socket socket) throws IOException {
@@ -36,11 +37,16 @@ public class ClientConnection implements AutoCloseable, Serializable {
         return in.readUTF();
     }
 
-    public void send(final String msg) throws IOException {
-        lock.lock();
-        out.writeUTF(msg);
-        out.flush();
-        lock.unlock();
+    public void send(final String msg) throws ServerException {
+        try {
+            lock.lock();
+            out.writeUTF(msg);
+            out.flush();
+        } catch (IOException e) {
+            throw new ServerException(GameErrorCode.SERVER_ERROR);
+        } finally {
+            lock.unlock();
+        }
     }
 
     @Override

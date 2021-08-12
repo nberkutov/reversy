@@ -2,6 +2,7 @@ package models;
 
 import lombok.Data;
 import models.base.RoomState;
+import models.base.interfaces.GameBoard;
 import models.game.Game;
 import models.game.Room;
 import models.player.User;
@@ -55,24 +56,24 @@ public class DataBase implements Serializable, Cloneable {
         return rooms.get(roomId);
     }
 
-    public synchronized Game putGame(final User first, final User second) {
-        int id = getGameId();
-        Game game = new Game(id, first, second);
+    public synchronized Game putGame(final GameBoard board, final User first, final User second) {
+        final int id = getGameId();
+        final Game game = new Game(id, board, first, second);
         games.put(id, game);
         return game;
     }
 
     public synchronized User putPlayer(final String nickname) {
-        int id = getPlayerId();
-        User user = new User(id, nickname);
+        final int id = getPlayerId();
+        final User user = new User(id, nickname);
         login_players.put(user.getNickname(), user);
         players.put(id, user);
         return user;
     }
 
     public synchronized Room putRoom() {
-        int id = getRoomId();
-        Room room = new Room(id);
+        final int id = getRoomId();
+        final Room room = new Room(id);
         rooms.put(id, room);
         return room;
     }
@@ -108,9 +109,10 @@ public class DataBase implements Serializable, Cloneable {
     }
 
     public void removeAllConnects() {
-        for (final Integer id : connects.keySet()) {
-            ClientConnection connection = connects.get(id);
-            User user = connection.getUser();
+        for (final Map.Entry<Integer, ClientConnection> entry : connects.entrySet()) {
+            final int id = entry.getKey();
+            final ClientConnection connection = entry.getValue();
+            final User user = connection.getUser();
             if (user != null) {
                 login_connects.remove(user.getNickname());
             }
@@ -122,8 +124,15 @@ public class DataBase implements Serializable, Cloneable {
         return new ArrayList<>(players.values());
     }
 
-    public List<ClientConnection> getAllConnection() {
+    public List<ClientConnection> getAllConnections() {
         return new ArrayList<>(connects.values());
+    }
+
+    public List<ClientConnection> getAuthConnections() {
+        return connects.values()
+                .stream()
+                .filter(x -> x.getUser() != null)
+                .collect(Collectors.toList());
     }
 
     public List<Game> getAllGames() {
@@ -135,7 +144,10 @@ public class DataBase implements Serializable, Cloneable {
         if (!needClose) {
             stream = stream.filter(room -> room.getState() == RoomState.CLOSE);
         }
-        return stream.limit(limit).collect(Collectors.toList());
+        if (limit > 0) {
+            stream = stream.limit(limit);
+        }
+        return stream.collect(Collectors.toList());
     }
 
     public List<Room> getAllRooms() {
@@ -144,7 +156,7 @@ public class DataBase implements Serializable, Cloneable {
 
     @Override
     public DataBase clone() {
-        DataBase db = new DataBase();
+        final DataBase db = new DataBase();
         db.setLogin_connects(new ConcurrentHashMap<>(login_connects));
         db.setConnects(new ConcurrentHashMap<>(connects));
         db.setGames(new ConcurrentHashMap<>(games));

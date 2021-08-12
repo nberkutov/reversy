@@ -9,9 +9,9 @@ import dto.response.ErrorResponse;
 import dto.response.GameResponse;
 import dto.response.game.GameBoardResponse;
 import dto.response.game.ReplayResponse;
+import dto.response.player.CreateGameResponse;
 import dto.response.player.CreatePlayerResponse;
 import dto.response.player.MessageResponse;
-import dto.response.player.SearchGameResponse;
 import dto.response.room.ListRoomResponse;
 import dto.response.room.RoomResponse;
 import exception.GameErrorCode;
@@ -59,7 +59,7 @@ class JsonServiceCommandTest {
                 Arguments.of(ERROR, new ErrorResponse(null, null)),
                 Arguments.of(MESSAGE, new MessageResponse(null)),
                 Arguments.of(GAME_PLAYING, new GameBoardResponse(0, null, null, null)),
-                Arguments.of(GAME_START, new SearchGameResponse(0, null)),
+                Arguments.of(GAME_START, new CreateGameResponse(0, null)),
                 Arguments.of(GAME_REPLAY, new ReplayResponse(null, null, null, null, null)),
                 Arguments.of(CREATE_PLAYER, new CreatePlayerResponse(0, null)),
                 Arguments.of(ROOM, new RoomResponse(0, null, null)),
@@ -154,8 +154,8 @@ class JsonServiceCommandTest {
 
     @Test
     void fromMsgParserResponse() throws ServerException {
-        final String json = JsonService.toJson(new SearchGameResponse(1001, PlayerColor.BLACK));
-        final SearchGameResponse response = (SearchGameResponse) JsonService.getResponseFromMsg(CommandResponse.GAME_START.getCommandName() + " " + json);
+        final String json = JsonService.toJson(new CreateGameResponse(1001, PlayerColor.BLACK));
+        final CreateGameResponse response = (CreateGameResponse) JsonService.getResponseFromMsg(CommandResponse.GAME_START.getCommandName() + " " + json);
         assertEquals(response.getGameId(), 1001);
         assertEquals(response.getColor(), PlayerColor.BLACK);
     }
@@ -214,7 +214,7 @@ class JsonServiceCommandTest {
 
     @Test
     void toMsgParseResponse() throws ServerException {
-        final SearchGameResponse response = new SearchGameResponse(1001, PlayerColor.BLACK);
+        final CreateGameResponse response = new CreateGameResponse(1001, PlayerColor.BLACK);
         final String msg = JsonService.toMsgParser(response);
         final String json = JsonService.toJson(response);
         final String msg_will = CommandResponse.GAME_START.getCommandName() + " " + json;

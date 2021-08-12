@@ -1,9 +1,11 @@
 package services;
 
+import controllers.mapper.Mapper;
 import dto.request.player.GetReplayGameRequest;
 import dto.request.player.MovePlayerRequest;
 import exception.GameErrorCode;
 import exception.ServerException;
+import logic.BoardFactory;
 import logic.BoardLogic;
 import lombok.extern.slf4j.Slf4j;
 import models.ClientConnection;
@@ -51,17 +53,22 @@ public class GameService extends DataBaseService {
         userIsNotNull(white);
         black.lock();
         white.lock();
-        final Game game = putGame(black, white);
+        final GameBoard board = BoardFactory.generateStartedBoard();
+        final Game game = putGame(board, black, white);
         black.setState(PlayerState.PLAYING);
         black.setNowPlaying(game);
         white.setState(PlayerState.PLAYING);
         white.setNowPlaying(game);
+        SenderService.sendResponse(black, Mapper.toDtoCreateGame(game, black));
+        SenderService.sendResponse(black, Mapper.toDtoGame(game, black));
+        SenderService.sendResponse(white, Mapper.toDtoCreateGame(game, white));
+        SenderService.sendResponse(white, Mapper.toDtoGame(game, white));
         white.unlock();
         black.unlock();
         return game;
     }
 
-    public static Game createGameByRoom(Room room) throws ServerException {
+    public static Game createGameByRoom(final Room room) throws ServerException {
         roomIsNotNull(room);
         final User black = room.getBlackUser();
         final User white = room.getWhiteUser();
@@ -77,20 +84,25 @@ public class GameService extends DataBaseService {
 
     public static Game makePlayerMove(final Game game, final Point point, final User user) throws ServerException {
         gameIsNotNull(game);
-        game.lock();
-        gameIsNotEnd(game);
-        userIsNotNull(user);
-        playerValidMove(game, user);
+        try {
+            game.lock();
+            gameIsNotEnd(game);
+            userIsNotNull(user);
+            playerValidMove(game, user);
+            BoardLogic.makeMove(game.getBoard(), point, Cell.valueOf(user.getColor()));
+            game.addMove(user.getColor(), point);
+            choosingPlayerMove(game);
 
-        BoardLogic.makeMove(game.getBoard(), point, Cell.valueOf(user.getColor()));
-        game.addMove(user.getColor(), point);
-        choosingPlayerMove(game);
+            if (gameIsFinished(game)) {
+                final GameResult result = getGameResult(game);
+                finishGame(result, game);
+            }
+            SenderService.sendResponse(game.getBlackUser(), Mapper.toDtoGame(game, game.getBlackUser()));
+            SenderService.sendResponse(game.getWhiteUser(), Mapper.toDtoGame(game, game.getWhiteUser()));
 
-        if (gameIsFinished(game)) {
-            GameResult result = getGameResult(game);
-            finishGame(result, game);
+        } finally {
+            game.unlock();
         }
-
         return game;
     }
 

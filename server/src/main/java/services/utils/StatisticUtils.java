@@ -18,6 +18,9 @@ public class StatisticUtils {
     private static final String[] HEADING = {"ID", "Nickname", "Total games", "Number of wins", "Number of losses", "Number of games for white", "Number of games for black", "Wins against"};
     private static final char DEFAULT_SEPARATOR = ';';
 
+    private StatisticUtils() {
+    }
+
     public static void saveStatistic(final List<User> users, final String path) throws ServerException {
         if (users == null) {
             throw new ServerException(GameErrorCode.PLAYER_NOT_FOUND);
@@ -26,8 +29,8 @@ public class StatisticUtils {
             throw new ServerException(GameErrorCode.FILE_PATH_INVALID);
         }
 
-        try (FileWriter writer = new FileWriter(path)) {
-            List<String[]> list = new ArrayList<>();
+        try (final FileWriter writer = new FileWriter(path)) {
+            final List<String[]> list = new ArrayList<>();
             list.add(HEADING);
             list.addAll(playersToListString(users));
 
@@ -37,7 +40,7 @@ public class StatisticUtils {
                 }
                 writer.append(CSVWriter.DEFAULT_LINE_END);
             }
-        } catch (IOException e) {
+        } catch (final IOException e) {
             log.error("Writing to the CSV file is not successful {} {}", path, e.getMessage());
             throw new ServerException(GameErrorCode.SAVE_FILE_ERROR);
         }

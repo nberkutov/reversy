@@ -6,9 +6,9 @@ import dto.request.player.WantPlayRequest;
 import dto.response.ErrorResponse;
 import dto.response.GameResponse;
 import dto.response.game.GameBoardResponse;
+import dto.response.player.CreateGameResponse;
 import dto.response.player.CreatePlayerResponse;
 import dto.response.player.MessageResponse;
-import dto.response.player.SearchGameResponse;
 import exception.GameErrorCode;
 import exception.ServerException;
 import gui.GameGUI;
@@ -30,18 +30,18 @@ public class Client extends Thread {
     private final ClientConnection connection;
     private final GameGUI gui;
 
-    public Client(final String ip, final int port, final Player player, GameGUI gui) throws ServerException {
+    public Client(final String ip, final int port, final Player player, final GameGUI gui) throws ServerException {
         try {
             this.player = player;
             final Socket socket = new Socket(ip, port);
             this.connection = new ClientConnection(socket);
             this.gui = gui;
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new ServerException(GameErrorCode.SERVER_NOT_STARTED);
         }
     }
 
-    private static boolean nowMoveByMe(Player player, GameState state) {
+    private static boolean nowMoveByMe(final Player player, final GameState state) {
         if (player.getColor() == PlayerColor.WHITE && state == GameState.WHITE_MOVE) {
             return true;
         }
@@ -65,7 +65,7 @@ public class Client extends Thread {
                 actionCreatePlayer((CreatePlayerResponse) gameResponse);
                 break;
             case GAME_START:
-                actionStartGame((SearchGameResponse) gameResponse);
+                actionStartGame((CreateGameResponse) gameResponse);
                 break;
             case MESSAGE:
                 actionMessage((MessageResponse) gameResponse);
@@ -82,7 +82,7 @@ public class Client extends Thread {
             try {
                 Thread.sleep(10);
                 ClientController.sendRequest(connection, new CreatePlayerRequest(player.getNickname()));
-            } catch (InterruptedException | IOException | ServerException e) {
+            } catch (final InterruptedException | ServerException e) {
                 e.printStackTrace();
             }
         }).start();
@@ -92,11 +92,11 @@ public class Client extends Thread {
                 try {
                     final GameResponse response = ClientController.getRequest(connection);
                     actionByResponseFromServer(response);
-                } catch (ServerException e) {
+                } catch (final ServerException e) {
                     log.error("GameError {} {}", connection.getSocket(), e.getErrorCode());
                 }
             }
-        } catch (IOException | InterruptedException e) {
+        } catch (final IOException | InterruptedException e) {
             log.error("Error {} {}", connection.getSocket(), e.getMessage());
             connection.close();
         }
@@ -130,7 +130,7 @@ public class Client extends Thread {
         }
     }
 
-    private void actionStartGame(final SearchGameResponse response) {
+    private void actionStartGame(final CreateGameResponse response) {
         log.debug("actionStartGame {}", response);
         player.setColor(response.getColor());
         System.out.println(player.getNickname() + " " + response.getColor());

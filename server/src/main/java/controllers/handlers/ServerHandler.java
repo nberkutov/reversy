@@ -2,11 +2,11 @@ package controllers.handlers;
 
 import controllers.ConnectionController;
 import controllers.TaskRequest;
-import controllers.TaskResponse;
 import controllers.mapper.Mapper;
 import exception.ServerException;
 import lombok.extern.slf4j.Slf4j;
 import models.ClientConnection;
+import services.SenderService;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -27,27 +27,28 @@ public class ServerHandler implements AutoCloseable {
         serviceHandlerTasks = Executors.newFixedThreadPool(4);
 
         for (int i = 0; i < 4; i++) {
-            serviceHandlerTasks.execute(new TasksHandler(requests, waiting));
+            final TasksHandler handler = new TasksHandler(requests, waiting);
+            serviceHandlerTasks.execute(handler);
         }
 
-        gameSearcher = new GameSearcher(requests, waiting);
+        gameSearcher = new GameSearcher(waiting);
         gameSearcher.start();
     }
 
     public void createControllerForPlayer(final Socket socket) {
         try {
-            ClientConnection connection = new ClientConnection(socket);
+            final ClientConnection connection = new ClientConnection(socket);
             motdForPlayer(connection);
             ConnectionController.initPlayerController(connection, requests);
-        } catch (IOException | ServerException e) {
+        } catch (final IOException | ServerException e) {
             log.error("CreatePlayerController", e);
         }
 
     }
 
-    private void motdForPlayer(final ClientConnection connection) throws IOException, ServerException {
-        TaskResponse.createAndSend(connection, Mapper.toDto("Welcome to our server"));
-        TaskResponse.createAndSend(connection, Mapper.toDto("Whats you name?"));
+    private void motdForPlayer(final ClientConnection connection) throws ServerException {
+        SenderService.sendResponse(connection, Mapper.toDtoMessage("Welcome to our server"));
+        SenderService.sendResponse(connection, Mapper.toDtoMessage("You can authorize or register"));
     }
 
     public void close() {

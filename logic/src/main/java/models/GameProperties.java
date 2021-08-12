@@ -15,7 +15,7 @@ public class GameProperties {
     public static final int PORT = 8070;
     public static final String SERVER_FILE = PROJECT_PATH + File.separator + "server.dat";
     public static final String PLAYERS_FILE = PROJECT_PATH + File.separator + "statistic.csv";
-    public static final String NEURAL_FILE = PROJECT_PATH + File.separator + "neural.ser";
+    public static final String NEURAL_FILE = PROJECT_PATH + File.separator + "neural.eg";
 
     private GameProperties() {
     }

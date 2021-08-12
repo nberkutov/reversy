@@ -24,7 +24,7 @@ import java.net.Socket;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class GameServicesTest {
+class GameServicesTest {
     private static final Server server = new Server();
 
     @BeforeEach
@@ -106,28 +106,28 @@ public class GameServicesTest {
 
         try {
             GameService.makePlayerMove(game, new Point(0, 4), game.getWhiteUser());
-        } catch (ServerException e) {
+        } catch (final ServerException e) {
             assertEquals(e.getErrorCode(), GameErrorCode.GAME_ENDED);
         }
 
     }
 
     @Test
-    void testMoveException() throws ServerException, IOException, ServerException {
+    void testMoveException() throws IOException, ServerException {
         final int PORT = 8083;
         final String IP = "127.0.0.1";
 
         try {
             GameService.makePlayerMove(null, null);
             fail();
-        } catch (ServerException e) {
+        } catch (final ServerException e) {
             assertEquals(e.getErrorCode(), GameErrorCode.INVALID_REQUEST);
         }
 
         try {
             GameService.makePlayerMove(new MovePlayerRequest(-1, new Point()), null);
             fail();
-        } catch (ServerException e) {
+        } catch (final ServerException e) {
             assertEquals(e.getErrorCode(), GameErrorCode.CONNECTION_LOST);
         }
 
@@ -140,14 +140,14 @@ public class GameServicesTest {
         try {
             GameService.makePlayerMove(new MovePlayerRequest(game.getId(), new Point()), connection);
             fail();
-        } catch (ServerException e) {
+        } catch (final ServerException e) {
             assertEquals(e.getErrorCode(), GameErrorCode.ILLEGAL_REQUEST);
         }
 
         try {
             GameService.makePlayerMove(new MovePlayerRequest(-1, new Point()), connection);
             fail();
-        } catch (ServerException e) {
+        } catch (final ServerException e) {
             assertEquals(e.getErrorCode(), GameErrorCode.GAME_NOT_FOUND);
         }
 
@@ -159,7 +159,7 @@ public class GameServicesTest {
                     new ClientConnection(new Socket(IP, PORT))
             );
             fail();
-        } catch (ServerException e) {
+        } catch (final ServerException e) {
             assertEquals(e.getErrorCode(), GameErrorCode.PLAYER_NOT_FOUND);
         }
 
@@ -184,14 +184,14 @@ public class GameServicesTest {
         try {
             GameService.getReplayGame(null, null);
             fail();
-        } catch (ServerException e) {
+        } catch (final ServerException e) {
             assertEquals(e.getErrorCode(), GameErrorCode.INVALID_REQUEST);
         }
 
         try {
             GameService.getReplayGame(new GetReplayGameRequest(0), null);
             fail();
-        } catch (ServerException e) {
+        } catch (final ServerException e) {
             assertEquals(e.getErrorCode(), GameErrorCode.CONNECTION_LOST);
         }
         final RandomBotPlayer p1 = new RandomBotPlayer(1, "bot1");
@@ -206,7 +206,7 @@ public class GameServicesTest {
         try {
             GameService.getReplayGame(new GetReplayGameRequest(game.getId()), connection);
             fail();
-        } catch (ServerException e) {
+        } catch (final ServerException e) {
             assertEquals(e.getErrorCode(), GameErrorCode.GAME_NOT_FINISHED);
         }
         socket.close();
@@ -241,13 +241,13 @@ public class GameServicesTest {
         try {
             GameService.createGame(new RandomBotPlayer(1, "bot2"), null);
             fail();
-        } catch (ServerException e) {
+        } catch (final ServerException e) {
             assertEquals(e.getErrorCode(), GameErrorCode.PLAYER_NOT_FOUND);
         }
         try {
             GameService.createGame(null, new RandomBotPlayer(1, "bot2"));
             fail();
-        } catch (ServerException e) {
+        } catch (final ServerException e) {
             assertEquals(e.getErrorCode(), GameErrorCode.PLAYER_NOT_FOUND);
         }
     }

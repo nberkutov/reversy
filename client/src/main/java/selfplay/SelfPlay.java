@@ -3,6 +3,7 @@ package selfplay;
 import exception.GameErrorCode;
 import exception.ServerException;
 import logic.BoardLogic;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import models.Player;
 import models.base.Cell;
@@ -14,31 +15,37 @@ import models.board.Point;
 
 
 @Slf4j
+@Data
 public class SelfPlay {
     private final Player first;
     private final Player second;
     private final SelfGame selfGame;
 
     public SelfPlay(final Player first, final Player second) {
+        this(new Board(), first, second);
+    }
+
+    public SelfPlay(final GameBoard board, final Player first, final Player second) {
         this.first = first;
         this.second = second;
-        final GameBoard board = new Board();
 
         first.setColor(PlayerColor.BLACK);
         second.setColor(PlayerColor.WHITE);
         selfGame = new SelfGame(board, first, second);
     }
 
+
     /**
      * Функция делает ход игры
      *
      * @param selfGame - Игра
      */
-    private static void playNext(final SelfGame selfGame, Player first, Player second) throws ServerException {
+    private static void playNext(final SelfGame selfGame, final Player first, final Player second) throws ServerException {
         switch (selfGame.getState()) {
             case BLACK_MOVE:
                 if (!BoardLogic.getAvailableMoves(selfGame.getBoard(), selfGame.getBlackPlayer().getColor()).isEmpty()) {
                     final Point move = first.move(selfGame.getBoard());
+                    second.triggerMoveOpponent(selfGame.getBoard());
                     BoardLogic.makeMove(selfGame.getBoard(), move, Cell.BLACK);
                 }
                 selfGame.setState(GameState.WHITE_MOVE);
@@ -46,6 +53,7 @@ public class SelfPlay {
             case WHITE_MOVE:
                 if (!BoardLogic.getAvailableMoves(selfGame.getBoard(), selfGame.getWhitePlayer().getColor()).isEmpty()) {
                     final Point move = second.move(selfGame.getBoard());
+                    first.triggerMoveOpponent(selfGame.getBoard());
                     BoardLogic.makeMove(selfGame.getBoard(), move, Cell.WHITE);
                 }
                 selfGame.setState(GameState.BLACK_MOVE);
@@ -53,6 +61,8 @@ public class SelfPlay {
         }
         if (isGameEnd(selfGame)) {
             selfGame.setState(GameState.END);
+            first.triggerGameEnd(selfGame.getState(), selfGame.getBoard());
+            second.triggerGameEnd(selfGame.getState(), selfGame.getBoard());
         }
     }
 

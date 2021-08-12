@@ -13,10 +13,6 @@ public class TaskRequest {
     private ClientConnection client;
     private GameRequest request;
 
-    public TaskRequest(final ClientConnection client) {
-        this.client = client;
-    }
-
     public static TaskRequest create(ClientConnection client, GameRequest request) {
         return new TaskRequest(client, request);
     }

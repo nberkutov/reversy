@@ -8,7 +8,7 @@ import dto.request.room.JoinRoomRequest;
 import dto.response.GameResponse;
 import dto.response.game.GameBoardResponse;
 import dto.response.game.ReplayResponse;
-import dto.response.player.SearchGameResponse;
+import dto.response.player.CreateGameResponse;
 import exception.ServerException;
 import models.ClientConnection;
 import models.base.GameState;
@@ -54,7 +54,7 @@ class ServerTest {
         DataBaseService.clearAll();
     }
 
-    private static ClientConnection createConnection(String ip, int port, String name) throws IOException, ServerException, InterruptedException {
+    private static ClientConnection createConnection(final String ip, final int port, final String name) throws IOException, ServerException, InterruptedException {
         final Socket client = new Socket(ip, port);
         final ClientConnection connection = new ClientConnection(client);
         final CreatePlayerRequest request = new CreatePlayerRequest(name);
@@ -71,6 +71,7 @@ class ServerTest {
 
 
     private static void wantPlay(final ClientConnection connection) throws IOException, ServerException, InterruptedException {
+        Thread.sleep(10);
         sendRequest(connection, new WantPlayRequest());
     }
 
@@ -118,7 +119,7 @@ class ServerTest {
                 while (gameIsNotFinish.get()) {
                     responsesBot1.putLast(JsonService.getResponseFromMsg(connectionBot1.readMsg()));
                 }
-            } catch (InterruptedException | ServerException | IOException e) {
+            } catch (final InterruptedException | ServerException | IOException e) {
                 fail();
             }
         }).start();
@@ -127,13 +128,13 @@ class ServerTest {
             try {
                 final User player = new RandomBotPlayer(0, "Bot0");
                 while (gameIsNotFinish.get()) {
-                    GameResponse response = responsesBot1.takeFirst();
+                    final GameResponse response = responsesBot1.takeFirst();
                     switch (JsonService.getCommandByResponse(response)) {
                         case ERROR:
                             fail();
                             break;
                         case GAME_PLAYING:
-                            GameBoardResponse gameBoardresponse = (GameBoardResponse) response;
+                            final GameBoardResponse gameBoardresponse = (GameBoardResponse) response;
                             if (gameBoardresponse.getState() != GameState.END) {
                                 actionPlaying(connectionBot1, player, gameBoardresponse);
                             } else {
@@ -141,14 +142,14 @@ class ServerTest {
                             }
                             break;
                         case GAME_START:
-                            SearchGameResponse createGame = (SearchGameResponse) response;
+                            final CreateGameResponse createGame = (CreateGameResponse) response;
                             player.setColor(createGame.getColor());
                             break;
                         default:
                             break;
                     }
                 }
-            } catch (InterruptedException | ServerException e) {
+            } catch (final InterruptedException | ServerException e) {
                 fail();
             }
         }).start();
@@ -158,22 +159,22 @@ class ServerTest {
                 while (gameIsNotFinish.get()) {
                     responsesBot2.putLast(JsonService.getResponseFromMsg(connectionBot2.readMsg()));
                 }
-            } catch (InterruptedException | ServerException | IOException e) {
+            } catch (final InterruptedException | ServerException | IOException e) {
                 fail();
             }
         }).start();
         //handler
-        Thread threadBot2 = new Thread(() -> {
+        final Thread threadBot2 = new Thread(() -> {
             try {
                 final User player = new RandomBotPlayer(0, "Bot1");
                 while (gameIsNotFinish.get()) {
-                    GameResponse response = responsesBot2.takeFirst();
+                    final GameResponse response = responsesBot2.takeFirst();
                     switch (JsonService.getCommandByResponse(response)) {
                         case ERROR:
                             fail();
                             break;
                         case GAME_PLAYING:
-                            GameBoardResponse gameBoardresponse = (GameBoardResponse) response;
+                            final GameBoardResponse gameBoardresponse = (GameBoardResponse) response;
                             if (gameBoardresponse.getState() != GameState.END) {
                                 actionPlaying(connectionBot2, player, gameBoardresponse);
                             } else {
@@ -181,14 +182,14 @@ class ServerTest {
                             }
                             break;
                         case GAME_START:
-                            SearchGameResponse createGame = (SearchGameResponse) response;
+                            final CreateGameResponse createGame = (CreateGameResponse) response;
                             player.setColor(createGame.getColor());
                             break;
                         default:
                             break;
                     }
                 }
-            } catch (InterruptedException | ServerException e) {
+            } catch (final InterruptedException | ServerException e) {
                 fail();
             }
         });
@@ -235,7 +236,7 @@ class ServerTest {
         }
     }
 
-    private Thread createClientForPlay(final int PORT, String IP, int i, int needPlayGames) throws ServerException, InterruptedException, IOException {
+    private Thread createClientForPlay(final int PORT, final String IP, final int i, final int needPlayGames) throws ServerException, InterruptedException, IOException {
         final ClientConnection connection = createConnection(IP, PORT, "Bot" + i);
         final AtomicBoolean play = new AtomicBoolean(true);
         final LinkedBlockingDeque<GameResponse> responsesBot = new LinkedBlockingDeque<>();
@@ -246,22 +247,23 @@ class ServerTest {
                 while (play.get()) {
                     responsesBot.putLast(JsonService.getResponseFromMsg(connection.readMsg()));
                 }
-            } catch (InterruptedException | ServerException | IOException e) {
+            } catch (final InterruptedException | ServerException | IOException e) {
                 fail();
             }
         }).start();
         //handler
-        Thread thread = new Thread(() -> {
+        final Thread thread = new Thread(() -> {
             try {
                 final User player = new RandomBotPlayer(0, "Bot0");
                 while (play.get()) {
-                    GameResponse response = responsesBot.takeFirst();
+                    final GameResponse response = responsesBot.takeFirst();
                     switch (JsonService.getCommandByResponse(response)) {
                         case ERROR:
+                            System.out.println(response);
                             fail();
                             break;
                         case GAME_PLAYING:
-                            GameBoardResponse gameBoardresponse = (GameBoardResponse) response;
+                            final GameBoardResponse gameBoardresponse = (GameBoardResponse) response;
                             if (gameBoardresponse.getState() != GameState.END) {
                                 actionPlaying(connection, player, gameBoardresponse);
                             } else {
@@ -274,14 +276,14 @@ class ServerTest {
                             }
                             break;
                         case GAME_START:
-                            SearchGameResponse createGame = (SearchGameResponse) response;
+                            final CreateGameResponse createGame = (CreateGameResponse) response;
                             player.setColor(createGame.getColor());
                             break;
                         default:
                             break;
                     }
                 }
-            } catch (InterruptedException | ServerException | IOException e) {
+            } catch (final InterruptedException | ServerException | IOException e) {
                 fail();
             }
         });
@@ -291,7 +293,7 @@ class ServerTest {
         return thread;
     }
 
-    private void actionPlaying(final ClientConnection connection, User user, GameBoardResponse response) {
+    private void actionPlaying(final ClientConnection connection, final User user, final GameBoardResponse response) {
         if (user == null || connection == null || response == null) {
             fail();
         }
@@ -302,13 +304,13 @@ class ServerTest {
                 final Point move = user.move(board);
                 fastSendRequest(connection, MovePlayerRequest.toDto(response.getGameId(), move));
             }
-        } catch (IOException | ServerException e) {
+        } catch (final IOException | ServerException e) {
             fail();
         }
 
     }
 
-    private boolean nowMoveByMe(PlayerColor color, GameState state) {
+    private boolean nowMoveByMe(final PlayerColor color, final GameState state) {
         if (color == PlayerColor.WHITE && state == GameState.WHITE_MOVE) {
             return true;
         }
@@ -341,7 +343,7 @@ class ServerTest {
                 while (needGetInfo.get()) {
                     responsesBot3.putLast(JsonService.getResponseFromMsg(connectionBot3.readMsg()));
                 }
-            } catch (InterruptedException | ServerException | IOException e) {
+            } catch (final InterruptedException | ServerException | IOException e) {
                 fail();
             }
         }).start();
@@ -349,13 +351,13 @@ class ServerTest {
         final Thread threadBot3 = new Thread(() -> {
             try {
                 while (needGetInfo.get()) {
-                    GameResponse response = responsesBot3.takeFirst();
+                    final GameResponse response = responsesBot3.takeFirst();
                     switch (JsonService.getCommandByResponse(response)) {
                         case ERROR:
                             fail();
                             break;
                         case GAME_REPLAY:
-                            ReplayResponse replay = (ReplayResponse) response;
+                            final ReplayResponse replay = (ReplayResponse) response;
                             assertFalse(replay.getMoves().isEmpty());
                             needGetInfo.set(false);
                             break;
@@ -363,7 +365,7 @@ class ServerTest {
                             break;
                     }
                 }
-            } catch (InterruptedException | ServerException e) {
+            } catch (final InterruptedException | ServerException e) {
                 fail();
             }
         });

@@ -3,18 +3,19 @@ package models;
 import exception.GameErrorCode;
 import exception.ServerException;
 import models.base.Cell;
-import models.board.Board;
+import models.base.interfaces.GameBoard;
 import models.board.Point;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import static models.GameProperties.BOARD_SIZE;
 import static org.junit.jupiter.api.Assertions.*;
 
-class BoardTest {
+class BoardTest extends BaseAllBoards {
 
-    @Test
-    void testGetCell() throws ServerException {
-        Board board = new Board();
+    @ParameterizedTest
+    @MethodSource("getAllBoards")
+    void testGetCell(final GameBoard board) throws ServerException {
         for (int y = 0; y < BOARD_SIZE; y++) {
             for (int x = 0; x < BOARD_SIZE; x++) {
                 assertNotNull(board.getCell(x, y));
@@ -23,9 +24,9 @@ class BoardTest {
         }
     }
 
-    @Test
-    void testCreateBoard() throws ServerException {
-        Board board = new Board();
+    @ParameterizedTest
+    @MethodSource("getAllBoards")
+    void testCreateBoard(final GameBoard board) throws ServerException {
         for (int y = 0; y < BOARD_SIZE; y++) {
             for (int x = 0; x < BOARD_SIZE; x++) {
                 if (y == 3 && x == 3 || y == 4 && x == 4) {
@@ -39,9 +40,9 @@ class BoardTest {
         }
     }
 
-    @Test
-    void testSetCell() throws ServerException {
-        Board board = new Board();
+    @ParameterizedTest
+    @MethodSource("getAllBoards")
+    void testSetCell(final GameBoard board) throws ServerException {
         assertEquals(Cell.EMPTY, board.getCell(0, 0));
         board.setCell(0, 0, Cell.BLACK);
         assertEquals(Cell.BLACK, board.getCell(0, 0));
@@ -51,15 +52,15 @@ class BoardTest {
         assertEquals(Cell.EMPTY, board.getCell(0, 0));
     }
 
-    @Test
-    void testReverseCell() throws ServerException {
-        Board board = new Board();
+    @ParameterizedTest
+    @MethodSource("getAllBoards")
+    void testReverseCell(final GameBoard board) throws ServerException {
         assertEquals(Cell.EMPTY, board.getCell(0, 0));
         try {
             board.reverseCell(0, 0);
             fail();
-        } catch (ServerException ex) {
-            assertEquals(ex.getErrorCode(), GameErrorCode.CELL_IS_EMPTY);
+        } catch (final ServerException ex) {
+            assertEquals(ex.getErrorCode(), GameErrorCode.INVALID_CELL);
         }
         assertEquals(Cell.EMPTY, board.getCell(0, 0));
         board.setCell(0, 0, Cell.BLACK);

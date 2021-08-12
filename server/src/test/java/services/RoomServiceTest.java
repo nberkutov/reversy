@@ -82,14 +82,14 @@ class RoomServiceTest {
         final int PORT = 8087;
         final String IP = "127.0.0.1";
         try {
-            RoomService.joinRoom(null, null);
+            RoomService.joinRoomAndCreateGame(null, null);
             fail();
         } catch (ServerException e) {
             assertEquals(e.getErrorCode(), GameErrorCode.INVALID_REQUEST);
         }
 
         try {
-            RoomService.joinRoom(new JoinRoomRequest(0), null);
+            RoomService.joinRoomAndCreateGame(new JoinRoomRequest(0), null);
             fail();
         } catch (ServerException e) {
             assertEquals(e.getErrorCode(), GameErrorCode.CONNECTION_LOST);
@@ -101,7 +101,7 @@ class RoomServiceTest {
 
 
         try {
-            RoomService.joinRoom(new JoinRoomRequest(0), connection);
+            RoomService.joinRoomAndCreateGame(new JoinRoomRequest(0), connection);
             fail();
         } catch (ServerException e) {
             assertEquals(e.getErrorCode(), GameErrorCode.PLAYER_NOT_FOUND);
@@ -110,7 +110,7 @@ class RoomServiceTest {
         PlayerService.createPlayer(new CreatePlayerRequest("Boooot"), connection);
 
         try {
-            RoomService.joinRoom(new JoinRoomRequest(-1), connection);
+            RoomService.joinRoomAndCreateGame(new JoinRoomRequest(-1), connection);
             fail();
         } catch (ServerException e) {
             assertEquals(e.getErrorCode(), GameErrorCode.ROOM_NOT_FOUND);
@@ -122,14 +122,14 @@ class RoomServiceTest {
         final ClientConnection connection2 = new ClientConnection(client2);
         PlayerService.createPlayer(new CreatePlayerRequest("Boooot2"), connection2);
 
-        RoomService.joinRoom(new JoinRoomRequest(room.getId()), connection2);
+        RoomService.joinRoomAndCreateGame(new JoinRoomRequest(room.getId()), connection2);
 
 
         final Socket client3 = new Socket(IP, PORT);
         final ClientConnection connection3 = new ClientConnection(client3);
         PlayerService.createPlayer(new CreatePlayerRequest("Boooot3"), connection3);
         try {
-            RoomService.joinRoom(new JoinRoomRequest(room.getId()), connection3);
+            RoomService.joinRoomAndCreateGame(new JoinRoomRequest(room.getId()), connection3);
             fail();
         } catch (ServerException e) {
             assertEquals(e.getErrorCode(), GameErrorCode.ROOM_IS_CLOSED);

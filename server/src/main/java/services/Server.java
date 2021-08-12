@@ -1,8 +1,6 @@
 package services;
 
 import controllers.handlers.ServerHandler;
-import controllers.handlers.TasksHandler;
-import controllers.mapper.Mapper;
 import exception.ServerException;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -41,24 +39,24 @@ public class Server extends Thread implements AutoCloseable {
     }
 
     public static Server initServerFromFile(final int port, final String path) {
-        DataBase dataBase = new DataBase();
-        Server server = new Server(port, dataBase);
+        final DataBase dataBase = new DataBase();
+        final Server server = new Server(port, dataBase);
         if (path != null) {
             uploadServerFile(path);
         }
         return server;
     }
 
-    public static void uploadServerFile(String path) {
+    public static void uploadServerFile(final String path) {
         if (path == null) {
             log.error("Upload server stop, path invalid {}", path);
             return;
         }
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(new File(path)))) {
+        try (final ObjectInputStream ois = new ObjectInputStream(new FileInputStream(new File(path)))) {
             dataBase = (DataBase) ois.readObject();
             log.info("Server found and upload database in {}", path);
             log.info("Database found: {}", dataBase);
-        } catch (IOException | ClassNotFoundException e) {
+        } catch (final IOException | ClassNotFoundException e) {
             log.error("Upload server from file not successfully {}", e.getMessage());
         }
     }
@@ -72,7 +70,7 @@ public class Server extends Thread implements AutoCloseable {
                 final Socket socket = serverSocket.accept();
                 connect(socket);
             }
-        } catch (IOException e) {
+        } catch (final IOException e) {
             log.info("ServerSocket closed");
         }
     }
@@ -83,7 +81,7 @@ public class Server extends Thread implements AutoCloseable {
             controller.close();
             serverSocket.close();
             Thread.currentThread().interrupt();
-        } catch (IOException e) {
+        } catch (final IOException e) {
             log.error("Server close", e);
         }
     }
@@ -95,7 +93,7 @@ public class Server extends Thread implements AutoCloseable {
 
     public void closeAllConnects() {
         broadcastMessage("The server kicked you");
-        for (final ClientConnection connection : dataBase.getAllConnection()) {
+        for (final ClientConnection connection : dataBase.getAllConnections()) {
             connection.close();
         }
     }
@@ -105,19 +103,19 @@ public class Server extends Thread implements AutoCloseable {
         try {
             StatisticUtils.saveStatistic(userList, path);
             log.info("Statistic save in {}", path);
-        } catch (ServerException e) {
+        } catch (final ServerException e) {
             log.error("Cant save statistic", e);
         }
     }
 
     public void saveServerFile(final String path) {
         if (path != null) {
-            try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(new File(path)))) {
+            try (final ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(new File(path)))) {
                 final DataBase dataBase = Server.dataBase.clone();
                 dataBase.removeAllConnects();
                 oos.writeObject(dataBase);
                 log.info("Server successfully save database in {}", path);
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 log.error("Server cant save {}", path, e);
             }
         }
@@ -130,9 +128,8 @@ public class Server extends Thread implements AutoCloseable {
 
     private void broadcastMessage(final String message) {
         try {
-            final List<ClientConnection> list = dataBase.getAllConnection();
-            TasksHandler.broadcastResponse(list, Mapper.toDto(message));
-        } catch (IOException | ServerException e) {
+            SenderService.broadcastMessageForAll(message);
+        } catch (final ServerException e) {
             log.warn("Broadcast message don't send {}", message);
         }
     }
@@ -141,14 +138,14 @@ public class Server extends Thread implements AutoCloseable {
         try {
             final Scanner scanner = new Scanner(System.in);
             System.out.println("Enter the id: ");
-            int id = scanner.nextInt();
+            final int id = scanner.nextInt();
             final Game game = dataBase.getGameById(id);
             if (game != null) {
                 System.out.println(game);
                 return;
             }
 
-        } catch (NumberFormatException | PatternSyntaxException ignore) {
+        } catch (final NumberFormatException | PatternSyntaxException ignore) {
         }
         log.warn("Game not found");
     }
@@ -163,7 +160,7 @@ public class Server extends Thread implements AutoCloseable {
                 System.out.println(room);
                 return;
             }
-        } catch (RuntimeException ignore) {
+        } catch (final RuntimeException ignore) {
         }
         log.warn("Room not found");
     }

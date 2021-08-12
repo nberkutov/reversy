@@ -1,5 +1,6 @@
 package commands;
 
+import dto.request.GameRequest;
 import dto.request.player.*;
 import dto.request.room.CreateRoomRequest;
 import dto.request.room.GetRoomsRequest;
@@ -19,9 +20,9 @@ public enum CommandRequest {
     GET_REPLAY_GAME("get_replay_game", GetReplayGameRequest.class);
 
     private final String commandName;
-    private final Class request;
+    private final Class<? extends GameRequest> request;
 
-    CommandRequest(final String commandName, final Class request) {
+    CommandRequest(final String commandName, final Class<? extends GameRequest> request) {
         this.commandName = commandName;
         this.request = request;
     }

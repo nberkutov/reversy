@@ -2,7 +2,6 @@ package logic;
 
 import exception.GameErrorCode;
 import exception.ServerException;
-import lombok.extern.slf4j.Slf4j;
 import models.base.Cell;
 import models.base.PlayerColor;
 import models.base.interfaces.GameBoard;
@@ -15,7 +14,6 @@ import java.util.Set;
 
 import static models.GameProperties.BOARD_SIZE;
 
-@Slf4j
 public class BoardLogic {
 
     private BoardLogic() {
@@ -245,7 +243,6 @@ public class BoardLogic {
      */
     private static void checkCellIsEmpty(final Cell cell) throws ServerException {
         if (cell == null || cell == Cell.EMPTY) {
-            log.error("Bad checkCellOnEmpty", new ServerException(GameErrorCode.INVALID_CELL));
             throw new ServerException(GameErrorCode.INVALID_CELL);
         }
     }
@@ -258,7 +255,6 @@ public class BoardLogic {
      */
     private static void colorIsNotNull(final PlayerColor color) throws ServerException {
         if (color == null) {
-            log.error("Bad checkPlayerColor", new ServerException(GameErrorCode.INVALID_PLAYER_COLOR));
             throw new ServerException(GameErrorCode.INVALID_PLAYER_COLOR);
         }
     }
@@ -277,7 +273,6 @@ public class BoardLogic {
      */
     private static void boardIsNotNull(final GameBoard board) throws ServerException {
         if (board == null) {
-            log.error("Bad checkBoard", new ServerException(GameErrorCode.BOARD_NOT_FOUND));
             throw new ServerException(GameErrorCode.BOARD_NOT_FOUND);
         }
     }
@@ -306,7 +301,6 @@ public class BoardLogic {
                 && point.getY() < BOARD_SIZE) {
             return;
         }
-        log.error("Bad checkPoint", new ServerException(GameErrorCode.BAD_POINT));
         throw new ServerException(GameErrorCode.BAD_POINT);
     }
 }

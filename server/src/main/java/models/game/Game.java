@@ -7,7 +7,6 @@ import models.base.GameState;
 import models.base.Move;
 import models.base.PlayerColor;
 import models.base.interfaces.GameBoard;
-import models.board.Board;
 import models.board.Point;
 import models.player.User;
 
@@ -30,8 +29,8 @@ public class Game implements Serializable {
     private GameResult result;
     private LinkedList<Move> moves;
 
-    public Game(final int id, final User first, final User second) {
-        this(new Board(), first, second);
+    public Game(final int id, final GameBoard board, final User first, final User second) {
+        this(board, first, second);
         this.id = id;
     }
 

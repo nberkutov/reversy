@@ -32,7 +32,8 @@ public enum GameErrorCode {
     INVALID_MOVE("Invalid move."),
     INVALID_REQUEST("Invalid request."),
     INVALID_RESPONSE("Invalid response."),
-    CELL_IS_EMPTY("Cell is empty.");
+    CELL_IS_EMPTY("Cell is empty."),
+    SERVER_ERROR("Server not responding");
     private final String message;
 
     GameErrorCode(final String message) {

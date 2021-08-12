@@ -6,6 +6,7 @@ import exception.ServerException;
 import lombok.extern.slf4j.Slf4j;
 import models.ClientConnection;
 import models.base.PlayerState;
+import models.base.interfaces.GameBoard;
 import models.game.Game;
 import models.game.GameResult;
 import models.game.Room;
@@ -41,8 +42,8 @@ public class DataBaseService implements Serializable {
         return Server.dataBase.getRoomById(roomId);
     }
 
-    public static Game putGame(final User first, final User second) {
-        return Server.dataBase.putGame(first, second);
+    public static Game putGame(final GameBoard board, final User first, final User second) {
+        return Server.dataBase.putGame(board, first, second);
     }
 
     public static User putPlayer(final String nickname) {
@@ -58,7 +59,6 @@ public class DataBaseService implements Serializable {
             throw new ServerException(GameErrorCode.NICKNAME_ALREADY_USED);
         }
     }
-
 
     public static void putConnection(final int id, final String nickname, final ClientConnection connection) {
         Server.dataBase.putConnection(id, nickname, connection);
@@ -90,6 +90,14 @@ public class DataBaseService implements Serializable {
 
     public static List<Game> getAllGames() {
         return Server.dataBase.getAllGames();
+    }
+
+    public static List<ClientConnection> getAllConnections() {
+        return Server.dataBase.getAllConnections();
+    }
+
+    public static List<ClientConnection> getAuthConnections() {
+        return Server.dataBase.getAllConnections();
     }
 
     public static List<Room> getRooms(final boolean needClose, final int limit) {

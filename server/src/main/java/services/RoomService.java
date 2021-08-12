@@ -35,7 +35,7 @@ public class RoomService extends DataBaseService {
         }
     }
 
-    public static Game joinRoom(final JoinRoomRequest joinRoom, final ClientConnection connection) throws ServerException {
+    public static Game joinRoomAndCreateGame(final JoinRoomRequest joinRoom, final ClientConnection connection) throws ServerException {
         checkRequestAndConnection(joinRoom, connection);
         final User user = connection.getUser();
         userIsNotNull(user);
@@ -61,12 +61,15 @@ public class RoomService extends DataBaseService {
         return DataBaseService.getRooms(needClose, limit);
     }
 
+    public static List<Room> getAvailableRooms() {
+        return DataBaseService.getRooms(false, 0);
+    }
+
     private static void validateRequest(final GetRoomsRequest getRooms) throws ServerException {
-        if (getRooms.getLimit() <= 0) {
+        if (getRooms.getLimit() < 0) {
             throw new ServerException(GameErrorCode.INVALID_REQUEST);
         }
     }
-
 
     private static void setPlayerInRoom(final Room room, final User user, final PlayerColor needColor) {
         switch (needColor) {

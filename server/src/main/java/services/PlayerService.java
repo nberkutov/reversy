@@ -1,6 +1,5 @@
 package services;
 
-import controllers.handlers.TasksHandler;
 import controllers.mapper.Mapper;
 import dto.request.player.AuthPlayerRequest;
 import dto.request.player.CreatePlayerRequest;
@@ -16,8 +15,6 @@ import models.base.PlayerState;
 import models.game.Game;
 import models.game.GameResult;
 import models.player.User;
-
-import java.io.IOException;
 
 @Slf4j
 public class PlayerService extends DataBaseService {
@@ -58,7 +55,7 @@ public class PlayerService extends DataBaseService {
         return user;
     }
 
-    public static synchronized void autoLogoutPlayer(final ClientConnection connection) throws ServerException {
+    public static synchronized void autoLogoutPlayer(final ClientConnection connection) {
         final User user = connection.getUser();
         if (user == null) {
             return;
@@ -79,28 +76,20 @@ public class PlayerService extends DataBaseService {
             GameService.finishGame(result, nowPlayGame);
 
             final ClientConnection whiteConnection = getConnectionById(nowPlayGame.getWhiteUser().getId());
-            sendResponse(whiteConnection, nowPlayGame, nowPlayGame.getWhiteUser());
+            SenderService.sendResponse(whiteConnection, Mapper.toDtoGame(nowPlayGame, nowPlayGame.getWhiteUser()));
 
             final ClientConnection blackConnection = getConnectionById(nowPlayGame.getBlackUser().getId());
-            sendResponse(blackConnection, nowPlayGame, nowPlayGame.getBlackUser());
-
-        } catch (IOException ignore) {
-            log.debug("Cant send info about tech win {}", nowPlayGame);
+            SenderService.sendResponse(blackConnection, Mapper.toDtoGame(nowPlayGame, nowPlayGame.getBlackUser()));
+        } catch (ServerException e) {
+            log.error("Cant logout user after leave {}", connection);
         } finally {
             nowPlayGame.unlock();
-        }
-    }
-
-    private static void sendResponse(final ClientConnection connection, final Game game, final User user) throws ServerException, IOException {
-        if (connection != null) {
-            TasksHandler.sendResponse(connection, Mapper.toDtoGame(game, user));
         }
     }
 
     public static ClientConnection getConnectionByPlayer(final User user) throws ServerException {
         userIsNotNull(user);
         final ClientConnection connection = getConnectionById(user.getId());
-        connectionIsNotNullAndConnected(connection);
         return connection;
     }
 

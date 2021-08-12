@@ -9,37 +9,29 @@ import models.base.interfaces.GameBoard;
 import models.board.Point;
 import models.strategies.NeuralStrategy;
 
-import java.util.LinkedList;
-import java.util.List;
-
 @EqualsAndHashCode
 public class AdaptiveNeuralBot extends Player {
     private final NeuralStrategy strategy;
-    private final List<GameBoard> list;
 
-    public AdaptiveNeuralBot(String nickname) {
+    public AdaptiveNeuralBot(final String nickname) {
         super(nickname);
         strategy = new NeuralStrategy();
-        list = new LinkedList<>();
     }
 
     @Override
-    public Point move(GameBoard board) throws ServerException {
-        list.add(board);
+    public Point move(final GameBoard board) throws ServerException {
         return strategy.getMove(board, color);
     }
 
     @Override
-    public void triggerMoveOpponent(GameBoard board) throws ServerException {
-        list.add(board);
+    public void triggerMoveOpponent(final GameBoard board) throws ServerException {
     }
 
     @Override
-    public void triggerGameEnd(GameState state, GameBoard board) throws ServerException {
+    public void triggerGameEnd(final GameState state, final GameBoard board) throws ServerException {
         if (BoardLogic.getCountCellByPlayerColor(board, color)
                 < BoardLogic.getCountCellByPlayerColor(board, color.getOpponent())) {
-//            strategy.
+            strategy.clearBestGenome();
         }
-        list.clear();
     }
 }

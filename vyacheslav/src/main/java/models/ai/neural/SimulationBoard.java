@@ -45,7 +45,7 @@ public class SimulationBoard {
         if (isPlayerLose(board, myColor)) {
             return 0;
         }
-        return (board.getCountEmpty() + 1) * BoardLogic.getCountCellByPlayerColor(board, myColor) * (countCorners(board, myColor) + 1);
+        return (board.getCountEmpty() + 1) * BoardLogic.getCountCellByPlayerColor(board, myColor) * (countCorners(board, myColor) + 1d);
     }
 
     private int countCorners(final GameBoard board, final PlayerColor color) throws ServerException {

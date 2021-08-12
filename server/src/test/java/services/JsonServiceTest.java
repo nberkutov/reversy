@@ -2,7 +2,9 @@ package services;
 
 import dto.request.GameRequest;
 import dto.request.player.CreatePlayerRequest;
-import models.board.Board;
+import exception.ServerException;
+import logic.BoardFactory;
+import models.base.interfaces.GameBoard;
 import models.game.Game;
 import models.player.RandomBotPlayer;
 import org.junit.jupiter.api.Test;
@@ -23,11 +25,11 @@ class JsonServiceTest {
     }
 
     @Test
-    void testMapSerialization() {
-        final Board board = new Board();
+    void testMapSerialization() throws ServerException {
+        final GameBoard board = BoardFactory.generateStartedBoard();
         final String json = JsonService.toJson(board);
         assertFalse(json.trim().isEmpty());
-        final Board after = JsonService.fromJson(json, Board.class);
+        final GameBoard after = JsonService.fromJson(json, board.getClass());
         assertEquals(board, after);
 
         final Game game = new Game(board, new RandomBotPlayer(0, "Test"), new RandomBotPlayer(1, "Test1"));

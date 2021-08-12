@@ -10,7 +10,7 @@ import models.base.PlayerColor;
 @Data
 @EqualsAndHashCode
 @AllArgsConstructor
-public class SearchGameResponse implements GameResponse {
+public class CreateGameResponse implements GameResponse {
     private final int gameId;
     private final PlayerColor color;
 

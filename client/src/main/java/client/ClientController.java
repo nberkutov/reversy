@@ -16,11 +16,9 @@ public class ClientController {
     private ClientController() {
     }
 
-    public static void sendRequest(final ClientConnection server, final GameRequest request) throws IOException, ServerException {
-        if (server.isConnected()) {
-            log.debug("sendRequest {} {}", server.getSocket().getLocalPort(), request);
-            server.send(JsonService.toMsgParser(request));
-        }
+    public static void sendRequest(final ClientConnection server, final GameRequest request) throws ServerException {
+        server.send(JsonService.toMsgParser(request));
+        log.debug("sendRequest {} {}", server.getSocket().getLocalPort(), request);
     }
 
     public static GameResponse getRequest(final ClientConnection server) throws ServerException, IOException {

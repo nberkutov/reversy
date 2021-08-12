@@ -8,7 +8,7 @@ import models.base.interfaces.GameBoard;
 import models.board.Board;
 import org.encog.ml.CalculateScore;
 import org.encog.ml.MLMethod;
-import org.encog.neural.networks.BasicNetwork;
+import org.encog.neural.neat.NEATNetwork;
 
 @Data
 @AllArgsConstructor
@@ -28,7 +28,7 @@ public class BoardNeuralScore implements CalculateScore {
     @SneakyThrows
     @Override
     public double calculateScore(MLMethod network) {
-        final NeuralGame game = new NeuralGame((BasicNetwork) network, color, board);
+        final NeuralGame game = new NeuralGame((NEATNetwork) network, color, board);
         return game.scoreGame();
     }
 

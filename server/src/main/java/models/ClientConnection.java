@@ -36,11 +36,15 @@ public class ClientConnection implements AutoCloseable, Serializable {
         return in.readUTF();
     }
 
-    public void send(final String msg) throws IOException {
-        lock.lock();
-        out.writeUTF(msg);
-        out.flush();
-        lock.unlock();
+    public void send(final String msg) {
+        try {
+            lock.lock();
+            out.writeUTF(msg);
+            out.flush();
+        } catch (final IOException ignored) {
+        } finally {
+            lock.unlock();
+        }
     }
 
     @Override
@@ -50,8 +54,7 @@ public class ClientConnection implements AutoCloseable, Serializable {
                 socket.close();
                 in.close();
                 out.close();
-            } catch (IOException e) {
-                e.printStackTrace();
+            } catch (final IOException ignored) {
             }
         }
     }

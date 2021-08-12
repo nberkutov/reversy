@@ -8,8 +8,6 @@ import lombok.NoArgsConstructor;
 import models.ClientConnection;
 import utils.JsonService;
 
-import java.io.IOException;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -17,19 +15,13 @@ public class TaskResponse {
     private ClientConnection client;
     private GameResponse response;
 
-    public static TaskResponse create(final ClientConnection connection, final GameResponse response) {
-        return new TaskResponse(connection, response);
-    }
-
-    public static void createAndSend(final ClientConnection connection, final GameResponse response) throws IOException, ServerException {
+    public static void createAndSend(final ClientConnection connection, final GameResponse response) throws ServerException {
         TaskResponse taskResponse = new TaskResponse(connection, response);
         taskResponse.sendJson();
     }
 
-    public void sendJson() throws IOException, ServerException {
-        if (client.isConnected()) {
-            client.send(JsonService.toMsgParser(response));
-        }
+    public void sendJson() throws ServerException {
+        client.send(JsonService.toMsgParser(response));
     }
 
 }
