@@ -19,7 +19,7 @@ public class ConnectionController extends Thread {
     private final LinkedBlockingDeque<TaskRequest> requests;
 
     public static void initPlayerController(final ClientConnection connection, final LinkedBlockingDeque<TaskRequest> requests) {
-        ConnectionController controller = new ConnectionController(connection, requests);
+        final ConnectionController controller = new ConnectionController(connection, requests);
         controller.start();
     }
 
@@ -29,19 +29,19 @@ public class ConnectionController extends Thread {
         try {
             while (connection.isConnected()) {
                 try {
-                    String msg = connection.readMsg();
-                    GameRequest request = JsonService.getRequestFromMsg(msg);
+                    final String msg = connection.readMsg();
+                    final GameRequest request = JsonService.getRequestFromMsg(msg);
                     requests.putLast(TaskRequest.create(connection, request));
-                } catch (ServerException e) {
+                } catch (final ServerException e) {
                     log.warn("Connection controller {}", connection, e);
                 }
             }
-        } catch (InterruptedException | IOException e) {
+        } catch (final InterruptedException | IOException e) {
             log.info("Close connect with {}", connection);
             try {
                 connection.close();
                 PlayerService.autoLogoutPlayer(connection);
-            } catch (ServerException exception) {
+            } catch (final ServerException exception) {
                 log.error("Cant logout user after leave {}", connection);
             }
 

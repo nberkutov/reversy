@@ -16,7 +16,7 @@ public abstract class Player {
     protected PlayerColor color;
     private String nickname;
 
-    public Player(String nickname) {
+    public Player(final String nickname) {
         this.nickname = nickname;
     }
 

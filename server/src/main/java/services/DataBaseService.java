@@ -18,39 +18,39 @@ import java.util.List;
 public class DataBaseService implements Serializable {
 
     protected static synchronized int getPlayerId() {
-        return Server.dataBase.getPlayerId();
+        return Server.database.getPlayerId();
     }
 
     protected static synchronized int getGameId() {
-        return Server.dataBase.getGameId();
+        return Server.database.getGameId();
     }
 
     protected static synchronized int getRoomId() {
-        return Server.dataBase.getRoomId();
+        return Server.database.getRoomId();
     }
 
     public static void clearAll() {
-        Server.dataBase.clearAll();
+        Server.database.clearAll();
     }
 
     public static Game getGameById(final int gameId) {
-        return Server.dataBase.getGameById(gameId);
+        return Server.database.getGameById(gameId);
     }
 
     public static Room getRoomById(final int roomId) {
-        return Server.dataBase.getRoomById(roomId);
+        return Server.database.getRoomById(roomId);
     }
 
     public static Game putGame(final User first, final User second) {
-        return Server.dataBase.putGame(first, second);
+        return Server.database.putGame(first, second);
     }
 
     public static User putPlayer(final String nickname) {
-        return Server.dataBase.putPlayer(nickname);
+        return Server.database.putPlayer(nickname);
     }
 
     public static synchronized Room putRoom() {
-        return Server.dataBase.putRoom();
+        return Server.database.putRoom();
     }
 
     protected static synchronized void nicknameIsUsedAlready(final String nickname) throws ServerException {
@@ -61,47 +61,47 @@ public class DataBaseService implements Serializable {
 
 
     public static void putConnection(final int id, final String nickname, final ClientConnection connection) {
-        Server.dataBase.putConnection(id, nickname, connection);
+        Server.database.putConnection(id, nickname, connection);
     }
 
     public static void removeConnection(final int id, final String nickname) {
-        Server.dataBase.removeConnection(id, nickname);
+        Server.database.removeConnection(id, nickname);
     }
 
     public static void removeConnection(final String nickname) {
-        Server.dataBase.removeConnection(nickname);
+        Server.database.removeConnection(nickname);
     }
 
     public static void putConnection(final String nickname, final ClientConnection connection) {
-        Server.dataBase.putConnection(nickname, connection);
+        Server.database.putConnection(nickname, connection);
     }
 
     public static User getPlayerByNickname(final String nickname) {
-        return Server.dataBase.getPlayerByNickname(nickname);
+        return Server.database.getPlayerByNickname(nickname);
     }
 
     public static ClientConnection getConnectionByNickname(final String nickname) {
-        return Server.dataBase.getConnectionByNickname(nickname);
+        return Server.database.getConnectionByNickname(nickname);
     }
 
     public static List<User> getAllPlayers() {
-        return Server.dataBase.getAllPlayers();
+        return Server.database.getAllPlayers();
     }
 
     public static List<Game> getAllGames() {
-        return Server.dataBase.getAllGames();
+        return Server.database.getAllGames();
     }
 
     public static List<Room> getRooms(final boolean needClose, final int limit) {
-        return Server.dataBase.getRooms(needClose, limit);
+        return Server.database.getRooms(needClose, limit);
     }
 
     public static List<Room> getAllRooms() {
-        return Server.dataBase.getAllRooms();
+        return Server.database.getAllRooms();
     }
 
     public static ClientConnection getConnectionById(final int id) {
-        return Server.dataBase.getConnectionById(id);
+        return Server.database.getConnectionById(id);
     }
 
     /**

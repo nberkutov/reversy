@@ -1,5 +1,9 @@
 package client;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import dto.request.player.CreatePlayerRequest;
 import dto.request.player.MovePlayerRequest;
 import dto.request.player.WantPlayRequest;
@@ -12,6 +16,7 @@ import dto.response.player.SearchGameResponse;
 import exception.GameErrorCode;
 import exception.ServerException;
 import gui.GameGUI;
+import gui.WindowGUI;
 import lombok.extern.slf4j.Slf4j;
 import models.ClientConnection;
 import models.Player;
@@ -19,10 +24,14 @@ import models.base.GameState;
 import models.base.PlayerColor;
 import models.base.interfaces.GameBoard;
 import models.board.Point;
+import models.players.SmartBot;
+import models.strategies.RandomStrategy;
 import utils.JsonService;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.Random;
 
 @Slf4j
 public class Client extends Thread {
@@ -30,18 +39,51 @@ public class Client extends Thread {
     private final ClientConnection connection;
     private final GameGUI gui;
 
-    public Client(final String ip, final int port, final Player player, GameGUI gui) throws ServerException {
+    public static void main(final String[] args) {
+        if (args.length == 0) {
+            log.info("Config file missed.");
+        }
+        final File configFile = new File(args[0]);
+        try {
+            final ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+            mapper.findAndRegisterModules();
+            final ClientProperties properties = mapper.readValue(configFile, ClientProperties.class);
+
+            final Client client = new Client(
+                    properties.getHost().orElse("127.0.0.1"),
+                    properties.getPort().orElse(8080),
+                    getPlayer(properties.getBotType().orElse("random")), getGUI("window"));
+            client.start();
+        } catch (final IOException | ServerException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public Client(final String ip, final int port, final Player player, final GameGUI gui) throws ServerException {
         try {
             this.player = player;
             final Socket socket = new Socket(ip, port);
             this.connection = new ClientConnection(socket);
             this.gui = gui;
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new ServerException(GameErrorCode.SERVER_NOT_STARTED);
         }
     }
 
-    private static boolean nowMoveByMe(Player player, GameState state) {
+    private static Player getPlayer(final String playerType) {
+        /*switch (playerType) {
+            case "minimax":
+
+        }*/
+
+        return new SmartBot("test1222", new RandomStrategy());
+    }
+
+    private static GameGUI getGUI(final String guiType) {
+        return new WindowGUI();
+    }
+
+    private static boolean nowMoveByMe(final Player player, final GameState state) {
         if (player.getColor() == PlayerColor.WHITE && state == GameState.WHITE_MOVE) {
             return true;
         }

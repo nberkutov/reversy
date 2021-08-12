@@ -10,18 +10,18 @@ public class StartServer {
     private static final Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) {
-        String path = SERVER_FILE;
+        /*String path = SERVER_FILE;
         int port = GameProperties.PORT;
         Server server = Server.initServerFromFile(port, path);
         server.start();
 
-        runCommands(server, path);
+        runCommands(server, path);*/
     }
 
     private static void runCommands(final Server server, final String path) {
-        boolean work = server.isAlive();
+        boolean isRunning = true;
 
-        while (work) {
+        while (isRunning) {
             String string = scanner.nextLine().trim().toLowerCase();
             ServerCommand command = ServerCommand.getCommandMessage(string);
             switch (command) {
@@ -32,13 +32,13 @@ public class StartServer {
                     server.saveServerFile(path);
                     break;
                 case UPLOAD_SERVER:
-                    Server.uploadServerFile(path);
+                    //Server.uploadServerFile(path);
                     break;
                 case SAVE_PLAYERS:
                     server.saveStatistic(GameProperties.PLAYERS_FILE);
                     break;
                 case INFO_GAME:
-                    server.getInfoGame();
+                    server.getGameInfo();
                     break;
                 case INFO_ROOM:
                     server.getInfoRoom();
@@ -54,7 +54,7 @@ public class StartServer {
                     break;
                 case STOP:
                     server.close();
-                    work = false;
+                    isRunning = false;
                     break;
                 default:
                     break;

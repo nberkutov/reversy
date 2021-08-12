@@ -46,7 +46,7 @@ class ServerTest {
     @BeforeAll
     private static void createDateBase() {
         server.start();
-        PORT = server.getPORT();
+        PORT = server.getPort();
     }
 
     @BeforeEach
