@@ -18,8 +18,8 @@ public class Vertex implements Comparable {
     }
 
     @Override
-    public int compareTo(Object o) {
-        Vertex other = (Vertex) o;
+    public int compareTo(final Object o) {
+        final Vertex other = (Vertex) o;
         if (getDepth() == other.getDepth()) {
             return Float.compare(other.getScore(), getScore());
         }

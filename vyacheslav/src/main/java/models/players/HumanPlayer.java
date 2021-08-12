@@ -13,7 +13,7 @@ import java.util.Scanner;
 public class HumanPlayer extends Player {
     private static final Scanner scanner = new Scanner(System.in);
 
-    public HumanPlayer(String nickname) {
+    public HumanPlayer(final String nickname) {
         super(nickname);
     }
 
@@ -21,8 +21,8 @@ public class HumanPlayer extends Player {
     public Point move(final GameBoard board) throws ServerException {
         while (true) {
             System.out.print("Ваш ход (два числа через пробел): ");
-            String input = scanner.nextLine();
-            String[] args = input.trim().split("[ ]+");
+            final String input = scanner.nextLine();
+            final String[] args = input.trim().split("[ ]+");
             try {
                 final int x = Integer.parseInt(args[0]) - 1;
                 final int y = Integer.parseInt(args[1]) - 1;
@@ -32,7 +32,7 @@ public class HumanPlayer extends Player {
                 if (availableMoves.contains(move)) {
                     return move;
                 }
-            } catch (NumberFormatException | ServerException ex) {
+            } catch (final NumberFormatException | ServerException ex) {
                 System.out.println("Неверный формат данных.");
             }
             System.out.println("Неверный ход.");
@@ -40,12 +40,12 @@ public class HumanPlayer extends Player {
     }
 
     @Override
-    public void triggerMoveOpponent(GameBoard board) throws ServerException {
+    public void triggerMoveOpponent(final GameBoard board) throws ServerException {
 
     }
 
     @Override
-    public void triggerGameEnd(GameState state, GameBoard board) {
+    public void triggerGameEnd(final GameState state, final GameBoard board) {
 
     }
 }
