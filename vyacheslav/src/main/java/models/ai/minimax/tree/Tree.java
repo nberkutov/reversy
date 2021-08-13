@@ -9,18 +9,18 @@ import java.util.TreeMap;
 
 @Data
 public class Tree {
-    private final TreeMap<Vertex, Node> tree;
+    private final TreeMap<Vertex, Node> map;
 
     public Tree() {
-        tree = new TreeMap<>();
+        map = new TreeMap<>();
     }
 
     public synchronized void addNode(Integer depth, GameBoard last, Point point, float score) {
-        tree.put(new Vertex(depth, score), new Node(last, point, score));
+        map.put(new Vertex(depth, score), new Node(last, point, score));
     }
 
     public Point getMove() {
-        Map.Entry<Vertex, Node> entry = tree.firstEntry();
+        Map.Entry<Vertex, Node> entry = map.firstEntry();
         Node node = entry.getValue();
         return node.getMove();
     }

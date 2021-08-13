@@ -1,5 +1,7 @@
 package models;
 
+import models.board.BoardDefault;
+
 import java.io.File;
 import java.nio.file.Paths;
 
@@ -8,6 +10,7 @@ public class GameProperties {
     public static final String PROJECT_PATH = Paths.get("").toAbsolutePath().toString();
 
     public static final int BOARD_SIZE = 8;
+    public static final BoardDefault boardDefault = BoardDefault.ARRAY_BOARD;
 
     public static final int MIN_SIZE_NICKNAME = 3;
     public static final int MAX_SIZE_NICKNAME = 10;

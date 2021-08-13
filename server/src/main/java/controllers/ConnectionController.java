@@ -27,20 +27,25 @@ public class ConnectionController extends Thread {
     public void run() {
         log.debug("PlayerController started");
         try {
-            while (connection.isConnected()) {
-                try {
-                    final String msg = connection.readMsg();
-                    final GameRequest request = JsonService.getRequestFromMsg(msg);
-                    requests.putLast(TaskRequest.create(connection, request));
-                } catch (ServerException e) {
-                    log.warn("Connection controller {}", connection, e);
-                }
-            }
-        } catch (InterruptedException | IOException e) {
+            receivingRequests();
+        } catch (final InterruptedException | IOException e) {
             log.info("Close connect with {}", connection);
+            Thread.currentThread().interrupt();
         } finally {
             connection.close();
             PlayerService.autoLogoutPlayer(connection);
+        }
+    }
+
+    private void receivingRequests() throws InterruptedException, IOException {
+        while (connection.isConnected()) {
+            try {
+                final String msg = connection.readMsg();
+                final GameRequest request = JsonService.getRequestFromMsg(msg);
+                requests.putLast(TaskRequest.create(connection, request));
+            } catch (final ServerException e) {
+                log.warn("Connection controller {}", connection, e);
+            }
         }
     }
 

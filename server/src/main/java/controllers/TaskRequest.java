@@ -13,7 +13,7 @@ public class TaskRequest {
     private ClientConnection client;
     private GameRequest request;
 
-    public static TaskRequest create(ClientConnection client, GameRequest request) {
+    public static TaskRequest create(final ClientConnection client, final GameRequest request) {
         return new TaskRequest(client, request);
     }
 

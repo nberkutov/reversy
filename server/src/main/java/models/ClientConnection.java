@@ -2,6 +2,7 @@ package models;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import models.player.User;
 
 import java.io.DataInputStream;
@@ -15,6 +16,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 @Data
 @AllArgsConstructor
+@Slf4j
 public class ClientConnection implements AutoCloseable, Serializable {
     private final Socket socket;
     private final DataInputStream in;
@@ -41,7 +43,8 @@ public class ClientConnection implements AutoCloseable, Serializable {
             lock.lock();
             out.writeUTF(msg);
             out.flush();
-        } catch (final IOException ignored) {
+        } catch (final IOException e) {
+            log.warn("Can't send {}, {}, {}", msg, e.getMessage(), socket);
         } finally {
             lock.unlock();
         }
@@ -54,16 +57,17 @@ public class ClientConnection implements AutoCloseable, Serializable {
                 socket.close();
                 in.close();
                 out.close();
-            } catch (final IOException ignored) {
+            } catch (final IOException e) {
+                log.warn("Can't close connection {} {}", e.getMessage(), socket);
             }
         }
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        ClientConnection that = (ClientConnection) o;
+        final ClientConnection that = (ClientConnection) o;
         return Objects.equals(socket, that.socket);
     }
 

@@ -20,14 +20,14 @@ public class PlayerController {
     public static void actionCreatePlayer(final CreatePlayerRequest createPlayer, final ClientConnection connection) throws ServerException {
         final User user = PlayerService.createPlayer(createPlayer, connection);
         SenderService.sendResponse(connection, Mapper.toDtoCreatePlayer(user));
-        SenderService.sendResponse(connection, Mapper.toDto(RoomService.getAvailableRooms()));
+        SenderService.sendResponse(connection, Mapper.toDtoListRoom(RoomService.getAvailableRooms()));
         log.debug("action createPlayer {} {}", connection.getSocket().getPort(), createPlayer);
     }
 
     public static void actionAuthPlayer(final AuthPlayerRequest authPlayer, final ClientConnection connection) throws ServerException {
         final User user = PlayerService.authPlayer(authPlayer, connection);
         SenderService.sendResponse(connection, Mapper.toDtoCreatePlayer(user));
-        SenderService.sendResponse(connection, Mapper.toDto(RoomService.getAvailableRooms()));
+        SenderService.sendResponse(connection, Mapper.toDtoListRoom(RoomService.getAvailableRooms()));
         log.debug("action authPlayer {} {}", connection.getSocket().getPort(), authPlayer);
     }
 

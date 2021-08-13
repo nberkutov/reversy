@@ -4,6 +4,7 @@ import exception.GameErrorCode;
 import exception.ServerException;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -16,6 +17,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 @Data
 @AllArgsConstructor
+@Slf4j
 public class ClientConnection implements AutoCloseable, Serializable {
     private final Socket socket;
     private final DataInputStream in;
@@ -42,7 +44,8 @@ public class ClientConnection implements AutoCloseable, Serializable {
             lock.lock();
             out.writeUTF(msg);
             out.flush();
-        } catch (IOException e) {
+        } catch (final IOException e) {
+            log.warn("Can't send {}, {}", msg, e.getMessage());
             throw new ServerException(GameErrorCode.SERVER_ERROR);
         } finally {
             lock.unlock();
@@ -51,22 +54,20 @@ public class ClientConnection implements AutoCloseable, Serializable {
 
     @Override
     public void close() {
-        if (!socket.isClosed()) {
-            try {
-                socket.close();
-                in.close();
-                out.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        try {
+            socket.close();
+            in.close();
+            out.close();
+        } catch (final IOException e) {
+            log.warn("Can't close connection {}", e.getMessage());
         }
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        ClientConnection that = (ClientConnection) o;
+        final ClientConnection that = (ClientConnection) o;
         return Objects.equals(socket, that.socket);
     }
 

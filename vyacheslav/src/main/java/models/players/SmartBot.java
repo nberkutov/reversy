@@ -2,16 +2,16 @@ package models.players;
 
 
 import exception.ServerException;
-import models.Player;
+import models.SmartPlayer;
 import models.base.GameState;
 import models.base.interfaces.GameBoard;
 import models.board.Point;
 import models.strategies.base.Strategy;
 
-public class SmartBot extends Player {
+public class SmartBot extends SmartPlayer {
     private final Strategy strategy;
 
-    public SmartBot(String nickname, Strategy strategy) {
+    public SmartBot(final String nickname, final Strategy strategy) {
         super(nickname);
         this.strategy = strategy;
     }
@@ -22,13 +22,12 @@ public class SmartBot extends Player {
     }
 
     @Override
-    public void triggerMoveOpponent(GameBoard board) throws ServerException {
+    public void triggerMoveOpponent(final GameBoard board) throws ServerException {
 
     }
 
     @Override
-    public void triggerGameEnd(GameState state, GameBoard board) {
+    public void triggerGameEnd(final GameState state, final GameBoard board) throws ServerException {
 
     }
-
 }

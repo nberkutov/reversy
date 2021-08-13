@@ -14,7 +14,7 @@ import models.base.interfaces.GameBoard;
 import models.board.Point;
 import models.game.Game;
 import models.game.GameResult;
-import models.player.RandomBotPlayer;
+import models.player.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -44,7 +44,8 @@ class GameServicesTest {
                 + "bbbbbbbb"
                 + "bbbbbbbb";
         final GameBoard board = BoardUtils.fromString(s);
-        final Game game = new Game(board, new RandomBotPlayer(0, "Test"), new RandomBotPlayer(1, "Test1"));
+        final Game game = new Game(board, new User(0, "Test"), new User(1, "Test1"));
+
         GameService.makePlayerMove(game, new Point(0, 4), game.getBlackUser());
         final GameResult result = GameService.getGameResult(game);
         assertEquals(result.getResultState(), GameResultState.ORDINARY_VICTORY);
@@ -63,7 +64,7 @@ class GameServicesTest {
                 + "bbbbbbbb"
                 + "bbbbbbbb";
         final GameBoard board = BoardUtils.fromString(s);
-        final Game game = new Game(board, new RandomBotPlayer(0, "Test"), new RandomBotPlayer(1, "Test1"));
+        final Game game = new Game(board, new User(0, "Test"), new User(1, "Test1"));
         GameService.makePlayerMove(game, new Point(0, 4), game.getBlackUser());
         final GameResult result = GameService.getGameResult(game);
         assertEquals(result.getResultState(), GameResultState.ORDINARY_VICTORY);
@@ -82,7 +83,7 @@ class GameServicesTest {
                 + "bbbbbbbb"
                 + "bbbbbbbw";
         final GameBoard board = BoardUtils.fromString(s);
-        final Game game = new Game(board, new RandomBotPlayer(0, "Test"), new RandomBotPlayer(1, "Test1"));
+        final Game game = new Game(board, new User(0, "Test"), new User(1, "Test1"));
         GameService.makePlayerMove(game, new Point(0, 4), game.getBlackUser());
         final GameResult result = GameService.getGameResult(game);
         assertEquals(result.getResultState(), GameResultState.ORDINARY_VICTORY);
@@ -101,7 +102,7 @@ class GameServicesTest {
                 + "bbbbbbbb"
                 + "bbbbbbbw";
         final GameBoard board = BoardUtils.fromString(s);
-        final Game game = new Game(board, new RandomBotPlayer(0, "Test"), new RandomBotPlayer(1, "Test1"));
+        final Game game = new Game(board, new User(0, "Test"), new User(1, "Test1"));
         GameService.makePlayerMove(game, new Point(0, 4), game.getBlackUser());
 
         try {
@@ -131,7 +132,7 @@ class GameServicesTest {
             assertEquals(e.getErrorCode(), GameErrorCode.CONNECTION_LOST);
         }
 
-        final Game game = GameService.createGame(new RandomBotPlayer(0, "Bot1"), new RandomBotPlayer(1, "bot2"));
+        final Game game = GameService.createGame(new User(0, "Bot1"), new User(1, "bot2"));
 
         final ServerSocket socket = new ServerSocket(PORT);
         final Socket client = new Socket(IP, PORT);
@@ -168,9 +169,9 @@ class GameServicesTest {
 
     @Test
     void testCreateGame() throws ServerException {
-        final RandomBotPlayer p1 = new RandomBotPlayer(1, "bot1");
+        final User p1 = new User(1, "bot1");
         p1.setState(PlayerState.SEARCH_GAME);
-        final RandomBotPlayer p2 = new RandomBotPlayer(2, "bot2");
+        final User p2 = new User(2, "bot2");
         p2.setState(PlayerState.SEARCH_GAME);
         GameService.createGame(p1, p2);
         assertEquals(p1.getState(), PlayerState.PLAYING);
@@ -194,8 +195,8 @@ class GameServicesTest {
         } catch (final ServerException e) {
             assertEquals(e.getErrorCode(), GameErrorCode.CONNECTION_LOST);
         }
-        final RandomBotPlayer p1 = new RandomBotPlayer(1, "bot1");
-        final RandomBotPlayer p2 = new RandomBotPlayer(2, "bot2");
+        final User p1 = new User(1, "bot1");
+        final User p2 = new User(2, "bot2");
         final Game game = GameService.createGame(p1, p2);
 
         final ServerSocket socket = new ServerSocket(PORT);
@@ -217,8 +218,8 @@ class GameServicesTest {
         final int PORT = 8083;
         final String IP = "127.0.0.1";
 
-        final RandomBotPlayer p1 = new RandomBotPlayer(1, "bot1");
-        final RandomBotPlayer p2 = new RandomBotPlayer(2, "bot2");
+        final User p1 = new User(1, "bot1");
+        final User p2 = new User(2, "bot2");
         final Game game = GameService.createGame(p1, p2);
 
         game.addMove(p1.getColor(), new Point(0, 0));
@@ -239,13 +240,13 @@ class GameServicesTest {
     @Test
     void testCreateGameException() {
         try {
-            GameService.createGame(new RandomBotPlayer(1, "bot2"), null);
+            GameService.createGame(new User(1, "bot2"), null);
             fail();
         } catch (final ServerException e) {
             assertEquals(e.getErrorCode(), GameErrorCode.PLAYER_NOT_FOUND);
         }
         try {
-            GameService.createGame(null, new RandomBotPlayer(1, "bot2"));
+            GameService.createGame(null, new User(1, "bot2"));
             fail();
         } catch (final ServerException e) {
             assertEquals(e.getErrorCode(), GameErrorCode.PLAYER_NOT_FOUND);

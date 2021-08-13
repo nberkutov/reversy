@@ -33,6 +33,7 @@ public enum GameErrorCode {
     INVALID_REQUEST("Invalid request."),
     INVALID_RESPONSE("Invalid response."),
     CELL_IS_EMPTY("Cell is empty."),
+    SOCKET_IMPOSSIBLE_READ_MSG("The socket has an error"),
     SERVER_ERROR("Server not responding");
     private final String message;
 

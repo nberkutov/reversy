@@ -27,11 +27,11 @@ public class HeaderThread extends Thread {
     private Node endResult;
 
 
-    public HeaderThread(GameBoard board, PlayerColor color, DeveloperOptions options) {
+    public HeaderThread(final GameBoard board, final PlayerColor color, final DeveloperOptions options) {
         developers = new ArrayList<>();
         tasks = new LinkedBlockingDeque<>();
         results = new LinkedBlockingDeque<>();
-        int countThreads = 5;
+        final int countThreads = 5;
         for (int i = 0; i < countThreads; i++) {
             developers.add(new Developer(tasks, results, color, options));
         }
@@ -39,15 +39,15 @@ public class HeaderThread extends Thread {
         this.options = options;
     }
 
-    public HeaderThread(GameBoard board, PlayerColor color, TraversalEnum option) {
+    public HeaderThread(final GameBoard board, final PlayerColor color, final TraversalEnum option) {
         this(board, color, option, 2);
     }
 
-    public HeaderThread(GameBoard board, PlayerColor color, TraversalEnum option, int time) {
+    public HeaderThread(final GameBoard board, final PlayerColor color, final TraversalEnum option, final int time) {
         this(board, color, new DeveloperOptions(option, 100, time));
     }
 
-    private static Node getNodeAfterRoot(Node root, Node result) {
+    private static Node getNodeAfterRoot(final Node root, final Node result) {
         Node tmp = result;
 
         while (!root.equals(tmp.getParent())) {
@@ -57,8 +57,8 @@ public class HeaderThread extends Thread {
     }
 
     private void autoCloser() {
-        Timer timer = new Timer();
-        TimerTask timerTask = new TimerTask() {
+        final Timer timer = new Timer();
+        final TimerTask timerTask = new TimerTask() {
             @SneakyThrows
             @Override
             public void run() {
@@ -117,7 +117,7 @@ public class HeaderThread extends Thread {
                     break;
                 }
             }
-        } catch (InterruptedException ignore) {
+        } catch (final InterruptedException ignore) {
             throw new ServerException(GameErrorCode.AI_ERROR);
         } finally {
             closeDevelopers();

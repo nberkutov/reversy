@@ -9,7 +9,6 @@ import models.base.PlayerColor;
 import models.base.interfaces.GameBoard;
 import models.board.Board;
 import models.board.Point;
-import models.player.RandomBotPlayer;
 import models.player.User;
 import org.junit.jupiter.api.Test;
 
@@ -151,7 +150,7 @@ class BoardLogicTest {
                 + "0 0 0 0 0 0 0 0";
         final GameBoard board = BoardUtils.fromString(boardStr);
 
-        final User user = new RandomBotPlayer(0, "bot");
+        final User user = new User(0, "bot");
         user.setColor(PlayerColor.WHITE);
         assertTrue(BoardLogic.canMove(board, user.getColor()));
         user.setColor(PlayerColor.BLACK);

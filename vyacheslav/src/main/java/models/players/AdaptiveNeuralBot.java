@@ -3,14 +3,14 @@ package models.players;
 import exception.ServerException;
 import logic.BoardLogic;
 import lombok.EqualsAndHashCode;
-import models.Player;
+import models.SmartPlayer;
 import models.base.GameState;
 import models.base.interfaces.GameBoard;
 import models.board.Point;
 import models.strategies.NeuralStrategy;
 
 @EqualsAndHashCode
-public class AdaptiveNeuralBot extends Player {
+public class AdaptiveNeuralBot extends SmartPlayer {
     private final NeuralStrategy strategy;
 
     public AdaptiveNeuralBot(final String nickname) {

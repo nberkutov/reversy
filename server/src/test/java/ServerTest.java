@@ -10,7 +10,9 @@ import dto.response.game.GameBoardResponse;
 import dto.response.game.ReplayResponse;
 import dto.response.player.CreateGameResponse;
 import exception.ServerException;
+import logic.BoardLogic;
 import models.ClientConnection;
+import models.Player;
 import models.base.GameState;
 import models.base.PlayerColor;
 import models.base.PlayerState;
@@ -19,7 +21,6 @@ import models.base.interfaces.GameBoard;
 import models.board.Point;
 import models.game.Game;
 import models.game.Room;
-import models.player.RandomBotPlayer;
 import models.player.User;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,6 +33,7 @@ import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -126,7 +128,13 @@ class ServerTest {
         //handler
         new Thread(() -> {
             try {
-                final User player = new RandomBotPlayer(0, "Bot0");
+                final Player player = new Player("Bot0") {
+                    @Override
+                    public Point move(final GameBoard board) throws ServerException {
+                        final List<Point> points = BoardLogic.getAvailableMoves(board, color);
+                        return points.get(new Random().nextInt(points.size()));
+                    }
+                };
                 while (gameIsNotFinish.get()) {
                     final GameResponse response = responsesBot1.takeFirst();
                     switch (JsonService.getCommandByResponse(response)) {
@@ -166,7 +174,13 @@ class ServerTest {
         //handler
         final Thread threadBot2 = new Thread(() -> {
             try {
-                final User player = new RandomBotPlayer(0, "Bot1");
+                final Player player = new Player("Bot1") {
+                    @Override
+                    public Point move(final GameBoard board) throws ServerException {
+                        final List<Point> points = BoardLogic.getAvailableMoves(board, color);
+                        return points.get(new Random().nextInt(points.size()));
+                    }
+                };
                 while (gameIsNotFinish.get()) {
                     final GameResponse response = responsesBot2.takeFirst();
                     switch (JsonService.getCommandByResponse(response)) {
@@ -254,7 +268,13 @@ class ServerTest {
         //handler
         final Thread thread = new Thread(() -> {
             try {
-                final User player = new RandomBotPlayer(0, "Bot0");
+                final Player player = new Player("Bot0") {
+                    @Override
+                    public Point move(final GameBoard board) throws ServerException {
+                        final List<Point> points = BoardLogic.getAvailableMoves(board, color);
+                        return points.get(new Random().nextInt(points.size()));
+                    }
+                };
                 while (play.get()) {
                     final GameResponse response = responsesBot.takeFirst();
                     switch (JsonService.getCommandByResponse(response)) {
@@ -293,15 +313,15 @@ class ServerTest {
         return thread;
     }
 
-    private void actionPlaying(final ClientConnection connection, final User user, final GameBoardResponse response) {
-        if (user == null || connection == null || response == null) {
+    private void actionPlaying(final ClientConnection connection, final Player player, final GameBoardResponse response) {
+        if (player == null || connection == null || response == null) {
             fail();
         }
-        final PlayerColor color = user.getColor();
+        final PlayerColor color = player.getColor();
         try {
             if (nowMoveByMe(color, response.getState())) {
                 final GameBoard board = response.getBoard();
-                final Point move = user.move(board);
+                final Point move = player.move(board);
                 fastSendRequest(connection, MovePlayerRequest.toDto(response.getGameId(), move));
             }
         } catch (final IOException | ServerException e) {

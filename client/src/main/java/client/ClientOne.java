@@ -17,6 +17,7 @@ public class ClientOne {
             botClient.join();
         } catch (final InterruptedException | ServerException e) {
             log.error("ERROR {}", e.getMessage());
+            Thread.currentThread().interrupt();
         }
     }
 }

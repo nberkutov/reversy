@@ -6,7 +6,7 @@ import lombok.Getter;
 @Getter
 @EqualsAndHashCode
 public class ServerException extends Exception {
-    private GameErrorCode errorCode;
+    private final GameErrorCode errorCode;
 
     public ServerException(final GameErrorCode errorCode) {
         this.errorCode = errorCode;

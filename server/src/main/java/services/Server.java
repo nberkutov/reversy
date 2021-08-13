@@ -52,7 +52,7 @@ public class Server extends Thread implements AutoCloseable {
             log.error("Upload server stop, path invalid {}", path);
             return;
         }
-        try (final ObjectInputStream ois = new ObjectInputStream(new FileInputStream(new File(path)))) {
+        try (final ObjectInputStream ois = new ObjectInputStream(new FileInputStream(path))) {
             dataBase = (DataBase) ois.readObject();
             log.info("Server found and upload database in {}", path);
             log.info("Database found: {}", dataBase);

@@ -23,7 +23,7 @@ public class GameController {
 
     public static void actionGetReplayGame(final GetReplayGameRequest getGame, final ClientConnection connection) throws ServerException {
         final Game game = GameService.getReplayGame(getGame, connection);
-        SenderService.sendResponse(connection, Mapper.toDto(game));
+        SenderService.sendResponse(connection, Mapper.toDtoReplay(game));
         log.debug("action GetReplayGame, {}", game);
     }
 

@@ -5,7 +5,7 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 public class AuthPlayerRequest extends CreatePlayerRequest {
 
-    public AuthPlayerRequest(String nickname) {
+    public AuthPlayerRequest(final String nickname) {
         super(nickname);
     }
 }

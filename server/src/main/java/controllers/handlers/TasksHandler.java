@@ -77,6 +77,7 @@ public class TasksHandler extends Thread {
             }
         } catch (final InterruptedException e) {
             log.info("TasksHandler closed");
+            Thread.currentThread().interrupt();
         }
     }
 

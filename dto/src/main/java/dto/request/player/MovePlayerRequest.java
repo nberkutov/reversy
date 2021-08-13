@@ -13,7 +13,7 @@ public class MovePlayerRequest implements GameRequest {
     private final int gameId;
     private final Point point;
 
-    public static MovePlayerRequest toDto(int gameId, Point point) {
+    public static MovePlayerRequest toDto(final int gameId, final Point point) {
         return new MovePlayerRequest(gameId, point);
     }
 }

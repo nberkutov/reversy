@@ -30,8 +30,8 @@ public class Statistics implements Serializable {
         winsAgainst = new ConcurrentHashMap<>();
     }
 
-    public void incrementPlayerAgainst(User user) {
-        String nickname = user.getNickname();
+    public void incrementPlayerAgainst(final User user) {
+        final String nickname = user.getNickname();
         Integer wins = winsAgainst.get(nickname);
         if (wins == null) {
             wins = 0;

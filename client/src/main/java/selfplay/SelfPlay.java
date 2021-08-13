@@ -6,6 +6,7 @@ import logic.BoardLogic;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import models.Player;
+import models.SmartPlayer;
 import models.base.Cell;
 import models.base.GameState;
 import models.base.PlayerColor;
@@ -17,8 +18,8 @@ import models.board.Point;
 @Slf4j
 @Data
 public class SelfPlay {
-    private final Player first;
-    private final Player second;
+    private final SmartPlayer first;
+    private final SmartPlayer second;
     private final SelfGame selfGame;
 
     public SelfPlay(final Player first, final Player second) {
@@ -26,8 +27,8 @@ public class SelfPlay {
     }
 
     public SelfPlay(final GameBoard board, final Player first, final Player second) {
-        this.first = first;
-        this.second = second;
+        this.first = (SmartPlayer) first;
+        this.second = (SmartPlayer) second;
 
         first.setColor(PlayerColor.BLACK);
         second.setColor(PlayerColor.WHITE);
@@ -40,7 +41,7 @@ public class SelfPlay {
      *
      * @param selfGame - Игра
      */
-    private static void playNext(final SelfGame selfGame, final Player first, final Player second) throws ServerException {
+    private static void playNext(final SelfGame selfGame, final SmartPlayer first, final SmartPlayer second) throws ServerException {
         switch (selfGame.getState()) {
             case BLACK_MOVE:
                 if (!BoardLogic.getAvailableMoves(selfGame.getBoard(), selfGame.getBlackPlayer().getColor()).isEmpty()) {

@@ -6,7 +6,7 @@ import exception.ServerException;
 import logic.BoardFactory;
 import models.base.interfaces.GameBoard;
 import models.game.Game;
-import models.player.RandomBotPlayer;
+import models.player.User;
 import org.junit.jupiter.api.Test;
 import utils.JsonService;
 
@@ -32,7 +32,7 @@ class JsonServiceTest {
         final GameBoard after = JsonService.fromJson(json, board.getClass());
         assertEquals(board, after);
 
-        final Game game = new Game(board, new RandomBotPlayer(0, "Test"), new RandomBotPlayer(1, "Test1"));
+        final Game game = new Game(board, new User(0, "Test"), new User(1, "Test1"));
         final String gameString = JsonService.toJson(game);
         final Game afterJson = JsonService.fromJson(gameString, Game.class);
         assertEquals(game, afterJson);

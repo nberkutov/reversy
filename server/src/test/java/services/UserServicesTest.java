@@ -7,7 +7,6 @@ import exception.GameErrorCode;
 import exception.ServerException;
 import models.ClientConnection;
 import models.base.PlayerState;
-import models.player.RandomBotPlayer;
 import models.player.User;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -204,7 +203,7 @@ public class UserServicesTest {
 
     @Test
     void setNoneStatePlayer() throws ServerException {
-        final User user = new RandomBotPlayer(0, "bot");
+        final User user = new User(0, "bot");
         user.setState(PlayerState.PLAYING);
         PlayerService.setPlayerStateNone(user);
         assertEquals(user.getState(), PlayerState.NONE);

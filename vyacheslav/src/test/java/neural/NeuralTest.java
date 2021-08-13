@@ -1,4 +1,5 @@
-import exception.ServerException;
+package neural;
+
 import models.ai.neural.BoardNeuralScore;
 import models.ai.neural.Neural;
 import models.base.PlayerColor;
@@ -25,7 +26,7 @@ class NeuralTest {
     }
 
     @Test
-    void testTrain() throws ServerException {
+    void testTrain() {
         final Board board = new Board();
         final PlayerColor color = PlayerColor.BLACK;
         final BoardNeuralScore score = new BoardNeuralScore(color, board);
@@ -39,7 +40,7 @@ class NeuralTest {
     }
 
     @Test
-    void testTrainSaveAndLoad() throws ServerException {
+    void testTrainSaveAndLoad() {
         final Board board = new Board();
         final PlayerColor color = PlayerColor.BLACK;
         final BoardNeuralScore score = new BoardNeuralScore(color, board);

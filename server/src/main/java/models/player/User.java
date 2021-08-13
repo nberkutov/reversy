@@ -1,12 +1,9 @@
 package models.player;
 
-import exception.ServerException;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import models.base.PlayerColor;
 import models.base.PlayerState;
-import models.base.interfaces.GameBoard;
-import models.board.Point;
 import models.game.Game;
 import models.statistics.Statistics;
 
@@ -35,10 +32,6 @@ public class User implements Serializable {
         statistics = new Statistics();
         state = PlayerState.NONE;
         color = PlayerColor.NONE;
-    }
-
-    public Point move(final GameBoard board) throws ServerException {
-        return null;
     }
 
     public void lock() {

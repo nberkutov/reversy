@@ -15,7 +15,7 @@ public class MultiClients {
     private static final String IP = "127.0.0.1";
     private static final int PORT = 8081;
 
-    public static void main(String[] args) {
+    public static void main(final String[] args) {
         try {
             final List<Thread> threadList = new ArrayList<>();
             for (int i = 0; i < 10; i++) {
@@ -27,8 +27,9 @@ public class MultiClients {
             for (final Thread th : threadList) {
                 th.join();
             }
-        } catch (InterruptedException | ServerException e) {
+        } catch (final InterruptedException | ServerException e) {
             log.error("ERROR {}", e.getMessage());
+            Thread.currentThread().interrupt();
         }
     }
 }

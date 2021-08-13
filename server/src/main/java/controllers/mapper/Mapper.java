@@ -61,20 +61,20 @@ public class Mapper {
         return new GameResultResponse(result.getResultState(), winner);
     }
 
-    public static ReplayResponse toDto(final Game game) throws ServerException {
+    public static ReplayResponse toDtoReplay(final Game game) throws ServerException {
         final PlayerResponse white = toDtoPlayer(game.getWhiteUser());
         final PlayerResponse black = toDtoPlayer(game.getBlackUser());
         final GameResultResponse result = toDtoGameResult(game.getResult());
         return new ReplayResponse(BoardFactory.generateStartedBoard(), game.getMoves(), result, white, black);
     }
 
-    public static ListRoomResponse toDto(final List<Room> list) {
+    public static ListRoomResponse toDtoListRoom(final List<Room> list) {
         return new ListRoomResponse(list.stream()
-                .map(Mapper::toDto)
+                .map(Mapper::toDtoRoom)
                 .collect(Collectors.toList()));
     }
 
-    public static RoomResponse toDto(final Room room) {
+    public static RoomResponse toDtoRoom(final Room room) {
         final PlayerResponse blackPlayer = toDtoPlayer(room.getBlackUser());
         final PlayerResponse whitePlayer = toDtoPlayer(room.getWhiteUser());
         return new RoomResponse(room.getId(), blackPlayer, whitePlayer);

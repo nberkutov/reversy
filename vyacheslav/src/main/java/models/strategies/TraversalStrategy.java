@@ -16,18 +16,18 @@ public class TraversalStrategy implements Strategy {
     private final TraversalEnum option;
     private final int time;
 
-    public TraversalStrategy(TraversalEnum option) {
+    public TraversalStrategy(final TraversalEnum option) {
         this(option, 3);
     }
 
     @Override
-    public Point getMove(GameBoard board, PlayerColor color) throws ServerException {
+    public Point getMove(final GameBoard board, final PlayerColor color) throws ServerException {
         try {
-            HeaderThread header = new HeaderThread(board, color, option);
+            final HeaderThread header = new HeaderThread(board, color, option);
             header.start();
             header.join();
             return header.getEndResult().getState().getMove();
-        } catch (InterruptedException e) {
+        } catch (final InterruptedException e) {
             throw new ServerException(GameErrorCode.AI_ERROR);
         }
     }

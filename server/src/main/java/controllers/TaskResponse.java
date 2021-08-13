@@ -16,7 +16,7 @@ public class TaskResponse {
     private GameResponse response;
 
     public static void createAndSend(final ClientConnection connection, final GameResponse response) throws ServerException {
-        TaskResponse taskResponse = new TaskResponse(connection, response);
+        final TaskResponse taskResponse = new TaskResponse(connection, response);
         taskResponse.sendJson();
     }
 

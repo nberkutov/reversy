@@ -5,11 +5,10 @@ import exception.ServerException;
 import models.base.interfaces.GameBoard;
 import models.board.ArrayBoard;
 import models.board.Board;
-import models.board.BoardDefault;
+
+import static models.GameProperties.boardDefault;
 
 public class BoardFactory {
-    private static BoardDefault boardDefault = BoardDefault.ARRAY_BOARD;
-
     private BoardFactory() {
     }
 

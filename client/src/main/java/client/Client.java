@@ -15,6 +15,7 @@ import gui.GameGUI;
 import lombok.extern.slf4j.Slf4j;
 import models.ClientConnection;
 import models.Player;
+import models.SmartPlayer;
 import models.base.GameState;
 import models.base.PlayerColor;
 import models.base.interfaces.GameBoard;
@@ -26,11 +27,11 @@ import java.net.Socket;
 
 @Slf4j
 public class Client extends Thread {
-    private final Player player;
+    private final SmartPlayer player;
     private final ClientConnection connection;
     private final GameGUI gui;
 
-    public Client(final String ip, final int port, final Player player, final GameGUI gui) throws ServerException {
+    public Client(final String ip, final int port, final SmartPlayer player, final GameGUI gui) throws ServerException {
         try {
             this.player = player;
             final Socket socket = new Socket(ip, port);
@@ -70,6 +71,8 @@ public class Client extends Thread {
             case MESSAGE:
                 actionMessage((MessageResponse) gameResponse);
                 break;
+            case ROOMS:
+                break;
             default:
                 log.error("Unknown response {}", gameResponse);
         }
@@ -106,12 +109,12 @@ public class Client extends Thread {
         log.error("actionError {}", response);
     }
 
-    private void actionCreatePlayer(final CreatePlayerResponse response) throws IOException, ServerException {
+    private void actionCreatePlayer(final CreatePlayerResponse response) throws ServerException {
         log.debug("actionCreatePlayer {}", response);
         ClientController.sendRequest(connection, new WantPlayRequest());
     }
 
-    private void actionPlaying(final GameBoardResponse response) throws ServerException, IOException, InterruptedException {
+    private void actionPlaying(final GameBoardResponse response) throws ServerException, InterruptedException {
         log.debug("actionPlaying {} {}", connection.getSocket().getLocalPort(), response);
         final GameBoard board = response.getBoard();
         gui.updateGUI(board, response.getState(), response.getOpponent().getNickname());
