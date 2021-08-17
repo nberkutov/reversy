@@ -5,18 +5,28 @@ import java.util.Optional;
 public class ServerProperties {
     private int port;
     private int threads;
-    private String logPath;
-    private String logbackPath;
     private int numberOfGames;
+    private String logPath;
+    private String statsPath;
+
+
+    private static ServerProperties instance;
 
     public ServerProperties() {
     }
 
-    public ServerProperties(final int port, final int threads, final String logPath, final String logbackPath) {
+    public ServerProperties(
+            final int port,
+            final int threads,
+            final int numberOfGames,
+            final String logPath,
+            final String statsPath
+    ) {
         this.port = port;
         this.threads = threads;
         this.logPath = logPath;
-        this.logbackPath = logbackPath;
+        this.statsPath = statsPath;
+        this.numberOfGames = numberOfGames;
     }
 
     public Optional<Integer> getPort() {
@@ -39,24 +49,16 @@ public class ServerProperties {
         return Optional.of(logPath);
     }
 
-    public void setLogPath(final String logPath) {
-        this.logPath = logPath;
-    }
-
-    public Optional<String> getLogbackPath() {
-        return Optional.of(logbackPath);
-    }
-
-    public void setLogbackPath(final String logbackPath) {
-        this.logbackPath = logbackPath;
-    }
-
     public Optional<Integer> getNumberOfGames() {
         return Optional.of(numberOfGames);
     }
 
-    public void setNumberOfGames(final int numberOfGames) {
-        this.numberOfGames = numberOfGames;
+    public Optional<String> getStatsPath() {
+        return Optional.of(statsPath);
+    }
+
+    public void setStatsPath(final String statsPath) {
+        this.statsPath = statsPath;
     }
 
     @Override
@@ -64,8 +66,9 @@ public class ServerProperties {
         return "ServerProperties{" +
                 "port=" + port +
                 ", threads=" + threads +
+                ", numberOfGames=" + numberOfGames +
                 ", logPath='" + logPath + '\'' +
-                ", logbackPath='" + logbackPath + '\'' +
+                ", statsPath='" + statsPath + '\'' +
                 '}';
     }
 }

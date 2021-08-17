@@ -5,27 +5,27 @@ import exception.ServerException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import models.ClientConnection;
+import org.apache.log4j.Logger;
 import services.PlayerService;
 import utils.JsonService;
 
 import java.io.IOException;
 import java.util.concurrent.LinkedBlockingDeque;
 
-
-@AllArgsConstructor
-@Slf4j
 public class ConnectionController extends Thread {
     private final ClientConnection connection;
     private final LinkedBlockingDeque<TaskRequest> requests;
+    private static Logger logger;
 
-    public static void initPlayerController(final ClientConnection connection, final LinkedBlockingDeque<TaskRequest> requests) {
-        final ConnectionController controller = new ConnectionController(connection, requests);
-        controller.start();
+    public ConnectionController(final ClientConnection connection, final LinkedBlockingDeque<TaskRequest> requests) {
+        this.connection = connection;
+        this.requests = requests;
+        logger = Logger.getLogger(ConnectionController.class);
     }
 
     @Override
     public void run() {
-        log.debug("PlayerController started");
+        logger.debug("PlayerController started");
         try {
             while (connection.isConnected()) {
                 try {
@@ -33,18 +33,17 @@ public class ConnectionController extends Thread {
                     final GameRequest request = JsonService.getRequestFromMsg(msg);
                     requests.putLast(TaskRequest.create(connection, request));
                 } catch (final ServerException e) {
-                    log.warn("Connection controller {}", connection, e);
+                    logger.warn(e.getMessage());
                 }
             }
         } catch (final InterruptedException | IOException e) {
-            log.info("Close connect with {}", connection);
+            logger.info(String.format("Close connect with %s", connection));
             try {
                 connection.close();
                 PlayerService.autoLogoutPlayer(connection);
             } catch (final ServerException exception) {
-                log.error("Cant logout user after leave {}", connection);
+                logger.error(String.format("Cant logout user after leave %s", connection));
             }
-
         }
     }
 

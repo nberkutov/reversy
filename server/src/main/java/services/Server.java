@@ -15,6 +15,8 @@ import models.DataBase;
 import models.game.Game;
 import models.game.Room;
 import models.player.User;
+import org.apache.log4j.*;
+import org.encog.util.file.Directory;
 import services.utils.StatisticUtils;
 
 import java.io.*;
@@ -27,36 +29,51 @@ import java.util.regex.PatternSyntaxException;
 import static models.GameProperties.SERVER_FILE;
 
 @EqualsAndHashCode(callSuper = true)
-@Slf4j
 @Data
+@Slf4j
 public class Server extends Thread implements AutoCloseable {
     private static final Scanner scanner = new Scanner(System.in);
+
     private final int socketNumber;
     private final int port;
     private final ServerHandler serverHandler;
     public static DataBase database;
     private ServerSocket serverSocket;
+    private ServerProperties properties;
+
 
     public static void main(final String[] args) {
         if (args.length == 0) {
-            log.info("Config file missed.");
             return;
         }
         final File configFile = new File(args[0]);
+
         try {
             final ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
             mapper.findAndRegisterModules();
             final ServerProperties properties = mapper.readValue(configFile, ServerProperties.class);
-            final int socketsNumber = properties.getThreads().orElse(2);
-            System.out.println(properties);
-            try (final Server server = new Server(socketsNumber, properties.getPort().orElse(8080), new DataBase())) {
+            initLogger(properties);
+            try (final Server server = new Server(properties)) {
                 server.start();
                 handleCommands(server);
             }
         } catch (final IOException e) {
             e.printStackTrace();
         }
+    }
 
+    private static void initLogger(final ServerProperties properties) throws IOException {
+        final FileAppender servicesFileAppender = (RollingFileAppender) Logger.getLogger("services")
+                .getAllAppenders().nextElement();
+        final FileAppender controllersFileAppender = (RollingFileAppender) Logger.getLogger("controllers")
+                .getAllAppenders().nextElement();
+        final String logDir = properties.getLogPath().orElse("tmp");
+        final String servicesLogFileName = logDir + File.separator + "services.log";
+        final String controllersLogFileName = logDir + File.separator + "controllers.log";
+        servicesFileAppender.setFile(servicesLogFileName);
+        servicesFileAppender.activateOptions();
+        controllersFileAppender.setFile(controllersLogFileName);
+        controllersFileAppender.activateOptions();
     }
 
     private static void handleCommands(final Server server) {
@@ -74,32 +91,17 @@ public class Server extends Thread implements AutoCloseable {
         this.serverHandler = new ServerHandler();
     }
 
+    public Server(final ServerProperties properties) {
+        this.properties = properties;
+        this.socketNumber = properties.getThreads().orElse(4);
+        this.port = properties.getPort().orElse(8080);
+        serverHandler = new ServerHandler();
+        database = new DataBase();
+    }
+
     public Server() {
         this(2, 8000, new DataBase());
     }
-
-    /*public static Server initServerFromFile(final int port, final String path) {
-        final DataBase dataBase = new DataBase();
-        //final Server server = new Server(socketsNumber, port, dataBase);
-        if (path != null) {
-            uploadServerFile(path);
-        }
-        return server;
-    }*/
-
-    /*public static void uploadServerFile(final String path) {
-        if (path == null) {
-            log.error("Upload server stop, path is invalid");
-            return;
-        }
-        try (final ObjectInputStream ois = new ObjectInputStream(new FileInputStream(new File(path)))) {
-            database = (DataBase) ois.readObject();
-            log.info("Server found and upload database in {}", path);
-            log.info("Database found: {}", database);
-        } catch (final IOException | ClassNotFoundException e) {
-            log.error("Upload server from file not successfully {}", e.getMessage());
-        }
-    }*/
 
     @Override
     public void run() {
@@ -122,7 +124,7 @@ public class Server extends Thread implements AutoCloseable {
             serverSocket.close();
             Thread.currentThread().interrupt();
         } catch (final IOException e) {
-            log.error("Server close", e);
+            //log.error("Server close", e);
         }
     }
 
@@ -138,31 +140,40 @@ public class Server extends Thread implements AutoCloseable {
         }
     }
 
-    public void saveStatistic(final String path) {
+    public void saveStatistic() throws IOException {
+        final String dirPath = properties.getStatsPath().orElse("stats");
+        final File statsDir = new File(dirPath);
+        if (!statsDir.exists() && !statsDir.mkdirs()) {
+            throw new IOException(String.format("Не удалось создать директорию %s", dirPath));
+        }
+        final File statsFile = new File(dirPath + "stats.csv");
+        if (!statsFile.exists() && !statsFile.createNewFile()) {
+            throw new IOException(String.format("Не удалось создать файл %s", statsFile));
+        }
         final List<User> userList = database.getAllPlayers();
         try {
-            StatisticUtils.saveStatistic(userList, path);
-            log.info("Statistic save in {}", path);
+            StatisticUtils.saveStatistic(userList, statsFile.getAbsolutePath());
+            //log.info("Statistic save in {}", statsFile.getAbsolutePath());
         } catch (final ServerException e) {
-            log.error("Cant save statistic", e);
+            //log.error("Cant save statistic", e);
         }
     }
 
     public void saveServerFile(final String path) {
         if (path != null) {
-            try (final ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(new File(path)))) {
+            try (final ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(path))) {
                 final DataBase dataBase = Server.database.clone();
                 dataBase.removeAllConnects();
                 oos.writeObject(dataBase);
-                log.info("Server successfully save database in {}", path);
+                //log.info("Server successfully save database in {}", path);
             } catch (final IOException e) {
-                log.error("Server cant save {}", path, e);
+                //log.error("Server cant save {}", path, e);
             }
         }
     }
 
     private void connect(final Socket socket) {
-        log.debug("Found connect {}", socket);
+        //log.debug("Found connect {}", socket);
         serverHandler.createControllerForPlayer(socket);
     }
 
@@ -171,7 +182,7 @@ public class Server extends Thread implements AutoCloseable {
             final List<ClientConnection> list = database.getAllConnection();
             TasksHandler.broadcastResponse(list, Mapper.toDto(message));
         } catch (final IOException | ServerException e) {
-            log.warn("Broadcast message don't send {}", message);
+            //log.warn("Broadcast message don't send {}", message);
         }
     }
 
@@ -183,12 +194,11 @@ public class Server extends Thread implements AutoCloseable {
             final Game game = database.getGameById(id);
             if (game != null) {
                 System.out.println(game);
-                return;
             }
 
         } catch (final NumberFormatException | PatternSyntaxException ignore) {
         }
-        log.warn("Game not found");
+        //log.warn("Game not found");
     }
 
     public void getInfoRoom() {
@@ -199,11 +209,10 @@ public class Server extends Thread implements AutoCloseable {
             final Room room = database.getRoomById(id);
             if (room != null) {
                 System.out.println(room);
-                return;
             }
         } catch (final RuntimeException ignore) {
         }
-        log.warn("Room not found");
+        //log.warn("Room not found");
     }
 
     public void getInfoUser() {
@@ -212,7 +221,7 @@ public class Server extends Thread implements AutoCloseable {
         final String nickname = scanner.nextLine().trim().toLowerCase();
         final User user = database.getPlayerByNickname(nickname);
         if (user == null) {
-            log.warn("User not found with {}", nickname);
+            //log.warn("User not found with {}", nickname);
             return;
         }
         System.out.println(user);

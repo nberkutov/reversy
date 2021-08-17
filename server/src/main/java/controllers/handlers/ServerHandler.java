@@ -14,16 +14,16 @@ import java.util.concurrent.LinkedBlockingDeque;
 @Slf4j
 public class ServerHandler implements AutoCloseable {
     private final LinkedBlockingDeque<TaskRequest> requests;
-    private final ExecutorService tasksHandlerSevice;
+    private final ExecutorService tasksHandlerService;
     private final GameSearcher gameSearcher;
 
     public ServerHandler() {
         requests = new LinkedBlockingDeque<>();
         final LinkedBlockingDeque<ClientConnection> waiting = new LinkedBlockingDeque<>();
-        tasksHandlerSevice = Executors.newFixedThreadPool(4);
+        tasksHandlerService = Executors.newFixedThreadPool(4);
 
         for (int i = 0; i < 4; i++) {
-            tasksHandlerSevice.execute(new TasksHandler(requests, waiting));
+            tasksHandlerService.execute(new TasksHandler(requests, waiting));
         }
 
         gameSearcher = new GameSearcher(requests, waiting);
@@ -33,7 +33,8 @@ public class ServerHandler implements AutoCloseable {
     public void createControllerForPlayer(final Socket socket) {
         try {
             final ClientConnection connection = new ClientConnection(socket);
-            ConnectionController.initPlayerController(connection, requests);
+            final ConnectionController connectionController = new ConnectionController(connection, requests);
+            connectionController.start();
         } catch (final IOException e) {
             log.error("CreatePlayerController", e);
         }
@@ -41,7 +42,7 @@ public class ServerHandler implements AutoCloseable {
     }
 
     public void close() {
-        tasksHandlerSevice.shutdownNow();
+        tasksHandlerService.shutdownNow();
         gameSearcher.interrupt();
     }
 }
