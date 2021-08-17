@@ -8,6 +8,8 @@ public class ServerProperties {
     private int numberOfGames;
     private String logPath;
     private String statsPath;
+    private String servicesLogFileName;
+    private String controllersLogFileName;
 
 
     private static ServerProperties instance;
@@ -70,5 +72,21 @@ public class ServerProperties {
                 ", logPath='" + logPath + '\'' +
                 ", statsPath='" + statsPath + '\'' +
                 '}';
+    }
+
+    public Optional<String> getServicesLogFileName() {
+        return Optional.of(servicesLogFileName);
+    }
+
+    public void setServicesLogFileName(final String servicesLogFileName) {
+        this.servicesLogFileName = servicesLogFileName;
+    }
+
+    public Optional<String> getControllersLogFileName() {
+        return Optional.of(controllersLogFileName);
+    }
+
+    public void setControllersLogFileName(final String controllersLogFileName) {
+        this.controllersLogFileName = controllersLogFileName;
     }
 }

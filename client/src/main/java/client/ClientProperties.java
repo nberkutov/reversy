@@ -8,6 +8,7 @@ public class ClientProperties {
     private String botType;
     private String guiType;
     private String playerColor;
+    private String nickname;
 
     public ClientProperties() {
     }
@@ -50,5 +51,13 @@ public class ClientProperties {
 
     public void setPort(final int port) {
         this.port = port;
+    }
+
+    public String getNickname() {
+        return nickname;
+    }
+
+    public void setNickname(final String nickname) {
+        this.nickname = nickname;
     }
 }

@@ -1,7 +1,5 @@
 package client;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import dto.request.player.CreatePlayerRequest;
@@ -15,6 +13,7 @@ import dto.response.player.MessageResponse;
 import dto.response.player.SearchGameResponse;
 import exception.GameErrorCode;
 import exception.ServerException;
+import gui.EmptyGUI;
 import gui.GameGUI;
 import gui.WindowGUI;
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +30,6 @@ import utils.JsonService;
 import java.io.File;
 import java.io.IOException;
 import java.net.Socket;
-import java.util.Random;
 
 @Slf4j
 public class Client extends Thread {
@@ -41,7 +39,7 @@ public class Client extends Thread {
 
     public static void main(final String[] args) {
         if (args.length == 0) {
-            log.info("Config file missed.");
+            System.out.println("Config file missed.");
         }
         final File configFile = new File(args[0]);
         try {
@@ -52,7 +50,11 @@ public class Client extends Thread {
             final Client client = new Client(
                     properties.getHost().orElse("127.0.0.1"),
                     properties.getPort().orElse(8080),
-                    getPlayer(properties.getBotType().orElse("random")), getGUI("window"));
+                    getPlayer(
+                            properties.getBotType().orElse("random"),
+                            properties.getNickname()),
+                    getGUI(properties.getGuiType().orElse("empty"))
+            );
             client.start();
         } catch (final IOException | ServerException e) {
             e.printStackTrace();
@@ -70,17 +72,24 @@ public class Client extends Thread {
         }
     }
 
-    private static Player getPlayer(final String playerType) {
-        /*switch (playerType) {
-            case "minimax":
-
-        }*/
-
-        return new SmartBot("test1222", new RandomStrategy());
+    private static Player getPlayer(final String playerType, final String nickname) {
+        switch (playerType) {
+            /*
+                case "random":
+                return new SmartBot(nickname, new RandomStrategy());
+            */
+            default:
+                return new SmartBot(nickname, new RandomStrategy());
+        }
     }
 
     private static GameGUI getGUI(final String guiType) {
-        return new WindowGUI();
+        switch (guiType) {
+            case "window":
+                return new WindowGUI();
+            default:
+                return new EmptyGUI();
+        }
     }
 
     private static boolean nowMoveByMe(final Player player, final GameState state) {
@@ -124,7 +133,7 @@ public class Client extends Thread {
             try {
                 Thread.sleep(10);
                 ClientController.sendRequest(connection, new CreatePlayerRequest(player.getNickname()));
-            } catch (InterruptedException | IOException | ServerException e) {
+            } catch (final InterruptedException | IOException | ServerException e) {
                 e.printStackTrace();
             }
         }).start();
@@ -134,11 +143,11 @@ public class Client extends Thread {
                 try {
                     final GameResponse response = ClientController.getRequest(connection);
                     actionByResponseFromServer(response);
-                } catch (ServerException e) {
+                } catch (final ServerException e) {
                     log.error("GameError {} {}", connection.getSocket(), e.getErrorCode());
                 }
             }
-        } catch (IOException | InterruptedException e) {
+        } catch (final IOException | InterruptedException e) {
             log.error("Error {} {}", connection.getSocket(), e.getMessage());
             connection.close();
         }
