@@ -36,7 +36,10 @@ import java.net.Socket;
 public class Client extends Thread {
     private final Player player;
     private final ClientConnection connection;
+    private final int numberOfGames;
     private final GameGUI gui;
+
+    private int gamesCounter;
 
     public static void main(final String[] args) {
         if (args.length == 0) {
@@ -47,26 +50,29 @@ public class Client extends Thread {
             final ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
             mapper.findAndRegisterModules();
             final ClientProperties properties = mapper.readValue(configFile, ClientProperties.class);
-
             final String host = properties.getHost().orElse("127.0.0.1");
             final int port = properties.getPort().orElse(8080);
             final Player player = getPlayer(properties.getBotType().orElse("random"), properties.getNickname());
             final PlayerColor color = PlayerColor.valueOf(properties.getPlayerColor().orElse("NONE"));
             player.setColor(color);
             final GameGUI gameGUI = getGUI(properties.getGuiType().orElse("empty"));
-            final Client client = new Client(host, port, player, gameGUI);
+            final int numberOfGames = properties.getNumberOfGames().orElse(1);
+            final Client client = new Client(host, port, player, gameGUI, numberOfGames);
             client.start();
         } catch (final IOException | ServerException e) {
             e.printStackTrace();
         }
     }
 
-    public Client(final String ip, final int port, final Player player, final GameGUI gui) throws ServerException {
+    public Client(final String ip, final int port, final Player player, final GameGUI gui, final int numberOfGames)
+            throws ServerException {
         try {
             this.player = player;
             final Socket socket = new Socket(ip, port);
             this.connection = new ClientConnection(socket);
             this.gui = gui;
+            this.numberOfGames = numberOfGames;
+            gamesCounter = 0;
         } catch (final IOException e) {
             throw new ServerException(GameErrorCode.SERVER_NOT_STARTED);
         }
@@ -74,10 +80,6 @@ public class Client extends Thread {
 
     private static Player getPlayer(final String playerType, final String nickname) {
         switch (playerType) {
-            /*
-                case "random":
-                return new SmartBot(nickname, new RandomStrategy());
-            */
             default:
                 return new SmartBot(nickname, new RandomStrategy());
         }
@@ -178,8 +180,10 @@ public class Client extends Thread {
             }
         } else {
             player.triggerGameEnd(response.getState(), board);
-            //player.setColor(PlayerColor.NONE);
-            ClientController.sendRequest(connection, new WantPlayRequest(player.getColor()));
+            player.setColor(revertColor(player.getColor()));
+            if (gamesCounter++ < numberOfGames - 1) {
+                ClientController.sendRequest(connection, new WantPlayRequest(player.getColor()));
+            }
         }
     }
 
@@ -187,5 +191,16 @@ public class Client extends Thread {
         log.debug("actionStartGame {}", response);
         player.setColor(response.getColor());
         System.out.println(player.getNickname() + " " + response.getColor());
+    }
+
+    private PlayerColor revertColor(final PlayerColor playerColor) {
+        switch (playerColor) {
+            case WHITE:
+                return PlayerColor.BLACK;
+            case BLACK:
+                return PlayerColor.WHITE;
+            default:
+                return PlayerColor.NONE;
+        }
     }
 }

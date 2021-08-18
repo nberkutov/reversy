@@ -15,11 +15,15 @@ import models.DataBase;
 import models.game.Game;
 import models.game.Room;
 import models.player.User;
-import org.apache.log4j.*;
-import org.encog.util.file.Directory;
+import org.apache.log4j.FileAppender;
+import org.apache.log4j.Logger;
+import org.apache.log4j.RollingFileAppender;
 import services.utils.StatisticUtils;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.List;
@@ -35,13 +39,11 @@ public class Server extends Thread implements AutoCloseable {
     private static final Scanner scanner = new Scanner(System.in);
     public static DataBase database;
 
-    private final int socketNumber;
     private final int port;
     private final ServerHandler serverHandler;
 
     private ServerSocket serverSocket;
     private ServerProperties properties;
-
 
     public static void main(final String[] args) {
         if (args.length == 0) {
@@ -87,8 +89,7 @@ public class Server extends Thread implements AutoCloseable {
         }
     }
 
-    public Server(final int socketsNumber, final int port, final DataBase database) {
-        this.socketNumber = socketsNumber;
+    public Server(final int port, final DataBase database) {
         this.port = port;
         Server.database = database;
         this.serverHandler = new ServerHandler();
@@ -96,14 +97,13 @@ public class Server extends Thread implements AutoCloseable {
 
     public Server(final ServerProperties properties) {
         this.properties = properties;
-        this.socketNumber = properties.getThreads().orElse(4);
         this.port = properties.getPort().orElse(8080);
         serverHandler = new ServerHandler();
         database = new DataBase();
     }
 
     public Server() {
-        this(2, 8000, new DataBase());
+        this(8000, new DataBase());
     }
 
     @Override
@@ -113,7 +113,7 @@ public class Server extends Thread implements AutoCloseable {
             log.debug("Server stated {}", serverSocket);
             while (!serverSocket.isClosed()) {
                 final Socket socket = serverSocket.accept();
-                connect(socket);
+                serverHandler.createControllerForPlayer(socket);
             }
         } catch (final IOException e) {
             log.info("ServerSocket closed");
@@ -173,11 +173,6 @@ public class Server extends Thread implements AutoCloseable {
                 log.error("Server cant save {}", path, e);
             }
         }
-    }
-
-    private void connect(final Socket socket) {
-        log.debug("Found connect {}", socket);
-        serverHandler.createControllerForPlayer(socket);
     }
 
     private void broadcastMessage(final String message) {

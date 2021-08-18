@@ -164,9 +164,7 @@ class RoomServiceTest {
         for (int i = 0; i < 10; i++) {
             final Socket client = new Socket(IP, PORT);
             final ClientConnection connection = new ClientConnection(client);
-
             PlayerService.createPlayer(new CreatePlayerRequest("Boooot" + i), connection);
-
             RoomService.createRoom(new CreateRoomRequest(null, 1), connection);
         }
         final Socket observer = new Socket(IP, PORT);

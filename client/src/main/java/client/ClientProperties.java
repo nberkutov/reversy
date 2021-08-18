@@ -9,6 +9,7 @@ public class ClientProperties {
     private String guiType;
     private String playerColor;
     private String nickname;
+    private int numberOfGames;
 
     public ClientProperties() {
     }
@@ -59,5 +60,13 @@ public class ClientProperties {
 
     public void setNickname(final String nickname) {
         this.nickname = nickname;
+    }
+
+    public Optional<Integer> getNumberOfGames() {
+        return Optional.of(numberOfGames);
+    }
+
+    public void setNumberOfGames(final int numberOfGames) {
+        this.numberOfGames = numberOfGames;
     }
 }

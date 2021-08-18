@@ -10,7 +10,7 @@ public interface Command {
 
     static Command parse(final String commandString, final Server server, final String path) {
         final ServerCommand commandType = ServerCommand.getCommandMessage(commandString);
-        Command command;
+        final Command command;
         switch (commandType) {
             case HELP:
                 command = new HelpCommand();

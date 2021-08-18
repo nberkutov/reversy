@@ -4,3 +4,4 @@ botType: "random"
 guiType: "empty"
 playerColor: "WHITE"
 nickname: "bot2"
+numberOfGames: 10
