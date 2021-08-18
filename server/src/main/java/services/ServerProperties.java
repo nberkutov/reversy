@@ -4,28 +4,22 @@ import java.util.Optional;
 
 public class ServerProperties {
     private int port;
-    private int threads;
     private int numberOfGames;
     private String logPath;
     private String statsPath;
     private String servicesLogFileName;
     private String controllersLogFileName;
 
-
-    private static ServerProperties instance;
-
     public ServerProperties() {
     }
 
     public ServerProperties(
             final int port,
-            final int threads,
             final int numberOfGames,
             final String logPath,
             final String statsPath
     ) {
         this.port = port;
-        this.threads = threads;
         this.logPath = logPath;
         this.statsPath = statsPath;
         this.numberOfGames = numberOfGames;
@@ -37,14 +31,6 @@ public class ServerProperties {
 
     public void setPort(final int port) {
         this.port = port;
-    }
-
-    public Optional<Integer> getThreads() {
-        return Optional.of(threads);
-    }
-
-    public void setThreads(final int threads) {
-        this.threads = threads;
     }
 
     public Optional<String> getLogPath() {
@@ -63,17 +49,6 @@ public class ServerProperties {
         this.statsPath = statsPath;
     }
 
-    @Override
-    public String toString() {
-        return "ServerProperties{" +
-                "port=" + port +
-                ", threads=" + threads +
-                ", numberOfGames=" + numberOfGames +
-                ", logPath='" + logPath + '\'' +
-                ", statsPath='" + statsPath + '\'' +
-                '}';
-    }
-
     public Optional<String> getServicesLogFileName() {
         return Optional.of(servicesLogFileName);
     }
@@ -88,5 +63,17 @@ public class ServerProperties {
 
     public void setControllersLogFileName(final String controllersLogFileName) {
         this.controllersLogFileName = controllersLogFileName;
+    }
+
+    @Override
+    public String toString() {
+        return "ServerProperties{" +
+                "port=" + port +
+                ", numberOfGames=" + numberOfGames +
+                ", logPath='" + logPath + '\'' +
+                ", statsPath='" + statsPath + '\'' +
+                ", servicesLogFileName='" + servicesLogFileName + '\'' +
+                ", controllersLogFileName='" + controllersLogFileName + '\'' +
+                '}';
     }
 }
