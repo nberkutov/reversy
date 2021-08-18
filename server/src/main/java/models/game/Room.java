@@ -18,10 +18,22 @@ public class Room implements Serializable {
     private User whiteUser;
     private User blackUser;
     private RoomState state;
+    private int gamesNumber;
 
-    public Room(int id) {
+    public Room(final int id, final int gamesNumber) {
         this.id = id;
         this.state = RoomState.OPEN;
+        this.gamesNumber = gamesNumber;
+    }
+
+    public void decrementGamesNumber() {
+        if (gamesNumber > 0) {
+            gamesNumber--;
+        }
+    }
+
+    public Room(final int id) {
+        this(id, 1);
     }
 
     public void lock() {
@@ -33,10 +45,10 @@ public class Room implements Serializable {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) return true;
         if (!(o instanceof Room)) return false;
-        Room room = (Room) o;
+        final Room room = (Room) o;
         return getId() == room.getId() &&
                 Objects.equals(getWhiteUser(), room.getWhiteUser()) &&
                 Objects.equals(getBlackUser(), room.getBlackUser()) &&

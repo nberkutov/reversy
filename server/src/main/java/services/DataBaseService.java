@@ -49,8 +49,8 @@ public class DataBaseService implements Serializable {
         return Server.database.putPlayer(nickname);
     }
 
-    public static synchronized Room putRoom() {
-        return Server.database.putRoom();
+    public static synchronized Room putRoom(final int numberOfGames) {
+        return Server.database.putRoom(numberOfGames);
     }
 
     protected static synchronized void nicknameIsUsedAlready(final String nickname) throws ServerException {

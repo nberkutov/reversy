@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import models.ClientConnection;
 import models.player.User;
 import services.PlayerService;
+import services.RoomService;
 
 import java.io.IOException;
 
@@ -20,6 +21,7 @@ public class PlayerController {
         User user = PlayerService.createPlayer(createPlayer, connection);
         log.debug("action createPlayer {} {}", connection.getSocket().getPort(), createPlayer);
         sendResponse(connection, Mapper.toDtoCreate(user));
+        sendResponse(connection, Mapper.toDto(RoomService.getRooms(false, 10)));
     }
 
     public static void actionAuthPlayer(final AuthPlayerRequest authPlayer, final ClientConnection connection) throws IOException, ServerException {

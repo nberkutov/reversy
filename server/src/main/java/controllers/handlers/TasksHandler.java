@@ -42,63 +42,65 @@ public class TasksHandler extends Thread {
         try {
             while (!Thread.currentThread().isInterrupted()) {
                 try {
-                    TaskRequest task = requests.takeFirst();
+                    final TaskRequest task = requests.takeFirst();
                     try {
-                        GameRequest request = task.getRequest();
-                        ClientConnection connection = task.getClient();
+                        final GameRequest request = task.getRequest();
+                        final ClientConnection connection = task.getClient();
                         switch (JsonService.getCommandByRequest(request)) {
                             case CREATE_PLAYER:
-                                CreatePlayerRequest createPlayer = (CreatePlayerRequest) request;
+                                final CreatePlayerRequest createPlayer = (CreatePlayerRequest) request;
                                 PlayerController.actionCreatePlayer(createPlayer, connection);
                                 break;
                             case PLAYER_AUTH:
-                                AuthPlayerRequest authPlayer = (AuthPlayerRequest) request;
+                                final AuthPlayerRequest authPlayer = (AuthPlayerRequest) request;
                                 PlayerController.actionAuthPlayer(authPlayer, connection);
                                 break;
                             case PLAYER_LOGOUT:
-                                LogoutPlayerRequest logoutPlayer = (LogoutPlayerRequest) request;
+                                final LogoutPlayerRequest logoutPlayer = (LogoutPlayerRequest) request;
                                 PlayerController.actionLogoutPlayer(logoutPlayer, task.getClient());
                                 break;
                             case WANT_PLAY:
-                                WantPlayRequest wantPlay = (WantPlayRequest) request;
+                                final WantPlayRequest wantPlay = (WantPlayRequest) request;
                                 actionWantPlay(wantPlay, connection);
                                 break;
                             case PLAYING_MOVE:
-                                MovePlayerRequest movePlayer = (MovePlayerRequest) request;
+                                final MovePlayerRequest movePlayer = (MovePlayerRequest) request;
                                 GameController.actionMovePlayer(movePlayer, connection);
                                 break;
                             case GET_REPLAY_GAME:
-                                GetReplayGameRequest getGame = (GetReplayGameRequest) request;
+                                final GetReplayGameRequest getGame = (GetReplayGameRequest) request;
                                 GameController.actionGetReplayGame(getGame, connection);
                                 break;
                             case CREATE_ROOM:
-                                CreateRoomRequest createRoom = (CreateRoomRequest) request;
+                                final CreateRoomRequest createRoom = (CreateRoomRequest) request;
                                 RoomController.actionCreateRoom(createRoom, connection);
                                 break;
                             case JOIN_ROOM:
-                                JoinRoomRequest joinRoom = (JoinRoomRequest) request;
+                                final JoinRoomRequest joinRoom = (JoinRoomRequest) request;
                                 RoomController.actionJoinRoom(joinRoom, connection);
                                 break;
                             case GET_ROOMS:
-                                GetRoomsRequest getRoomsRequest = (GetRoomsRequest) request;
+                                final GetRoomsRequest getRoomsRequest = (GetRoomsRequest) request;
                                 RoomController.actionGetRooms(getRoomsRequest, connection);
                                 break;
                         }
-                    } catch (ServerException e) {
+                    } catch (final ServerException e) {
                         log.warn("HandlerTasks {} {}", e.getMessage(), task.getClient());
                         sendResponse(task.getClient(), ErrorResponse.toDto(e));
                     }
-                } catch (IOException | ServerException e) {
+                } catch (final IOException | ServerException e) {
                     log.error("Thread error ", e);
                 }
             }
-        } catch (InterruptedException e) {
+        } catch (final InterruptedException e) {
             log.info("TasksHandler closed");
         }
     }
 
-    public void actionWantPlay(final WantPlayRequest wantPlay, final ClientConnection connection) throws InterruptedException, IOException, ServerException {
+    public void actionWantPlay(final WantPlayRequest wantPlayRequest, final ClientConnection connection)
+            throws InterruptedException, IOException, ServerException {
         PlayerService.canPlayerSearchGame(connection);
+        connection.getUser().setColor(wantPlayRequest.getColor());
         waiting.putLast(connection);
         sendResponse(connection, Mapper.toDto("Search game"));
         log.debug("player put in waiting {}", connection.getUser());

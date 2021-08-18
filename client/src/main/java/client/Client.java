@@ -15,6 +15,7 @@ import exception.GameErrorCode;
 import exception.ServerException;
 import gui.EmptyGUI;
 import gui.GameGUI;
+import gui.TextGUI;
 import gui.WindowGUI;
 import lombok.extern.slf4j.Slf4j;
 import models.ClientConnection;
@@ -47,14 +48,13 @@ public class Client extends Thread {
             mapper.findAndRegisterModules();
             final ClientProperties properties = mapper.readValue(configFile, ClientProperties.class);
 
-            final Client client = new Client(
-                    properties.getHost().orElse("127.0.0.1"),
-                    properties.getPort().orElse(8080),
-                    getPlayer(
-                            properties.getBotType().orElse("random"),
-                            properties.getNickname()),
-                    getGUI(properties.getGuiType().orElse("empty"))
-            );
+            final String host = properties.getHost().orElse("127.0.0.1");
+            final int port = properties.getPort().orElse(8080);
+            final Player player = getPlayer(properties.getBotType().orElse("random"), properties.getNickname());
+            final PlayerColor color = PlayerColor.valueOf(properties.getPlayerColor().orElse("NONE"));
+            player.setColor(color);
+            final GameGUI gameGUI = getGUI(properties.getGuiType().orElse("empty"));
+            final Client client = new Client(host, port, player, gameGUI);
             client.start();
         } catch (final IOException | ServerException e) {
             e.printStackTrace();
@@ -87,6 +87,8 @@ public class Client extends Thread {
         switch (guiType) {
             case "window":
                 return new WindowGUI();
+            case "console":
+                return new TextGUI();
             default:
                 return new EmptyGUI();
         }
@@ -159,7 +161,7 @@ public class Client extends Thread {
 
     private void actionCreatePlayer(final CreatePlayerResponse response) throws IOException, ServerException {
         log.debug("actionCreatePlayer {}", response);
-        ClientController.sendRequest(connection, new WantPlayRequest());
+        ClientController.sendRequest(connection, new WantPlayRequest(player.getColor()));
     }
 
     private void actionPlaying(final GameBoardResponse response) throws ServerException, IOException, InterruptedException {
@@ -176,8 +178,8 @@ public class Client extends Thread {
             }
         } else {
             player.triggerGameEnd(response.getState(), board);
-            player.setColor(PlayerColor.NONE);
-            ClientController.sendRequest(connection, new WantPlayRequest());
+            //player.setColor(PlayerColor.NONE);
+            ClientController.sendRequest(connection, new WantPlayRequest(player.getColor()));
         }
     }
 

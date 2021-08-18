@@ -33,21 +33,22 @@ import static models.GameProperties.SERVER_FILE;
 @Slf4j
 public class Server extends Thread implements AutoCloseable {
     private static final Scanner scanner = new Scanner(System.in);
+    public static DataBase database;
 
     private final int socketNumber;
     private final int port;
     private final ServerHandler serverHandler;
-    public static DataBase database;
+
     private ServerSocket serverSocket;
     private ServerProperties properties;
 
 
     public static void main(final String[] args) {
         if (args.length == 0) {
+            System.out.println("Не указан путь до файла конфигурации.");
             return;
         }
         final File configFile = new File(args[0]);
-
         try {
             final ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
             mapper.findAndRegisterModules();
@@ -68,10 +69,12 @@ public class Server extends Thread implements AutoCloseable {
         final FileAppender controllersFileAppender = (RollingFileAppender) Logger.getLogger("controllers")
                 .getAllAppenders().nextElement();
         final String logDir = properties.getLogPath().orElse("tmp");
+
         final String servicesLogFileName = logDir + File.separator + "services.log";
-        final String controllersLogFileName = logDir + File.separator + "controllers.log";
         servicesFileAppender.setFile(servicesLogFileName);
         servicesFileAppender.activateOptions();
+
+        final String controllersLogFileName = logDir + File.separator + "controllers.log";
         controllersFileAppender.setFile(controllersLogFileName);
         controllersFileAppender.activateOptions();
     }
@@ -124,7 +127,7 @@ public class Server extends Thread implements AutoCloseable {
             serverSocket.close();
             Thread.currentThread().interrupt();
         } catch (final IOException e) {
-            //log.error("Server close", e);
+            log.error("Server close", e);
         }
     }
 
@@ -153,9 +156,9 @@ public class Server extends Thread implements AutoCloseable {
         final List<User> userList = database.getAllPlayers();
         try {
             StatisticUtils.saveStatistic(userList, statsFile.getAbsolutePath());
-            //log.info("Statistic save in {}", statsFile.getAbsolutePath());
+            log.info("Statistic save in {}", statsFile.getAbsolutePath());
         } catch (final ServerException e) {
-            //log.error("Cant save statistic", e);
+            log.error("Cant save statistic", e);
         }
     }
 
@@ -165,15 +168,15 @@ public class Server extends Thread implements AutoCloseable {
                 final DataBase dataBase = Server.database.clone();
                 dataBase.removeAllConnects();
                 oos.writeObject(dataBase);
-                //log.info("Server successfully save database in {}", path);
+                log.info("Server successfully save database in {}", path);
             } catch (final IOException e) {
-                //log.error("Server cant save {}", path, e);
+                log.error("Server cant save {}", path, e);
             }
         }
     }
 
     private void connect(final Socket socket) {
-        //log.debug("Found connect {}", socket);
+        log.debug("Found connect {}", socket);
         serverHandler.createControllerForPlayer(socket);
     }
 
@@ -182,7 +185,7 @@ public class Server extends Thread implements AutoCloseable {
             final List<ClientConnection> list = database.getAllConnection();
             TasksHandler.broadcastResponse(list, Mapper.toDto(message));
         } catch (final IOException | ServerException e) {
-            //log.warn("Broadcast message don't send {}", message);
+            log.warn("Broadcast message don't send {}", message);
         }
     }
 

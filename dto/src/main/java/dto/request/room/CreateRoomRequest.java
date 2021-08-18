@@ -11,8 +11,5 @@ import models.base.PlayerColor;
 @AllArgsConstructor
 public class CreateRoomRequest implements GameRequest {
     private final PlayerColor color;
-
-    public CreateRoomRequest() {
-        this.color = PlayerColor.NONE;
-    }
+    private final int numberOfGames;
 }

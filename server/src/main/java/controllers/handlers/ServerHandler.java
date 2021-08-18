@@ -21,11 +21,9 @@ public class ServerHandler implements AutoCloseable {
         requests = new LinkedBlockingDeque<>();
         final LinkedBlockingDeque<ClientConnection> waiting = new LinkedBlockingDeque<>();
         tasksHandlerService = Executors.newFixedThreadPool(4);
-
         for (int i = 0; i < 4; i++) {
             tasksHandlerService.execute(new TasksHandler(requests, waiting));
         }
-
         gameSearcher = new GameSearcher(requests, waiting);
         gameSearcher.start();
     }

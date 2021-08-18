@@ -2,5 +2,5 @@ host: "127.0.0.1"
 port: 8080
 botType: "random"
 guiType: "window"
-playerColor: "black"
+playerColor: "BLACK"
 nickname: "bot1"

@@ -13,7 +13,7 @@ import java.util.List;
 public class MultiClients {
 
     private static final String IP = "127.0.0.1";
-    private static final int PORT = 8081;
+    private static final int PORT = 8080;
 
     public static void main(String[] args) {
         try {
