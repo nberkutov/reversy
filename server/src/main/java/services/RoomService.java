@@ -18,17 +18,20 @@ import java.util.Random;
 
 public class RoomService extends DataBaseService {
 
-    public static Room createRoom(final CreateRoomRequest createRoom, final ClientConnection connection) throws ServerException {
-        checkRequestAndConnection(createRoom, connection);
+    public static Room createRoom(
+            final CreateRoomRequest createRoomRequest, final ClientConnection connection)
+            throws ServerException {
+        checkRequestAndConnection(createRoomRequest, connection);
         final User user = connection.getUser();
         userIsNotNull(user);
         try {
             user.lock();
             userIsNotStateNone(user);
-            final Room room = putRoom();
-            PlayerColor color = createRoom.getColor();
+            final Room room = putRoom(createRoomRequest.getNumberOfGames());
+            final PlayerColor color = createRoomRequest.getColor();
             setPlayerInRoom(room, user, color);
             user.setState(PlayerState.WAITING_ROOM);
+            user.setNowRoom(room);
             return room;
         } finally {
             user.unlock();
@@ -47,6 +50,7 @@ public class RoomService extends DataBaseService {
             userIsNotStateNone(user);
             takeFreeColorInRoom(room, user);
             room.setState(RoomState.CLOSE);
+            user.setNowRoom(room);
             return GameService.createGameByRoom(room);
         } finally {
             room.unlock();

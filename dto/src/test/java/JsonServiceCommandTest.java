@@ -37,11 +37,11 @@ class JsonServiceCommandTest {
     private static Stream<Arguments> getCommandByRequestStream() {
         return Stream.of(
                 Arguments.of(CommandRequest.CREATE_PLAYER, new CreatePlayerRequest(null)),
-                Arguments.of(WANT_PLAY, new WantPlayRequest()),
+                Arguments.of(WANT_PLAY, new WantPlayRequest(null)),
                 Arguments.of(PLAYING_MOVE, new MovePlayerRequest(0, null)),
                 Arguments.of(PLAYER_AUTH, new AuthPlayerRequest(null)),
                 Arguments.of(PLAYER_LOGOUT, new LogoutPlayerRequest()),
-                Arguments.of(CREATE_ROOM, new CreateRoomRequest()),
+                Arguments.of(CREATE_ROOM, new CreateRoomRequest(PlayerColor.NONE, 1)),
                 Arguments.of(JOIN_ROOM, new JoinRoomRequest(0)),
                 Arguments.of(GET_ROOMS, new GetRoomsRequest()),
                 Arguments.of(GET_REPLAY_GAME, new GetReplayGameRequest(0))

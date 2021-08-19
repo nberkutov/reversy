@@ -70,9 +70,9 @@ public class DataBase implements Serializable, Cloneable {
         return user;
     }
 
-    public synchronized Room putRoom() {
+    public synchronized Room putRoom(final int numberOfGames) {
         int id = getRoomId();
-        Room room = new Room(id);
+        Room room = new Room(id, numberOfGames);
         rooms.put(id, room);
         return room;
     }

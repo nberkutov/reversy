@@ -8,6 +8,7 @@ import models.base.PlayerState;
 import models.base.interfaces.GameBoard;
 import models.board.Point;
 import models.game.Game;
+import models.game.Room;
 import models.statistics.Statistics;
 
 import java.io.Serializable;
@@ -26,6 +27,7 @@ public class User implements Serializable {
     protected PlayerState state;
     protected PlayerColor color;
     protected Game nowPlaying;
+    protected Room nowRoom;
 
     private final Lock lock = new ReentrantLock();
 

@@ -19,22 +19,25 @@ import static controllers.GameController.sendInfoAboutGame;
 
 @Slf4j
 public class RoomController {
-    public static void actionCreateRoom(final CreateRoomRequest createRoom, final ClientConnection connection) throws IOException, ServerException, ServerException {
-        Room room = RoomService.createRoom(createRoom, connection);
-        log.debug("action createRoom {} {}", connection.getSocket().getPort(), createRoom);
+
+    public static void actionCreateRoom(
+            final CreateRoomRequest createRoomRequest, final ClientConnection connection)
+            throws IOException, ServerException {
+        final Room room = RoomService.createRoom(createRoomRequest, connection);
+        log.debug("action createRoom {} {}", connection.getSocket().getPort(), createRoomRequest);
         sendResponse(connection, Mapper.toDto(room));
     }
 
-    public static void actionJoinRoom(final JoinRoomRequest createRoom, final ClientConnection connection) throws IOException, ServerException {
-        Game game = RoomService.joinRoom(createRoom, connection);
-        log.debug("action joinRoom {} {}", connection.getSocket().getPort(), createRoom);
+    public static void actionJoinRoom(final JoinRoomRequest joinRoomRequest, final ClientConnection connection) throws IOException, ServerException {
+        final Game game = RoomService.joinRoom(joinRoomRequest, connection);
+        log.debug("action joinRoom {} {}", connection.getSocket().getPort(), joinRoomRequest);
         sendInfoAboutGame(game, game.getBlackUser());
         sendInfoAboutGame(game, game.getWhiteUser());
         log.debug("Game created by Room, {}", game);
     }
 
     public static void actionGetRooms(final GetRoomsRequest getRoomsRequest, final ClientConnection connection) throws ServerException, IOException {
-        List<Room> rooms = RoomService.getRooms(getRoomsRequest, connection);
+        final List<Room> rooms = RoomService.getRooms(getRoomsRequest, connection);
         log.debug("action getRooms {} {}", connection.getSocket().getPort(), getRoomsRequest);
         sendResponse(connection, Mapper.toDto(rooms));
     }

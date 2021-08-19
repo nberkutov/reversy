@@ -7,6 +7,7 @@ import dto.request.room.JoinRoomRequest;
 import exception.GameErrorCode;
 import exception.ServerException;
 import models.ClientConnection;
+import models.base.PlayerColor;
 import models.base.PlayerState;
 import models.game.Room;
 import models.player.User;
@@ -35,14 +36,14 @@ class RoomServiceTest {
         try {
             RoomService.createRoom(null, null);
             fail();
-        } catch (ServerException e) {
+        } catch (final ServerException e) {
             assertEquals(e.getErrorCode(), GameErrorCode.INVALID_REQUEST);
         }
 
         try {
-            RoomService.createRoom(new CreateRoomRequest(), null);
+            RoomService.createRoom(new CreateRoomRequest(null, 1), null);
             fail();
-        } catch (ServerException e) {
+        } catch (final ServerException e) {
             assertEquals(e.getErrorCode(), GameErrorCode.CONNECTION_LOST);
         }
 
@@ -52,15 +53,15 @@ class RoomServiceTest {
 
 
         try {
-            RoomService.createRoom(new CreateRoomRequest(), connection);
+            RoomService.createRoom(new CreateRoomRequest(null, 1), connection);
             fail();
-        } catch (ServerException e) {
+        } catch (final ServerException e) {
             assertEquals(e.getErrorCode(), GameErrorCode.PLAYER_NOT_FOUND);
         }
 
         PlayerService.createPlayer(new CreatePlayerRequest("Boooot"), connection);
 
-        RoomService.createRoom(new CreateRoomRequest(), connection);
+        RoomService.createRoom(new CreateRoomRequest(null, 1), connection);
 
         final Socket client2 = new Socket(IP, PORT);
         final ClientConnection connection2 = new ClientConnection(client2);
@@ -68,9 +69,9 @@ class RoomServiceTest {
         user.setState(PlayerState.SEARCH_GAME);
 
         try {
-            RoomService.createRoom(new CreateRoomRequest(), connection2);
+            RoomService.createRoom(new CreateRoomRequest(null, 1), connection2);
             fail();
-        } catch (ServerException e) {
+        } catch (final ServerException e) {
             assertEquals(e.getErrorCode(), GameErrorCode.PLAYER_CANT_PERFORM);
         }
 
@@ -84,14 +85,14 @@ class RoomServiceTest {
         try {
             RoomService.joinRoom(null, null);
             fail();
-        } catch (ServerException e) {
+        } catch (final ServerException e) {
             assertEquals(e.getErrorCode(), GameErrorCode.INVALID_REQUEST);
         }
 
         try {
             RoomService.joinRoom(new JoinRoomRequest(0), null);
             fail();
-        } catch (ServerException e) {
+        } catch (final ServerException e) {
             assertEquals(e.getErrorCode(), GameErrorCode.CONNECTION_LOST);
         }
 
@@ -103,7 +104,7 @@ class RoomServiceTest {
         try {
             RoomService.joinRoom(new JoinRoomRequest(0), connection);
             fail();
-        } catch (ServerException e) {
+        } catch (final ServerException e) {
             assertEquals(e.getErrorCode(), GameErrorCode.PLAYER_NOT_FOUND);
         }
 
@@ -112,11 +113,11 @@ class RoomServiceTest {
         try {
             RoomService.joinRoom(new JoinRoomRequest(-1), connection);
             fail();
-        } catch (ServerException e) {
+        } catch (final ServerException e) {
             assertEquals(e.getErrorCode(), GameErrorCode.ROOM_NOT_FOUND);
         }
 
-        final Room room = RoomService.createRoom(new CreateRoomRequest(), connection);
+        final Room room = RoomService.createRoom(new CreateRoomRequest(PlayerColor.BLACK, 1), connection);
 
         final Socket client2 = new Socket(IP, PORT);
         final ClientConnection connection2 = new ClientConnection(client2);
@@ -131,7 +132,7 @@ class RoomServiceTest {
         try {
             RoomService.joinRoom(new JoinRoomRequest(room.getId()), connection3);
             fail();
-        } catch (ServerException e) {
+        } catch (final ServerException e) {
             assertEquals(e.getErrorCode(), GameErrorCode.ROOM_IS_CLOSED);
         }
 
@@ -143,14 +144,14 @@ class RoomServiceTest {
         try {
             RoomService.getRooms(null, null);
             fail();
-        } catch (ServerException e) {
+        } catch (final ServerException e) {
             assertEquals(e.getErrorCode(), GameErrorCode.INVALID_REQUEST);
         }
 
         try {
             RoomService.getRooms(new GetRoomsRequest(), null);
             fail();
-        } catch (ServerException e) {
+        } catch (final ServerException e) {
             assertEquals(e.getErrorCode(), GameErrorCode.CONNECTION_LOST);
         }
     }
@@ -163,10 +164,8 @@ class RoomServiceTest {
         for (int i = 0; i < 10; i++) {
             final Socket client = new Socket(IP, PORT);
             final ClientConnection connection = new ClientConnection(client);
-
             PlayerService.createPlayer(new CreatePlayerRequest("Boooot" + i), connection);
-
-            RoomService.createRoom(new CreateRoomRequest(), connection);
+            RoomService.createRoom(new CreateRoomRequest(null, 1), connection);
         }
         final Socket observer = new Socket(IP, PORT);
         final ClientConnection connectionObserver = new ClientConnection(observer);

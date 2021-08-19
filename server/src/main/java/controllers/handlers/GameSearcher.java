@@ -22,15 +22,14 @@ public class GameSearcher extends Thread {
     private final LinkedBlockingDeque<TaskRequest> requests;
     private final LinkedBlockingDeque<ClientConnection> waiting;
 
-
     @Override
     public void run() {
         log.info("GameSearcher started");
         try {
             while (!Thread.currentThread().isInterrupted()) {
                 try {
-                    ClientConnection first = waiting.takeFirst();
-                    ClientConnection second = waiting.takeFirst();
+                    final ClientConnection first = waiting.takeFirst();
+                    final ClientConnection second = waiting.takeFirst();
                     log.debug("GameSearcher {}, {}", first, second);
                     if (!PlayerService.canSearchGame(first)) {
                         log.info("Player cant play {}", first);
@@ -45,11 +44,11 @@ public class GameSearcher extends Thread {
                         continue;
                     }
                     linkPlayersForGame(first, second);
-                } catch (ServerException e) {
+                } catch (final ServerException e) {
                     log.error("GameSearcher {}", e.getMessage());
                 }
             }
-        } catch (InterruptedException e) {
+        } catch (final InterruptedException e) {
             log.info("GameSearcher closed");
         }
     }
@@ -59,13 +58,13 @@ public class GameSearcher extends Thread {
             final Game game = GameService.createGameBySearch(first, second);
             sendInfoAboutGame(game, game.getBlackUser());
             sendInfoAboutGame(game, game.getWhiteUser());
-        } catch (IOException e) {
+        } catch (final IOException e) {
             e.printStackTrace();
-        } catch (ServerException e) {
+        } catch (final ServerException e) {
             try {
                 sendResponse(first, ErrorResponse.toDto(e));
                 sendResponse(second, ErrorResponse.toDto(e));
-            } catch (IOException io) {
+            } catch (final IOException io) {
                 log.error("GameSearcher {}", io.getMessage());
             }
         }

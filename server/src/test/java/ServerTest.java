@@ -46,7 +46,7 @@ class ServerTest {
     @BeforeAll
     private static void createDateBase() {
         server.start();
-        PORT = server.getPORT();
+        PORT = server.getPort();
     }
 
     @BeforeEach
@@ -71,7 +71,7 @@ class ServerTest {
 
 
     private static void wantPlay(final ClientConnection connection) throws IOException, ServerException, InterruptedException {
-        sendRequest(connection, new WantPlayRequest());
+        sendRequest(connection, new WantPlayRequest(connection.getUser().getColor()));
     }
 
     private static void fastSendRequest(final ClientConnection connection, final GameRequest request) throws IOException, ServerException {
@@ -207,7 +207,7 @@ class ServerTest {
         final ClientConnection connectionBot2 = createConnection(IP, PORT, "Bot2");
 
         assertTrue(DataBaseService.getAllGames().isEmpty());
-        sendRequest(connectionBot1, new CreateRoomRequest(PlayerColor.WHITE));
+        sendRequest(connectionBot1, new CreateRoomRequest(PlayerColor.WHITE, 1));
         assertEquals(DataBaseService.getAllRooms().size(), 1);
         assertEquals(DataBaseService.getAllRooms().get(0).getState(), RoomState.OPEN);
         final Room room = DataBaseService.getAllRooms().get(0);

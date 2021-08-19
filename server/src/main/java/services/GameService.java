@@ -23,22 +23,28 @@ import java.util.Random;
 @Slf4j
 public class GameService extends DataBaseService {
 
-    public static Game createGameBySearch(final ClientConnection firstC,
-                                          final ClientConnection secondC) throws ServerException {
-        connectionIsNotNullAndConnected(firstC);
-        connectionIsNotNullAndConnected(secondC);
-        final User first = firstC.getUser();
-        final User second = secondC.getUser();
+    public static Game createGameBySearch(final ClientConnection firstConnection, final ClientConnection secondConnection)
+            throws ServerException {
+        connectionIsNotNullAndConnected(firstConnection);
+        connectionIsNotNullAndConnected(secondConnection);
+        final User first = firstConnection.getUser();
+        final User second = secondConnection.getUser();
         userIsNotNull(first);
         userIsNotNull(second);
-        if (new Random().nextBoolean()) {
+        if (first.getColor() == PlayerColor.NONE && second.getColor() == PlayerColor.NONE) {
+            if (new Random().nextBoolean()) {
+                return createGame(first, second);
+            }
+            return createGame(second, first);
+        }
+        if (first.getColor() == PlayerColor.BLACK) {
             return createGame(first, second);
         }
         return createGame(second, first);
     }
 
-    public static Game getReplayGame(final GetReplayGameRequest request,
-                                     final ClientConnection connection) throws ServerException {
+    public static Game getReplayGame(final GetReplayGameRequest request, final ClientConnection connection)
+            throws ServerException {
         checkRequestAndConnection(request, connection);
         final Game game = getGameById(request.getGameId());
         gameIsNotNull(game);
@@ -61,14 +67,15 @@ public class GameService extends DataBaseService {
         return game;
     }
 
-    public static Game createGameByRoom(Room room) throws ServerException {
+    public static Game createGameByRoom(final Room room) throws ServerException {
         roomIsNotNull(room);
         final User black = room.getBlackUser();
         final User white = room.getWhiteUser();
         return createGame(black, white);
     }
 
-    public static Game makePlayerMove(final MovePlayerRequest movePlayer, final ClientConnection connection) throws ServerException {
+    public static Game makePlayerMove(final MovePlayerRequest movePlayer, final ClientConnection connection)
+            throws ServerException {
         checkRequestAndConnection(movePlayer, connection);
         final User user = connection.getUser();
         final Game game = getGameById(movePlayer.getGameId());
@@ -87,7 +94,7 @@ public class GameService extends DataBaseService {
         choosingPlayerMove(game);
 
         if (gameIsFinished(game)) {
-            GameResult result = getGameResult(game);
+            final GameResult result = getGameResult(game);
             finishGame(result, game);
         }
 
