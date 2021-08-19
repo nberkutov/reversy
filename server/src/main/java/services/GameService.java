@@ -96,16 +96,6 @@ public class GameService extends DataBaseService {
         if (gameIsFinished(game)) {
             final GameResult result = getGameResult(game);
             finishGame(result, game);
-            final Room room = user.getNowRoom();
-            if (room != null) {
-                room.decrementGamesNumber();
-                System.out.printf("Room ID: %d Room Games NUmber: %d", room.getId(), room.getGamesNumber());
-                game.getWhiteUser().setColor(PlayerColor.BLACK);
-                game.getBlackUser().setColor(PlayerColor.WHITE);
-                if (room.getGamesNumber() > 0) {
-                    return createGame(game.getWhiteUser(), game.getBlackUser());
-                }
-            }
         }
 
         return game;
