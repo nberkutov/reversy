@@ -83,9 +83,13 @@ public class Server extends Thread implements AutoCloseable {
 
     private static void handleCommands(final Server server) {
         while (true) {
-            final String input = scanner.nextLine().trim().toLowerCase();
-            final Command command = Command.parse(input, server, SERVER_FILE);
-            command.execute();
+            try {
+                final String input = scanner.nextLine().trim().toLowerCase();
+                final Command command = Command.parse(input, server, SERVER_FILE);
+                command.execute();
+            } catch (final Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -103,7 +107,7 @@ public class Server extends Thread implements AutoCloseable {
     }
 
     public Server() {
-        this(8000, new DataBase());
+        this(8080, new DataBase());
     }
 
     @Override

@@ -1,7 +1,9 @@
 host: "127.0.0.1"
 port: 8080
 botType: "random"
-guiType: "window"
+guiType: "empty"
 playerColor: "BLACK"
-nickname: "bot1"
-numberOfGames: 10
+nickname: "никита"
+numberOfGames: 1000000
+logPath: "/home/nikita/local_client/logs/"
+logFile: "client.log"

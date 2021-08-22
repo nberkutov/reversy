@@ -26,6 +26,10 @@ import models.base.interfaces.GameBoard;
 import models.board.Point;
 import models.players.SmartBot;
 import models.strategies.RandomStrategy;
+import org.apache.log4j.FileAppender;
+import org.apache.log4j.Logger;
+import org.apache.log4j.RollingFileAppender;
+import strategy.ArrayBoard;
 import utils.JsonService;
 
 import java.io.File;
@@ -57,6 +61,7 @@ public class Client extends Thread {
             player.setColor(color);
             final GameGUI gameGUI = getGUI(properties.getGuiType().orElse("empty"));
             final int numberOfGames = properties.getNumberOfGames().orElse(1);
+            initLogger(properties);
             final Client client = new Client(host, port, player, gameGUI, numberOfGames);
             client.start();
         } catch (final IOException | ServerException e) {
@@ -76,6 +81,24 @@ public class Client extends Thread {
         } catch (final IOException e) {
             throw new ServerException(GameErrorCode.SERVER_NOT_STARTED);
         }
+    }
+
+    private static void initLogger(final ClientProperties properties) throws IOException {
+        final FileAppender clientLogsFileAppender = (RollingFileAppender) Logger.getLogger("client")
+                .getAllAppenders().nextElement();
+        final String logDir = properties.getLogPath().orElse("tmp");
+
+        final String servicesLogFileName = logDir + File.separator + properties.getLogFile().orElse("client.log");
+        final File file = new File(servicesLogFileName);
+        final File dir = new File(logDir);
+        if (!dir.exists() && !dir.mkdirs()) {
+            throw new RuntimeException("Не удалось создать директорию " + logDir);
+        }
+        if (!file.exists() && !file.createNewFile()) {
+            throw new RuntimeException("Не удалось создать файл");
+        }
+        clientLogsFileAppender.setFile(servicesLogFileName);
+        clientLogsFileAppender.activateOptions();
     }
 
     private static Player getPlayer(final String playerType, final String nickname) {
@@ -104,7 +127,7 @@ public class Client extends Thread {
     }
 
     private void actionMessage(final MessageResponse response) {
-        log.info("actionMessage {}", response);
+        //log.info("actionMessage {}", response);
     }
 
     private void actionByResponseFromServer(final GameResponse gameResponse)
@@ -126,18 +149,18 @@ public class Client extends Thread {
                 actionMessage((MessageResponse) gameResponse);
                 break;
             default:
-                log.error("Unknown response {}", gameResponse);
+                break;// log.error("Unknown response {}", gameResponse);
         }
     }
 
     @Override
     public void run() {
-        log.info("Debug connect {}", connection);
+        //log.info("Debug connect {}", connection);
         new Thread(() -> {
             try {
                 Thread.sleep(10);
                 ClientController.sendRequest(connection, new CreatePlayerRequest(player.getNickname()));
-            } catch (final InterruptedException | IOException | ServerException e) {
+            } catch (final IOException | ServerException | InterruptedException e) {
                 e.printStackTrace();
             }
         }).start();
@@ -166,13 +189,12 @@ public class Client extends Thread {
         ClientController.sendRequest(connection, new WantPlayRequest(player.getColor()));
     }
 
-    private void actionPlaying(final GameBoardResponse response) throws ServerException, IOException, InterruptedException {
-        log.debug("actionPlaying {} {}", connection.getSocket().getLocalPort(), response);
-        final GameBoard board = response.getBoard();
+    private void actionPlaying(final GameBoardResponse response) throws ServerException, IOException {
+        final ArrayBoard board = new ArrayBoard(response.getBoard());
+        log.info("{} {} {}", response.getGameId(), response.getState(), board);
         gui.updateGUI(board, response.getState(), response.getOpponent().getNickname());
         if (response.getState() != GameState.END) {
             if (nowMoveByMe(player, response.getState())) {
-                Thread.sleep(100);
                 final Point move = player.move(board);
                 ClientController.sendRequest(connection, MovePlayerRequest.toDto(response.getGameId(), move));
             } else {
@@ -188,9 +210,10 @@ public class Client extends Thread {
     }
 
     private void actionStartGame(final SearchGameResponse response) {
-        log.debug("actionStartGame {}", response);
         player.setColor(response.getColor());
-        System.out.println(player.getNickname() + " " + response.getColor());
+        log.info("color={}", response.getColor());
+        System.out.println("Game " + gamesCounter + " color=" + response.getColor());
+        //System.out.println(player.getNickname() + " " + response.getColor());
     }
 
     private PlayerColor revertColor(final PlayerColor playerColor) {

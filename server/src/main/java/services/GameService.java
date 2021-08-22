@@ -37,10 +37,15 @@ public class GameService extends DataBaseService {
             }
             return createGame(second, first);
         }
-        if (first.getColor() == PlayerColor.BLACK) {
+        if (first.getColor() == PlayerColor.BLACK && "nikita".equals(first.getNickname())) {
+            return createGame(first, second);
+        } else if (second.getColor() == PlayerColor.BLACK && "nikita".equals(second.getNickname())) {
+            return createGame(second, first);
+        } else if (first.getColor() == PlayerColor.WHITE && "nikita".equals(first.getNickname())) {
+            return createGame(second, first);
+        } else {
             return createGame(first, second);
         }
-        return createGame(second, first);
     }
 
     public static Game getReplayGame(final GetReplayGameRequest request, final ClientConnection connection)

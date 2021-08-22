@@ -9,6 +9,8 @@ public class ClientProperties {
     private String guiType;
     private String playerColor;
     private String nickname;
+    private String logPath;
+    private String logFile;
     private int numberOfGames;
 
     public ClientProperties() {
@@ -68,5 +70,21 @@ public class ClientProperties {
 
     public void setNumberOfGames(final int numberOfGames) {
         this.numberOfGames = numberOfGames;
+    }
+
+    public Optional<String> getLogPath() {
+        return Optional.of(logPath);
+    }
+
+    public void setLogPath(final String logPath) {
+        this.logPath = logPath;
+    }
+
+    public Optional<String> getLogFile() {
+        return Optional.of(logFile);
+    }
+
+    public void setLogFile(final String logFile) {
+        this.logFile = logFile;
     }
 }
