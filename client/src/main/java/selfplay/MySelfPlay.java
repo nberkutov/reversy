@@ -14,28 +14,28 @@ import models.base.GameState;
 import models.base.PlayerColor;
 import models.base.interfaces.GameBoard;
 import player.RandomBotPlayer;
-import strategy.ArrayBoard;
-import strategy.ExpectimaxStrategy;
-import strategy.Utility;
+import strategy.*;
 
 public class MySelfPlay {
-    private static final int GAMES_COUNT = 600;
+    private static final int GAMES_COUNT = 1;
     private static final long DELAY = 0L;
-    private static final Logger logger = Logger.getLogger(MySelfPlay.class);
+    //private static final Logger logger = Logger.getLogger(MySelfPlay.class);
 
     public static void main(final String[] args) {
-        logger.addAppender(new ConsoleAppender());
-        logger.setLevel(Level.INFO);
+        /*logger.addAppender(new ConsoleAppender());
+        logger.setLevel(Level.INFO);*/
         int blackWins = 0;
         int whiteWins = 0;
 
-        final Player player1 = new BotPlayer("Minimax", new ExpectimaxStrategy(3, Utility::advanced));
-        final Player player2 = new RandomBotPlayer("randomBot");
+        final Player player1 = new BotPlayer("Minimax1", new MTPruningStragegy(4, Utility::advanced));
+        final Player player2 = new BotPlayer("Minimax2", new MTMinimaxStrategy(3, Utility::advanced));
+
+        //final Player player2 = new RandomBotPlayer("randomBot");
         final GameBoard board = new ArrayBoard();
 
         player1.setColor(PlayerColor.BLACK);
         player2.setColor(PlayerColor.WHITE);
-        final GameGUI gui = new EmptyGUI();
+        final GameGUI gui = new WindowGUI();
 
         for (int i = 0; i < GAMES_COUNT; i++) {
             System.out.printf("Game %d started\n", i);
@@ -45,14 +45,14 @@ public class MySelfPlay {
                 while (game.getGameState() != GameState.END) {
                     // Thread.sleep(DELAY);
                     gameBoard = game.playNext();
-                    gui.updateGUI(gameBoard, game.getGameState(), "S");
+                    gui.updateGUI(gameBoard, game.getGameState(), "RANDOM");
                 }
                 if (gameBoard.getCountBlackCells() > gameBoard.getCountWhiteCells()) {
                     blackWins++;
                 } else {
                     whiteWins++;
                 }
-                logger.info(String.format("black: %d white: %d", blackWins, whiteWins));
+                //logger.info(String.format("black: %d white: %d", blackWins, whiteWins));
             } catch (final ServerException e) {
                 e.printStackTrace();
             }

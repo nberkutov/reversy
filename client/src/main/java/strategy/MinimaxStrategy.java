@@ -1,14 +1,13 @@
 package strategy;
 
 import exception.ServerException;
+import logic.BoardLogic;
 import models.base.Cell;
 import models.base.PlayerColor;
 import models.base.interfaces.GameBoard;
 import models.board.Point;
-import logic.BoardLogic;
 
 import java.util.List;
-import java.util.concurrent.ForkJoinPool;
 import java.util.function.ToIntBiFunction;
 
 public class MinimaxStrategy implements Strategy {

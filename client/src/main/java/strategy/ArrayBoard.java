@@ -34,9 +34,40 @@ public class ArrayBoard implements GameBoard {
         whiteCells = 0;
         emptyCells = 64;
         this.board = new Cell[64];
+        Arrays.fill(this.board, Cell.EMPTY);
         for (int y = 0; y < board.getSize(); y++) {
             for (int x = 0; x < board.getSize(); x++) {
                 this.board[get1d(x, y)] = board.getCell(x, y);
+            }
+        }
+    }
+
+    public ArrayBoard(final String boardString) {
+        if (boardString.length() < 64) {
+            throw new IllegalArgumentException("Board string length is less than 64.");
+        }
+        board = new Cell[64];
+        blackCells = 0;
+        whiteCells = 0;
+        emptyCells = 64;
+        for (int i = 0; i < boardString.length(); i++) {
+            final char c = boardString.charAt(i);
+            switch (c) {
+                case 'e':
+                    board[i] = Cell.EMPTY;
+                    break;
+                case 'w':
+                    board[i] = Cell.WHITE;
+                    emptyCells--;
+                    whiteCells++;
+                    break;
+                case 'b':
+                    board[i] = Cell.BLACK;
+                    emptyCells--;
+                    blackCells++;
+                    break;
+                default:
+                    throw new IllegalArgumentException("Illegal character in string representation of board.");
             }
         }
     }
@@ -147,9 +178,40 @@ public class ArrayBoard implements GameBoard {
         return null;
     }
 
+    public String compress() {
+        Cell prev = Cell.EMPTY;
+        Cell current;
+        int counter = 0;
+        final StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                current = board[get1d(j, i)];
+                if (current == prev) {
+                    counter++;
+                } else {
+                    if (counter > 1) {
+                        sb.append(counter).append(getCellChar(prev));
+                    } else {
+                        sb.append(getCellChar(prev));
+                    }
+                    counter = 0;
+                }
+                prev = current;
+            }
+        }
+        return sb.toString();
+    }
+
     @Override
     public String toString() {
-        return "null";
+        final StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                final Cell cell = board[get1d(j, i)];
+                sb.append(getCellChar(cell));
+            }
+        }
+        return sb.toString();
     }
 
     public static int get1d(final int x, final int y) {
@@ -157,5 +219,18 @@ public class ArrayBoard implements GameBoard {
             throw new IllegalArgumentException(String.format("Illegal coordinates: (%d, %d) ", x, y));
         }
         return y * SIZE + x;
+    }
+
+    private char getCellChar(final Cell cell) {
+        switch (cell) {
+            case BLACK:
+                return 'b';
+            case WHITE:
+                return 'w';
+            case EMPTY:
+                return 'e';
+            default:
+                throw new RuntimeException();
+        }
     }
 }
