@@ -1,35 +1,29 @@
-package utils;
+package org.example.utils;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import commands.CommandRequest;
-import commands.CommandResponse;
-import dto.request.GameRequest;
-import dto.response.GameResponse;
-import exception.GameErrorCode;
-import exception.ServerException;
-import models.base.interfaces.GameBoard;
-import models.base.modifiedSerializer.GameBoardDeserializer;
-import models.base.modifiedSerializer.GameBoardSerializer;
-import models.base.modifiedSerializer.LockDeserializer;
-import models.base.modifiedSerializer.LockSerializer;
-
-import java.util.concurrent.locks.Lock;
+import org.example.commands.CommandRequest;
+import org.example.commands.CommandResponse;
+import org.example.dto.request.GameRequest;
+import org.example.dto.response.GameResponse;
+import org.example.exception.GameErrorCode;
+import org.example.exception.ServerException;
+import org.example.models.base.interfaces.GameBoard;
+import org.example.models.base.modifiedSerializer.GameBoardDeserializer;
+import org.example.models.base.modifiedSerializer.GameBoardSerializer;
 
 public class JsonService {
     private static final Gson GSON = new GsonBuilder()
             .enableComplexMapKeySerialization()
             .registerTypeAdapter(GameBoard.class, new GameBoardSerializer())
             .registerTypeAdapter(GameBoard.class, new GameBoardDeserializer())
-            .registerTypeAdapter(Lock.class, new LockSerializer())
-            .registerTypeAdapter(Lock.class, new LockDeserializer())
             .create();
 
     public static <T> String toJson(final T t) {
         return GSON.toJson(t);
     }
 
-    public static <T> T fromJson(final String msg, Class<T> nameClass) {
+    public static <T> T fromJson(final String msg, final Class<T> nameClass) {
         return GSON.fromJson(msg.trim(), nameClass);
     }
 
@@ -47,7 +41,7 @@ public class JsonService {
         requestIsNotNull(request);
         for (final CommandRequest commandRequest : CommandRequest.values()) {
             if (commandRequest.getRequest().equals(request.getClass())) {
-                StringBuilder builder = new StringBuilder();
+                final StringBuilder builder = new StringBuilder();
                 builder.append(commandRequest.getCommandName());
                 builder.append(" ");
                 builder.append(toJson(request));
@@ -59,10 +53,10 @@ public class JsonService {
 
     public static GameRequest getRequestFromMsg(final String msg) throws ServerException {
         msgIsNotNullAndNotEmpty(msg);
-        String[] command = msg.split(" ");
+        final String[] command = msg.split(" ");
         for (final CommandRequest commandRequest : CommandRequest.values()) {
             if (commandRequest.equalCommand(command[0])) {
-                String json = msg.substring(command[0].length() + 1);
+                final String json = msg.substring(command[0].length() + 1);
                 return (GameRequest) fromJson(json, (Class<?>) commandRequest.getRequest());
             }
         }
@@ -83,7 +77,7 @@ public class JsonService {
         responseIsNotNull(response);
         for (final CommandResponse commandResponse : CommandResponse.values()) {
             if (commandResponse.getResponse().equals(response.getClass())) {
-                StringBuilder builder = new StringBuilder();
+                final StringBuilder builder = new StringBuilder();
                 builder.append(commandResponse.getCommandName());
                 builder.append(" ");
                 builder.append(JsonService.toJson(response));
@@ -95,10 +89,10 @@ public class JsonService {
 
     public static GameResponse getResponseFromMsg(final String msg) throws ServerException {
         msgIsNotNullAndNotEmpty(msg);
-        String[] command = msg.split(" ");
+        final String[] command = msg.split(" ");
         for (final CommandResponse commandResponse : CommandResponse.values()) {
             if (commandResponse.equalCommand(command[0])) {
-                String json = msg.substring(command[0].length() + 1);
+                final String json = msg.substring(command[0].length() + 1);
                 return (GameResponse) JsonService.fromJson(json, (Class<?>) commandResponse.getResponse());
             }
         }

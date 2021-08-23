@@ -1,10 +1,10 @@
-package dto.request.room;
+package org.example.dto.request.room;
 
-import dto.request.GameRequest;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import models.base.PlayerColor;
+import org.example.dto.request.GameRequest;
+import org.example.models.base.PlayerColor;
 
 @EqualsAndHashCode
 @Data

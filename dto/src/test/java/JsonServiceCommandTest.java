@@ -1,45 +1,47 @@
-import commands.CommandRequest;
-import commands.CommandResponse;
-import dto.request.GameRequest;
-import dto.request.player.*;
-import dto.request.room.CreateRoomRequest;
-import dto.request.room.GetRoomsRequest;
-import dto.request.room.JoinRoomRequest;
-import dto.response.ErrorResponse;
-import dto.response.GameResponse;
-import dto.response.game.GameBoardResponse;
-import dto.response.game.ReplayResponse;
-import dto.response.player.CreateGameResponse;
-import dto.response.player.CreatePlayerResponse;
-import dto.response.player.MessageResponse;
-import dto.response.room.ListRoomResponse;
-import dto.response.room.RoomResponse;
-import exception.GameErrorCode;
-import exception.ServerException;
-import models.base.PlayerColor;
+import org.example.commands.CommandRequest;
+import org.example.commands.CommandResponse;
+import org.example.dto.request.GameRequest;
+import org.example.dto.request.player.*;
+import org.example.dto.request.room.CreateRoomRequest;
+import org.example.dto.request.room.GetRoomsRequest;
+import org.example.dto.request.room.JoinRoomRequest;
+import org.example.dto.response.ErrorResponse;
+import org.example.dto.response.GameResponse;
+import org.example.dto.response.game.CreateGameResponse;
+import org.example.dto.response.game.GameBoardResponse;
+import org.example.dto.response.game.ReplayResponse;
+import org.example.dto.response.player.CreatePlayerResponse;
+import org.example.dto.response.player.LogoutResponse;
+import org.example.dto.response.player.MessageResponse;
+import org.example.dto.response.player.PlayerResponse;
+import org.example.dto.response.room.ListRoomResponse;
+import org.example.dto.response.room.RoomResponse;
+import org.example.exception.GameErrorCode;
+import org.example.exception.ServerException;
+import org.example.models.base.PlayerColor;
+import org.example.utils.JsonService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import utils.JsonService;
 
 import java.util.stream.Stream;
 
-import static commands.CommandRequest.*;
-import static commands.CommandResponse.CREATE_PLAYER;
-import static commands.CommandResponse.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.example.commands.CommandRequest.*;
+import static org.example.commands.CommandResponse.CREATE_PLAYER;
+import static org.example.commands.CommandResponse.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 class JsonServiceCommandTest {
 
     private static Stream<Arguments> getCommandByRequestStream() {
         return Stream.of(
-                Arguments.of(CommandRequest.CREATE_PLAYER, new CreatePlayerRequest(null)),
+                Arguments.of(CommandRequest.CREATE_PLAYER, new CreateUserRequest(null)),
                 Arguments.of(WANT_PLAY, new WantPlayRequest()),
+                Arguments.of(GET_INFO_USER, new GetInfoAboutUserRequest(null)),
                 Arguments.of(PLAYING_MOVE, new MovePlayerRequest(0, null)),
-                Arguments.of(PLAYER_AUTH, new AuthPlayerRequest(null)),
+                Arguments.of(PLAYER_AUTH, new AuthUserRequest(null)),
                 Arguments.of(PLAYER_LOGOUT, new LogoutPlayerRequest()),
                 Arguments.of(CREATE_ROOM, new CreateRoomRequest()),
                 Arguments.of(JOIN_ROOM, new JoinRoomRequest(0)),
@@ -48,18 +50,14 @@ class JsonServiceCommandTest {
         );
     }
 
-    @ParameterizedTest
-    @MethodSource("getCommandByRequestStream")
-    void getCommandByRequest(CommandRequest command, GameRequest request) throws ServerException, ServerException {
-        assertEquals(command, JsonService.getCommandByRequest(request));
-    }
-
     private static Stream<Arguments> getCommandByResponseStream() {
         return Stream.of(
                 Arguments.of(ERROR, new ErrorResponse(null, null)),
                 Arguments.of(MESSAGE, new MessageResponse(null)),
-                Arguments.of(GAME_PLAYING, new GameBoardResponse(0, null, null, null)),
-                Arguments.of(GAME_START, new CreateGameResponse(0, null)),
+                Arguments.of(GAME_PLAYING, new GameBoardResponse(0, null, null)),
+                Arguments.of(LOGOUT, new LogoutResponse()),
+                Arguments.of(GET_INFO_USER_RESPONSE, new PlayerResponse(null, 0, 0, 0)),
+                Arguments.of(GAME_START, new CreateGameResponse(0, null, null)),
                 Arguments.of(GAME_REPLAY, new ReplayResponse(null, null, null, null, null)),
                 Arguments.of(CREATE_PLAYER, new CreatePlayerResponse(0, null)),
                 Arguments.of(ROOM, new RoomResponse(0, null, null)),
@@ -67,21 +65,27 @@ class JsonServiceCommandTest {
         );
     }
 
+    @ParameterizedTest
+    @MethodSource("getCommandByRequestStream")
+    void getCommandByRequest(final CommandRequest command, final GameRequest request) throws ServerException {
+        assertEquals(command, JsonService.getCommandByRequest(request));
+    }
+
     @Test
     void getCommandByRequestException() {
         try {
             JsonService.getCommandByRequest(null);
             fail();
-        } catch (ServerException e) {
-            assertEquals(e.getErrorCode(), GameErrorCode.INVALID_REQUEST);
+        } catch (final ServerException e) {
+            assertEquals(GameErrorCode.INVALID_REQUEST, e.getErrorCode());
         }
 
         try {
             JsonService.getCommandByRequest(new GameRequest() {
             });
             fail();
-        } catch (ServerException e) {
-            assertEquals(e.getErrorCode(), GameErrorCode.UNKNOWN_REQUEST);
+        } catch (final ServerException e) {
+            assertEquals(GameErrorCode.UNKNOWN_REQUEST, e.getErrorCode());
         }
     }
 
@@ -92,7 +96,7 @@ class JsonServiceCommandTest {
 
     @ParameterizedTest
     @MethodSource("getCommandByResponseStream")
-    void getCommandByResponse(CommandResponse command, GameResponse response) throws ServerException {
+    void getCommandByResponse(final CommandResponse command, final GameResponse response) throws ServerException {
         assertEquals(command, JsonService.getCommandByResponse(response));
     }
 
@@ -106,25 +110,25 @@ class JsonServiceCommandTest {
         try {
             JsonService.getCommandByResponse(null);
             fail();
-        } catch (ServerException e) {
-            assertEquals(e.getErrorCode(), GameErrorCode.INVALID_RESPONSE);
+        } catch (final ServerException e) {
+            assertEquals(GameErrorCode.INVALID_RESPONSE, e.getErrorCode());
         }
 
         try {
             JsonService.getCommandByResponse(new GameResponse() {
             });
             fail();
-        } catch (ServerException e) {
-            assertEquals(e.getErrorCode(), GameErrorCode.UNKNOWN_RESPONSE);
+        } catch (final ServerException e) {
+            assertEquals(GameErrorCode.UNKNOWN_RESPONSE, e.getErrorCode());
         }
     }
 
 
     @Test
     void fromMsgParserRequest() throws ServerException {
-        final String json = JsonService.toJson(new CreatePlayerRequest("Player_Test"));
-        CreatePlayerRequest request = (CreatePlayerRequest) JsonService.getRequestFromMsg(CommandRequest.CREATE_PLAYER.getCommandName() + " " + json);
-        assertEquals(request.getNickname(), "Player_Test");
+        final String json = JsonService.toJson(new CreateUserRequest("Player_Test"));
+        final CreateUserRequest request = (CreateUserRequest) JsonService.getRequestFromMsg(CommandRequest.CREATE_PLAYER.getCommandName() + " " + json);
+        assertEquals("Player_Test", request.getNickname());
     }
 
     @Test
@@ -132,32 +136,34 @@ class JsonServiceCommandTest {
         try {
             JsonService.getRequestFromMsg(null);
             fail();
-        } catch (ServerException e) {
-            assertEquals(e.getErrorCode(), GameErrorCode.INVALID_MESSAGE_DTO);
+        } catch (final ServerException e) {
+            assertEquals(GameErrorCode.INVALID_MESSAGE_DTO, e.getErrorCode());
         }
 
         try {
             JsonService.getRequestFromMsg("         ");
             fail();
-        } catch (ServerException e) {
-            assertEquals(e.getErrorCode(), GameErrorCode.INVALID_MESSAGE_DTO);
+        } catch (final ServerException e) {
+            assertEquals(GameErrorCode.INVALID_MESSAGE_DTO, e.getErrorCode());
         }
 
         try {
             JsonService.getRequestFromMsg("abrakadabra {0,0}");
             fail();
-        } catch (ServerException e) {
-            assertEquals(e.getErrorCode(), GameErrorCode.UNKNOWN_REQUEST);
+        } catch (final ServerException e) {
+            assertEquals(GameErrorCode.UNKNOWN_REQUEST, e.getErrorCode());
         }
     }
 
 
     @Test
     void fromMsgParserResponse() throws ServerException {
-        final String json = JsonService.toJson(new CreateGameResponse(1001, PlayerColor.BLACK));
+        final String json = JsonService.toJson(new CreateGameResponse(1001, PlayerColor.BLACK, new PlayerResponse("test", 0, 0, 0)));
         final CreateGameResponse response = (CreateGameResponse) JsonService.getResponseFromMsg(CommandResponse.GAME_START.getCommandName() + " " + json);
-        assertEquals(response.getGameId(), 1001);
-        assertEquals(response.getColor(), PlayerColor.BLACK);
+        assertEquals(1001, response.getGameId());
+        assertEquals(PlayerColor.BLACK, response.getColor());
+        assertNotNull(response.getOpponent());
+        assertEquals("test", response.getOpponent().getNickname());
     }
 
     @Test
@@ -165,28 +171,28 @@ class JsonServiceCommandTest {
         try {
             JsonService.getResponseFromMsg(null);
             fail();
-        } catch (ServerException e) {
-            assertEquals(e.getErrorCode(), GameErrorCode.INVALID_MESSAGE_DTO);
+        } catch (final ServerException e) {
+            assertEquals(GameErrorCode.INVALID_MESSAGE_DTO, e.getErrorCode());
         }
 
         try {
             JsonService.getResponseFromMsg("         ");
             fail();
-        } catch (ServerException e) {
-            assertEquals(e.getErrorCode(), GameErrorCode.INVALID_MESSAGE_DTO);
+        } catch (final ServerException e) {
+            assertEquals(GameErrorCode.INVALID_MESSAGE_DTO, e.getErrorCode());
         }
 
         try {
             JsonService.getResponseFromMsg("abrakadabra {0,0}");
             fail();
-        } catch (ServerException e) {
-            assertEquals(e.getErrorCode(), GameErrorCode.UNKNOWN_RESPONSE);
+        } catch (final ServerException e) {
+            assertEquals(GameErrorCode.UNKNOWN_RESPONSE, e.getErrorCode());
         }
     }
 
     @Test
     void toMsgParseRequest() throws ServerException {
-        final CreatePlayerRequest request = new CreatePlayerRequest("Player_Test");
+        final CreateUserRequest request = new CreateUserRequest("Player_Test");
         final String msg = JsonService.toMsgParser(request);
         final String json = JsonService.toJson(request);
         final String msg_will = CommandRequest.CREATE_PLAYER.getCommandName() + " " + json;
@@ -199,22 +205,22 @@ class JsonServiceCommandTest {
         try {
             JsonService.toMsgParser((GameRequest) null);
             fail();
-        } catch (ServerException e) {
-            assertEquals(e.getErrorCode(), GameErrorCode.INVALID_REQUEST);
+        } catch (final ServerException e) {
+            assertEquals(GameErrorCode.INVALID_REQUEST, e.getErrorCode());
         }
 
         try {
             JsonService.toMsgParser(new GameRequest() {
             });
             fail();
-        } catch (ServerException e) {
-            assertEquals(e.getErrorCode(), GameErrorCode.UNKNOWN_REQUEST);
+        } catch (final ServerException e) {
+            assertEquals(GameErrorCode.UNKNOWN_REQUEST, e.getErrorCode());
         }
     }
 
     @Test
     void toMsgParseResponse() throws ServerException {
-        final CreateGameResponse response = new CreateGameResponse(1001, PlayerColor.BLACK);
+        final CreateGameResponse response = new CreateGameResponse(1001, PlayerColor.BLACK, new PlayerResponse("test", 0, 0, 0));
         final String msg = JsonService.toMsgParser(response);
         final String json = JsonService.toJson(response);
         final String msg_will = CommandResponse.GAME_START.getCommandName() + " " + json;
@@ -227,16 +233,16 @@ class JsonServiceCommandTest {
         try {
             JsonService.toMsgParser((GameResponse) null);
             fail();
-        } catch (ServerException e) {
-            assertEquals(e.getErrorCode(), GameErrorCode.INVALID_RESPONSE);
+        } catch (final ServerException e) {
+            assertEquals(GameErrorCode.INVALID_RESPONSE, e.getErrorCode());
         }
 
         try {
             JsonService.toMsgParser(new GameResponse() {
             });
             fail();
-        } catch (ServerException e) {
-            assertEquals(e.getErrorCode(), GameErrorCode.UNKNOWN_RESPONSE);
+        } catch (final ServerException e) {
+            assertEquals(GameErrorCode.UNKNOWN_RESPONSE, e.getErrorCode());
         }
     }
 }
