@@ -1,11 +1,11 @@
-import exception.ServerException;
-import models.Player;
-import models.base.PlayerColor;
-import models.board.ArrayBoard;
-import models.players.SmartBot;
-import models.strategies.MyStrategy;
-import models.strategies.RandomStrategy;
-import models.strategies.algorithms.HardAlgorithm;
+import org.example.exception.ServerException;
+import org.example.models.Player;
+import org.example.models.base.PlayerColor;
+import org.example.models.board.ArrayBoard;
+import org.example.models.players.SmartBot;
+import org.example.models.strategies.MyStrategy;
+import org.example.models.strategies.RandomStrategy;
+import org.example.models.strategies.algorithms.HardAlgorithm;
 import org.junit.jupiter.api.Test;
 import selfplay.SelfPlay;
 

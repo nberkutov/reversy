@@ -1,11 +1,11 @@
 package neural;
 
-import models.ai.neural.BoardNeuralScore;
-import models.ai.neural.Neural;
-import models.base.PlayerColor;
-import models.board.Board;
 import org.encog.Encog;
 import org.encog.neural.neat.NEATPopulation;
+import org.example.models.ai.neural.BoardNeuralScore;
+import org.example.models.ai.neural.Neural;
+import org.example.models.base.PlayerColor;
+import org.example.models.board.Board;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
