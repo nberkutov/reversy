@@ -1,9 +1,10 @@
 package logic;
 
-import exception.ServerException;
-import models.BaseAllBoards;
-import models.base.interfaces.GameBoard;
-import models.board.Point;
+import org.example.exception.ServerException;
+import org.example.logic.BoardUtils;
+import org.example.models.BaseAllBoards;
+import org.example.models.base.interfaces.GameBoard;
+import org.example.models.board.Point;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 

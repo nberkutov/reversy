@@ -1,28 +1,28 @@
-package models.board;
+package org.example.models.board;
 
-import exception.GameErrorCode;
-import exception.ServerException;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
-import models.base.Cell;
-import models.base.interfaces.GameBoard;
+import org.example.exception.GameErrorCode;
+import org.example.exception.ServerException;
+import org.example.logic.BoardUtils;
+import org.example.models.base.Cell;
+import org.example.models.base.interfaces.GameBoard;
 
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import static models.GameProperties.BOARD_SIZE;
+import static org.example.models.GameProperties.BOARD_SIZE;
 
 /**
  * Стандартная игровая доска. с двумя черными и двумя белыми фишками в середине.
  */
 @Data
-@Slf4j
 @EqualsAndHashCode
 public class Board implements Serializable, GameBoard {
+    private String textCells;
     private final Map<Point, Cell> cells;
     private final int size;
     private int countBlackCells = 0;
@@ -55,20 +55,16 @@ public class Board implements Serializable, GameBoard {
     /**
      * Возвращает одно из трех состояний клетки игровой доски:
      * BLACK, WHITE, EMPTY.
-     *
-     * @throws ServerException
      */
-    public Cell getCell(final int x, final int y) throws ServerException {
+    public Cell getCell(final int x, final int y) {
         return getCell(new Point(x, y));
     }
 
     /**
      * Возвращает одно из трех состояний клетки игровой доски:
      * BLACK, WHITE, EMPTY.
-     *
-     * @throws ServerException
      */
-    public Cell getCell(final Point point) throws ServerException {
+    public Cell getCell(final Point point) {
         validatePoint(point);
         return cells.get(point);
     }
@@ -77,9 +73,8 @@ public class Board implements Serializable, GameBoard {
      * Меняет состояние клетки доски.
      *
      * @param cell новое состояние
-     * @throws ServerException
      */
-    public void setCell(final int x, final int y, final Cell cell) throws ServerException {
+    public void setCell(final int x, final int y, final Cell cell) {
         setCell(new Point(x, y), cell);
     }
 
@@ -87,9 +82,8 @@ public class Board implements Serializable, GameBoard {
      * Меняет состояние клетки доски.
      *
      * @param cell новое состояние
-     * @throws ServerException
      */
-    public void setCell(final Point point, final Cell cell) throws ServerException {
+    public void setCell(final Point point, final Cell cell) {
         validatePoint(point);
         checkCellIsNull(cell);
         final Cell before = getCell(point);
@@ -106,8 +100,6 @@ public class Board implements Serializable, GameBoard {
                 countWhiteCells--;
                 break;
             }
-            default:
-                throw new ServerException(GameErrorCode.INVALID_CELL);
         }
         switch (cell) {
             case EMPTY: {
@@ -122,8 +114,6 @@ public class Board implements Serializable, GameBoard {
                 countWhiteCells++;
                 break;
             }
-            default:
-                throw new ServerException(GameErrorCode.INVALID_CELL);
         }
         cells.put(point, cell);
     }
@@ -175,29 +165,26 @@ public class Board implements Serializable, GameBoard {
         }
     }
 
-    public void validatePoint(final Point point) throws ServerException {
-        if (!validate(point)) {
-            log.error("Bad checkPoint {}", point, new ServerException(GameErrorCode.BAD_POINT));
-            throw new ServerException(GameErrorCode.BAD_POINT);
-        }
-    }
-
-    public void checkCellIsNull(final Cell cell) throws ServerException {
-        if (cell == null) {
-            log.error("Bad checkCell", new ServerException(GameErrorCode.INVALID_CELL));
-            throw new ServerException(GameErrorCode.INVALID_CELL);
-        }
-    }
-
-    /**
-     * @return true, если координаты точки находятся в пределах игровой доски.
-     */
+    @Override
     public boolean validate(final Point point) {
-        return point != null
-                && point.getX() >= 0
-                && point.getY() >= 0
-                && point.getX() < BOARD_SIZE
-                && point.getY() < BOARD_SIZE;
+        return point != null &&
+                point.getX() >= 0 && point.getX() < size
+                && point.getY() >= 0 && point.getY() < size;
+    }
+
+    public void validatePoint(final Point point) {
+        if (point == null) {
+            throw new NullPointerException("Point is null");
+        }
+        if (!validate(point)) {
+            throw new IllegalArgumentException(String.format("Illegal coordinates: (%d, %d) ", point.getX(), point.getY()));
+        }
+    }
+
+    public void checkCellIsNull(final Cell cell) {
+        if (cell == null) {
+            throw new NullPointerException("Cell is null");
+        }
     }
 
     @SneakyThrows
@@ -218,5 +205,15 @@ public class Board implements Serializable, GameBoard {
                 ", countWhiteCells=" + countWhiteCells +
                 ", countEmpty=" + countEmpty +
                 '}';
+    }
+
+    @Override
+    public void updateTextCells() throws ServerException {
+        setTextCells(BoardUtils.toString(this));
+    }
+
+    @Override
+    public void updateCellsByText() {
+        BoardUtils.updateCellsByTextCells(this);
     }
 }

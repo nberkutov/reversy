@@ -1,4 +1,4 @@
-package models.base;
+package org.example.models.base;
 
 import java.io.Serializable;
 

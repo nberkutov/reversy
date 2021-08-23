@@ -1,18 +1,18 @@
-package logic;
+package org.example.logic;
 
-import exception.GameErrorCode;
-import exception.ServerException;
-import models.base.Cell;
-import models.base.PlayerColor;
-import models.base.interfaces.GameBoard;
-import models.board.Point;
+import org.example.exception.GameErrorCode;
+import org.example.exception.ServerException;
+import org.example.models.base.Cell;
+import org.example.models.base.PlayerColor;
+import org.example.models.base.interfaces.GameBoard;
+import org.example.models.board.Point;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static models.GameProperties.BOARD_SIZE;
+import static org.example.models.GameProperties.BOARD_SIZE;
 
 public class BoardLogic {
 
@@ -20,7 +20,7 @@ public class BoardLogic {
     }
 
     /**
-     * Функция ищет всевозможные ходы, а в последствиии переворчивает фишки
+     * Функция ищет всевозможные ходы, а в последствии переворачивает фишки
      * Если нет возможных ходов, то выбрасывает GameException.
      *
      * @param board - Игровое поле
@@ -31,6 +31,8 @@ public class BoardLogic {
         boardIsNotNull(board);
         checkPointIsInside(point);
         checkCellIsEmpty(cell);
+        checkCellOnBoardIsEmpty(board, point);
+
         final List<Point> moves = getCellInAllDirection(board, point, cell);
 
         if (moves.isEmpty()) {
@@ -44,6 +46,7 @@ public class BoardLogic {
         board.reverseCells(pointsForReverse);
         board.setCell(point, cell);
     }
+
 
     /**
      * Функция получения количества белых фишек
@@ -141,7 +144,7 @@ public class BoardLogic {
         final Set<Point> points = new HashSet<>();
         for (int i = 0; i < board.getSize(); i++) {
             for (int j = 0; j < board.getSize(); j++) {
-                Point checkPoint = new Point(i, j);
+                final Point checkPoint = new Point(i, j);
                 if (isCellEmpty(board, checkPoint) && !getCellInAllDirection(board, checkPoint, cell).isEmpty()) {
                     points.add(checkPoint);
                 }
@@ -283,8 +286,14 @@ public class BoardLogic {
      * @param board - игровое поле
      * @param point - точка
      */
-    private static boolean isCellEmpty(final GameBoard board, final Point point) throws ServerException {
+    private static boolean isCellEmpty(final GameBoard board, final Point point) {
         return board.getCell(point) == Cell.EMPTY;
+    }
+
+    private static void checkCellOnBoardIsEmpty(final GameBoard board, final Point point) throws ServerException {
+        if (!isCellEmpty(board, point)) {
+            throw new ServerException(GameErrorCode.BAD_POINT);
+        }
     }
 
     /**

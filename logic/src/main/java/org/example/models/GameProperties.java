@@ -1,6 +1,6 @@
-package models;
+package org.example.models;
 
-import models.board.BoardDefault;
+import org.example.models.board.BoardDefault;
 
 import java.io.File;
 import java.nio.file.Paths;
@@ -16,9 +16,10 @@ public class GameProperties {
     public static final int MAX_SIZE_NICKNAME = 10;
 
     public static final int PORT = 8070;
-    public static final String SERVER_FILE = PROJECT_PATH + File.separator + "server.dat";
-    public static final String PLAYERS_FILE = PROJECT_PATH + File.separator + "statistic.csv";
     public static final String NEURAL_FILE = PROJECT_PATH + File.separator + "neural.eg";
+    public static final int CLIENT_THREADS = 10000;
+    public static final int HANDLER_THREADS = 4;
+    public static final int GAME_SEARCH_THREADS = 1;
 
     private GameProperties() {
     }

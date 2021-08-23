@@ -1,8 +1,8 @@
-package models;
+package org.example.models;
 
-import exception.ServerException;
-import models.base.GameState;
-import models.base.interfaces.GameBoard;
+import org.example.exception.ServerException;
+import org.example.models.base.GameState;
+import org.example.models.base.interfaces.GameBoard;
 
 public abstract class SmartPlayer extends Player {
     protected SmartPlayer(final String nickname) {

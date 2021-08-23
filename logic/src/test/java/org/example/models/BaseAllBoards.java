@@ -1,7 +1,7 @@
-package models;
+package org.example.models;
 
-import models.board.ArrayBoard;
-import models.board.Board;
+import org.example.models.board.ArrayBoard;
+import org.example.models.board.Board;
 import org.junit.jupiter.params.provider.Arguments;
 
 import java.util.stream.Stream;

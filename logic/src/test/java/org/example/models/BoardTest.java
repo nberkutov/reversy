@@ -1,14 +1,14 @@
-package models;
+package org.example.models;
 
-import exception.GameErrorCode;
-import exception.ServerException;
-import models.base.Cell;
-import models.base.interfaces.GameBoard;
-import models.board.Point;
+import org.example.exception.GameErrorCode;
+import org.example.exception.ServerException;
+import org.example.models.base.Cell;
+import org.example.models.base.interfaces.GameBoard;
+import org.example.models.board.Point;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import static models.GameProperties.BOARD_SIZE;
+import static org.example.models.GameProperties.BOARD_SIZE;
 import static org.junit.jupiter.api.Assertions.*;
 
 class BoardTest extends BaseAllBoards {

@@ -1,8 +1,8 @@
-package logic;
+package org.example.logic;
 
-import exception.ServerException;
-import models.base.Cell;
-import models.base.interfaces.GameBoard;
+import org.example.exception.ServerException;
+import org.example.models.base.Cell;
+import org.example.models.base.interfaces.GameBoard;
 
 
 public class BoardUtils {
@@ -33,6 +33,13 @@ public class BoardUtils {
 
     public static GameBoard fromString(final String string) throws ServerException {
         final GameBoard board = BoardFactory.generateStartedBoard();
+        board.setTextCells(string);
+        updateCellsByTextCells(board);
+        return board;
+    }
+
+    public static void updateCellsByTextCells(final GameBoard board) {
+        final String string = board.getTextCells();
         int k = 0;
         for (int i = 0; i < string.length(); i++) {
             final int x = k % board.getSize();
@@ -56,6 +63,6 @@ public class BoardUtils {
                     throw new RuntimeException();
             }
         }
-        return board;
     }
+
 }

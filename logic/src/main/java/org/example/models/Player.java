@@ -1,12 +1,12 @@
-package models;
+package org.example.models;
 
-import exception.ServerException;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import models.base.PlayerColor;
-import models.base.interfaces.GameBoard;
-import models.board.Point;
+import org.example.exception.ServerException;
+import org.example.models.base.PlayerColor;
+import org.example.models.base.interfaces.GameBoard;
+import org.example.models.board.Point;
 
 @Data
 @NoArgsConstructor

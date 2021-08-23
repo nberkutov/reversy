@@ -1,12 +1,12 @@
-package models.base.modifiedSerializer;
+package org.example.models.base.modifiedSerializer;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
-import logic.BoardUtils;
 import lombok.SneakyThrows;
-import models.base.interfaces.GameBoard;
+import org.example.logic.BoardUtils;
+import org.example.models.base.interfaces.GameBoard;
 
 import java.lang.reflect.Type;
 

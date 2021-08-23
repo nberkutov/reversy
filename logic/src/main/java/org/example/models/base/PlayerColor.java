@@ -1,7 +1,7 @@
-package models.base;
+package org.example.models.base;
 
-import exception.GameErrorCode;
-import exception.ServerException;
+import org.example.exception.GameErrorCode;
+import org.example.exception.ServerException;
 
 import java.io.Serializable;
 
@@ -27,5 +27,16 @@ public enum PlayerColor implements Serializable {
             return BLACK;
         }
         return WHITE;
+    }
+
+    public static PlayerColor valueOf(final int id) {
+        switch (id) {
+            case 0:
+                return WHITE;
+            case 1:
+                return BLACK;
+            default:
+                return NONE;
+        }
     }
 }

@@ -1,4 +1,4 @@
-package exception;
+package org.example.exception;
 
 public enum GameErrorCode {
     FILE_PATH_INVALID("The file path is not correct"),
@@ -34,7 +34,8 @@ public enum GameErrorCode {
     INVALID_RESPONSE("Invalid response."),
     CELL_IS_EMPTY("Cell is empty."),
     SOCKET_IMPOSSIBLE_READ_MSG("The socket has an error"),
-    SERVER_ERROR("Server not responding");
+    SERVER_ERROR("Server not responding"),
+    DATABASE_ERROR("Database not responding");
     private final String message;
 
     GameErrorCode(final String message) {
