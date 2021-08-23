@@ -1,10 +1,11 @@
-package models;
+package org.example.models;
 
-import exception.GameErrorCode;
-import exception.ServerException;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.example.exception.GameErrorCode;
+import org.example.exception.ServerException;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;

@@ -1,10 +1,10 @@
-package client;
+package client.bots;
 
-import exception.ServerException;
-import gui.WindowGUI;
+import gui.dontneed.EmptyGUI;
 import lombok.extern.slf4j.Slf4j;
-import models.players.SmartBot;
-import models.strategies.RandomStrategy;
+import org.example.exception.ServerException;
+import org.example.models.players.SmartBot;
+import org.example.models.strategies.RandomStrategy;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,13 +13,13 @@ import java.util.List;
 public class MultiClients {
 
     private static final String IP = "127.0.0.1";
-    private static final int PORT = 8081;
+    private static final int PORT = 8070;
 
     public static void main(final String[] args) {
         try {
             final List<Thread> threadList = new ArrayList<>();
             for (int i = 0; i < 10; i++) {
-                final Client botClient = new Client(IP, PORT, new SmartBot("bot" + i, new RandomStrategy()), new WindowGUI());
+                final Client botClient = new Client(IP, PORT, new SmartBot("bot" + i, new RandomStrategy()), new EmptyGUI());
                 threadList.add(botClient);
                 botClient.start();
             }

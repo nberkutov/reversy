@@ -1,9 +1,10 @@
-package gui;
+package gui.dontneed;
 
-import exception.ServerException;
-import models.base.Cell;
-import models.base.GameState;
-import models.base.interfaces.GameBoard;
+import gui.GameGUI;
+import org.example.exception.ServerException;
+import org.example.models.base.Cell;
+import org.example.models.base.GameState;
+import org.example.models.base.interfaces.GameBoard;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,7 +19,12 @@ public class TextGUI implements GameGUI {
         tiles.put(Cell.WHITE, "⊛");
     }
 
-    public void updateGUI(final GameBoard board, final GameState gameState, final String opponent) throws ServerException {
+    @Override
+    public void setTitle(String title) {
+
+    }
+
+    public void updateGUI(final GameBoard board, final GameState gameState) throws ServerException {
         final StringBuilder boardBuilder = new StringBuilder();
         switch (gameState) {
             case BLACK_MOVE:
@@ -55,5 +61,15 @@ public class TextGUI implements GameGUI {
                 System.out.println("ПОБЕДА БЕЛЫХ!");
             }
         }
+    }
+
+    @Override
+    public void setSimpleCloseByWindow(boolean bool) {
+
+    }
+
+    @Override
+    public boolean isVisible() {
+        return false;
     }
 }

@@ -1,13 +1,13 @@
-package client;
+package client.bots;
 
-import exception.ServerException;
-import gui.EmptyGUI;
 import gui.WindowGUI;
+import gui.dontneed.EmptyGUI;
 import lombok.extern.slf4j.Slf4j;
-import models.players.SmartBot;
-import models.strategies.MyStrategy;
-import models.strategies.RandomStrategy;
-import models.strategies.algorithms.HardAlgorithm;
+import org.example.exception.ServerException;
+import org.example.models.players.SmartBot;
+import org.example.models.strategies.MyStrategy;
+import org.example.models.strategies.RandomStrategy;
+import org.example.models.strategies.algorithms.HardAlgorithm;
 
 
 @Slf4j
@@ -18,7 +18,7 @@ public class StartClient {
     public static void main(final String[] args) {
         try {
             final Client botClient = new Client(IP, PORT, new SmartBot("random", new RandomStrategy()), new WindowGUI());
-            final Client humanClient = new Client(IP, PORT, new SmartBot("mybot", new MyStrategy(4, new HardAlgorithm())), new EmptyGUI());
+            final Client humanClient = new Client(IP, PORT, new SmartBot("mybot", new MyStrategy(3, new HardAlgorithm())), new EmptyGUI());
             botClient.start();
             humanClient.start();
             botClient.join();

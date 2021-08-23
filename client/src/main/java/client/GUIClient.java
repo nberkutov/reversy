@@ -1,252 +1,178 @@
 package client;
 
-import dto.request.player.CreatePlayerRequest;
-import dto.request.player.MovePlayerRequest;
-import dto.request.player.WantPlayRequest;
-import dto.request.room.CreateRoomRequest;
-import dto.request.room.GetRoomsRequest;
-import dto.request.room.JoinRoomRequest;
-import dto.response.ErrorResponse;
-import dto.response.GameResponse;
-import dto.response.game.GameBoardResponse;
-import dto.response.player.CreateGameResponse;
-import dto.response.player.CreatePlayerResponse;
-import dto.response.player.MessageResponse;
-import dto.response.player.PlayerResponse;
-import dto.response.room.ListRoomResponse;
-import dto.response.room.RoomResponse;
-import exception.ServerException;
-import gui.WindowGUI;
+import gui.GUI;
 import lombok.extern.slf4j.Slf4j;
-import models.ClientConnection;
-import models.Player;
-import models.board.Point;
-import models.players.SmartBot;
-import models.strategies.RandomStrategy;
-import utils.JsonService;
+import org.example.dto.response.ErrorResponse;
+import org.example.dto.response.GameResponse;
+import org.example.dto.response.game.CreateGameResponse;
+import org.example.dto.response.game.GameBoardResponse;
+import org.example.dto.response.game.ReplayResponse;
+import org.example.dto.response.player.CreatePlayerResponse;
+import org.example.dto.response.player.LogoutResponse;
+import org.example.dto.response.player.MessageResponse;
+import org.example.dto.response.player.PlayerResponse;
+import org.example.dto.response.room.CloseRoomResponse;
+import org.example.dto.response.room.ListRoomResponse;
+import org.example.dto.response.room.RoomResponse;
+import org.example.exception.GameErrorCode;
+import org.example.exception.ServerException;
+import org.example.models.ClientConnection;
+import org.example.models.base.GameState;
+import org.example.models.base.PlayerColor;
+import org.example.models.base.interfaces.GameBoard;
+import org.example.utils.JsonService;
+import replay.ReplaySimulator;
 
-import javax.swing.*;
-import java.awt.*;
 import java.io.IOException;
 import java.net.Socket;
 
 @Slf4j
 public class GUIClient extends Thread {
     private final ClientConnection connection;
-    private final Player player;
-    private WindowGUI gui;
+    private final GUI gui;
+    private PlayerColor gameColor;
+    private long gameId;
 
-    public GUIClient(final ClientConnection connection, final Player player) {
-        this.connection = connection;
-        this.player = player;
-    }
-
-    public static void main(final String[] args) {
-        String nickname = "";
-        while (nickname.trim().length() == 0) {
-            nickname = JOptionPane.showInputDialog("Enter nickname");
-        }
-        String address = "";
-        int port = -1;
-        while (address.trim().length() == 0 || port == -1) {
-            final String fullAddress = JOptionPane.showInputDialog("IP:PORT", "127.0.0.1:8081");
-            final String[] parts = fullAddress.split(":");
-            try {
-                address = parts[0];
-                port = Integer.parseInt(parts[1]);
-                try (final Socket socket = new Socket(address, port)) {
-                    final Thread thread =
-                            new Thread(new GUIClient(new ClientConnection(socket), new SmartBot(nickname, new RandomStrategy())));
-                    thread.start();
-                    thread.join();
-                }
-            } catch (final Exception e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    @Override
-    public void run() {
-        log.info("Debug connect {}", connection);
-        new Thread(() -> {
-            try {
-                Thread.sleep(1000);
-                ClientController.sendRequest(connection, new CreatePlayerRequest(player.getNickname()));
-            } catch (final InterruptedException | ServerException e) {
-                e.printStackTrace();
-            }
-        }).start();
-
+    public GUIClient(final String ip, final int port, final GUI gui) throws ServerException {
         try {
-            while (connection.isConnected()) {
-                try {
-                    final GameResponse response = ClientController.getRequest(connection);
-                    parseCommand(response);
-                } catch (final ServerException e) {
-                    log.error("GameError {} {}", connection.getSocket(), e.getErrorCode());
-                }
-            }
-        } catch (final IOException | InterruptedException e) {
-            log.error("Error {} {}", connection.getSocket(), e.getMessage());
-            connection.close();
+            final Socket socket = new Socket(ip, port);
+            this.connection = new ClientConnection(socket);
+            this.gui = gui;
+        } catch (final IOException e) {
+            throw new ServerException(GameErrorCode.SERVER_NOT_STARTED);
         }
     }
 
-    private void parseCommand(final GameResponse gameResponse)
+    private static boolean nowMoveByMe(final PlayerColor color, final GameState state) {
+        if (color == PlayerColor.WHITE && state == GameState.WHITE_MOVE) {
+            return true;
+        }
+        return color == PlayerColor.BLACK && state == GameState.BLACK_MOVE;
+    }
+
+    private void actionMessage(final MessageResponse response) {
+        gui.createMessage(response.getMessage());
+    }
+
+    private void actionByResponseFromServer(final GameResponse gameResponse)
             throws ServerException, IOException, InterruptedException {
-        System.out.println(gameResponse);
         switch (JsonService.getCommandByResponse(gameResponse)) {
             case ERROR:
-                final ErrorResponse error = (ErrorResponse) gameResponse;
-                onErrorResponse(error);
+                actionError((ErrorResponse) gameResponse);
                 break;
             case GAME_PLAYING:
-                final GameBoardResponse response = (GameBoardResponse) gameResponse;
-                onGameBoardResponse(response);
+                actionPlaying((GameBoardResponse) gameResponse);
                 break;
             case CREATE_PLAYER:
-                final CreatePlayerResponse createPlayer = (CreatePlayerResponse) gameResponse;
-                onCreatePlayerResponse(createPlayer);
+                actionCreatePlayer((CreatePlayerResponse) gameResponse);
                 break;
             case GAME_START:
-                final CreateGameResponse createGame = (CreateGameResponse) gameResponse;
-                onStartGameResponse(createGame);
+                actionStartGame((CreateGameResponse) gameResponse);
                 break;
             case MESSAGE:
-                final MessageResponse message = (MessageResponse) gameResponse;
-                //actionMessage(message);
+                actionMessage((MessageResponse) gameResponse);
                 break;
-            case ROOMS:
-                final ListRoomResponse getRoomsResponse = (ListRoomResponse) gameResponse;
-                onGetRoomsResponse(getRoomsResponse);
+            case GAME_REPLAY:
+                actionReplay((ReplayResponse) gameResponse);
                 break;
             case ROOM:
-                final RoomResponse roomResponse = (RoomResponse) gameResponse;
-                onGetRoom(roomResponse);
+                actionRoom((RoomResponse) gameResponse);
+                break;
+            case CLOSE_ROOM_RESPONSE:
+                actionCloseRoom((CloseRoomResponse) gameResponse);
+                break;
+            case LOGOUT:
+                actionLogout((LogoutResponse) gameResponse);
+                break;
+            case GET_INFO_USER_RESPONSE:
+                actionGetInfoPlayer((PlayerResponse) gameResponse);
+                break;
+            case ROOMS:
+                actionRooms((ListRoomResponse) gameResponse);
+                break;
             default:
                 log.error("Unknown response {}", gameResponse);
         }
     }
 
-    private void onStartGameResponse(final CreateGameResponse response) {
-        log.debug("actionStartGame {}", response);
-        player.setColor(response.getColor());
-        gui = new WindowGUI(player.getColor());
-        gui.setCallback((x, y) -> {
-            try {
-                ClientController.sendRequest(connection, new MovePlayerRequest(response.getGameId(), new Point(x, y)));
-            } catch (final ServerException e) {
-                e.printStackTrace();
-            }
-        });
+    private void actionCloseRoom(final CloseRoomResponse gameResponse) {
+        gui.closeRoom();
     }
 
-    private void onGameBoardResponse(final GameBoardResponse response) {
+    private void actionGetInfoPlayer(final PlayerResponse playerResponse) {
+        gui.initPlayerInfo(playerResponse);
+    }
+
+    private void actionLogout(final LogoutResponse gameResponse) {
+        gui.closeMenuAndInitAuth();
+    }
+
+    private void actionRoom(final RoomResponse room) {
+        gui.initRoom(room);
+    }
+
+    private void actionReplay(final ReplayResponse replay) {
+        final ReplaySimulator sim = new ReplaySimulator();
+        sim.init(replay);
+        sim.start();
+    }
+
+    private void actionRooms(final ListRoomResponse gameResponse) {
+        gui.updateMenu(gameResponse);
+        gui.createInfo("Rooms updated");
+    }
+
+    @Override
+    public void run() {
+        gui.init(connection);
+
         try {
-            gui.updateGUI(response.getBoard(), response.getState(), response.getOpponent().getNickname());
-        } catch (final ServerException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void onErrorResponse(final ErrorResponse response) {
-        JOptionPane.showMessageDialog(new JFrame(), response.getMessage());
-    }
-
-    private void onCreatePlayerResponse(final CreatePlayerResponse response) throws IOException, ServerException {
-        ClientController.sendRequest(connection, new GetRoomsRequest());
-    }
-
-    private void onGetRoom(final RoomResponse response) {
-
-    }
-
-    private void onGetRoomsResponse(final ListRoomResponse response) {
-        final String roomsHeaderText = "Количество доступных комнат: " + response.getList().size();
-        final JFrame menuWindow = new JFrame();
-        menuWindow.setSize(400, 300);
-        menuWindow.setLocationRelativeTo(null);
-        menuWindow.setLayout(new BorderLayout());
-        final JPanel roomHandlingPanel = new JPanel();
-        roomHandlingPanel.setLayout(new BoxLayout(roomHandlingPanel, BoxLayout.Y_AXIS));
-        final JButton createRoomButton = new JButton("Создать комнату");
-        createRoomButton.addActionListener(actionEvent -> {
-            try {
-                ClientController.sendRequest(connection, new CreateRoomRequest());
-            } catch (final ServerException e) {
-                e.printStackTrace();
-            }
-        });
-        final JButton searchGameButton = new JButton("Искать игру");
-        searchGameButton.addActionListener(actionEvent -> {
-            try {
-                ClientController.sendRequest(connection, new WantPlayRequest());
-            } catch (final ServerException e) {
-                e.printStackTrace();
-            }
-        });
-        roomHandlingPanel.add(createRoomButton);
-        roomHandlingPanel.add(searchGameButton);
-        final JPanel roomsList = new JPanel();
-        roomsList.setLayout(new BoxLayout(roomsList, BoxLayout.Y_AXIS));
-        final JLabel roomsHeaderLabel = new JLabel();
-        roomsHeaderLabel.setText(roomsHeaderText);
-        roomsList.add(roomsHeaderLabel);
-        for (final RoomResponse room : response.getList()) {
-            roomsList.add(getRoomItem(room));
-        }
-        menuWindow.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        menuWindow.add(roomsList, BorderLayout.WEST);
-        menuWindow.add(roomHandlingPanel, BorderLayout.EAST);
-        menuWindow.setVisible(true);
-    }
-
-    private JPanel getRoomItem(final RoomResponse room) {
-        final JPanel panel = new JPanel();
-        panel.setAutoscrolls(true);
-        final JLabel roomTitleLabel = new JLabel();
-        roomTitleLabel.setText("Комната " + room.getId());
-        panel.add(roomTitleLabel);
-        final JLabel roomBlackPlayerLabel = new JLabel();
-        final JLabel roomWhitePlayerLabel = new JLabel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        final PlayerResponse blackPlayer = room.getBlackPlayer();
-        final PlayerResponse whitePlayer = room.getWhitePlayer();
-        if (blackPlayer == null) {
-            roomBlackPlayerLabel.setText("Черные: Свободно");
-        } else {
-            roomBlackPlayerLabel.setText("Черные: " + blackPlayer.getNickname());
-        }
-        if (whitePlayer == null) {
-            roomWhitePlayerLabel.setText("Белые: Свободно");
-        } else {
-            roomWhitePlayerLabel.setText("Белые: " + whitePlayer.getNickname());
-        }
-        panel.add(roomBlackPlayerLabel);
-        panel.add(roomWhitePlayerLabel);
-        if (blackPlayer == null) {
-            final JButton joinBlackButton = new JButton("Играть черным");
-            joinBlackButton.addActionListener((e) -> {
+            while (connection.isConnected()) {
                 try {
-                    ClientController.sendRequest(connection, new JoinRoomRequest(room.getId()));
-                } catch (final ServerException ioException) {
-                    ioException.printStackTrace();
+                    final GameResponse response = ClientController.getRequest(connection);
+                    actionByResponseFromServer(response);
+                } catch (final ServerException e) {
+                    log.error("GameError {} {}", connection.getSocket(), e.getErrorCode());
                 }
-            });
-            panel.add(joinBlackButton);
+            }
+        } catch (final IOException | InterruptedException e) {
+            gui.createError("[CRITICAL] Lost connection with server.");
+            connection.close();
         }
-        if (whitePlayer == null) {
-            final JButton joinWhiteButton = new JButton("Играть черным");
-            joinWhiteButton.addActionListener((e) -> {
-                try {
-                    ClientController.sendRequest(connection, new JoinRoomRequest(room.getId()));
-                } catch (final ServerException ioException) {
-                    ioException.printStackTrace();
-                }
-            });
-            panel.add(joinWhiteButton);
+    }
+
+    private void actionError(final ErrorResponse response) {
+        gui.createError(response.getMessage() + response.getErrorCode());
+    }
+
+    private void actionCreatePlayer(final CreatePlayerResponse response) {
+        gui.closeAuthAndInitMenu(response.getId(), response.getNickname());
+    }
+
+    private void actionPlaying(final GameBoardResponse response) {
+        final GameBoard board = response.getBoard();
+        final GameState state = response.getState();
+        gui.updateGame(board, state);
+
+        if (state != GameState.END) {
+            if (nowMoveByMe(gameColor, response.getState())) {
+                gui.updateGameTitle(String.format("Game: %d; Ваш ход", gameId));
+            } else {
+                gui.updateGameTitle(String.format("Game: %d; Ход противника", gameId));
+            }
+        } else {
+            gui.updateGameTitle(String.format("Game: %d; Игра закончена", gameId));
+            gui.closeGame();
         }
-        return panel;
+
+    }
+
+    private void actionStartGame(final CreateGameResponse response) {
+        gameColor = response.getColor();
+        final String nicknameOpponent = response.getOpponent().getNickname();
+        gameId = response.getGameId();
+        gui.initGame(gameId, nicknameOpponent);
+
+        gui.updateGameTitle(String.format("Game: %d", gameId));
     }
 }

@@ -1,12 +1,11 @@
 package gui;
 
-import exception.ServerException;
-import models.base.Cell;
-import models.base.GameState;
-import models.base.PlayerColor;
-import models.base.interfaces.GameBoard;
-import models.board.Board;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+import gui.listener.GameWindowListener;
+import org.example.exception.ServerException;
+import org.example.models.base.Cell;
+import org.example.models.base.GameState;
+import org.example.models.base.interfaces.GameBoard;
+import org.example.models.board.Board;
 
 import javax.swing.*;
 import javax.swing.border.LineBorder;
@@ -17,22 +16,46 @@ import java.awt.event.MouseMotionListener;
 import java.awt.geom.Line2D;
 import java.util.function.BiConsumer;
 
-import static models.GameProperties.BOARD_SIZE;
+import static org.example.models.GameProperties.BOARD_SIZE;
 
 public class WindowGUI implements GameGUI {
     private final GameWindow gameWindow;
 
     public WindowGUI() {
-        this(PlayerColor.NONE);
+        this(false);
     }
 
-    public WindowGUI(final PlayerColor color) {
-        gameWindow = new GameWindow(color.name());
+    public WindowGUI(final boolean simple) {
+        gameWindow = new GameWindow(simple);
+        if (simple) {
+            gameWindow.setVisible(true);
+        }
     }
 
     @Override
-    public void updateGUI(final GameBoard board, final GameState gameState, final String opponent) throws ServerException {
-        gameWindow.updateGUI(board, gameState, opponent);
+    public void setTitle(final String title) {
+        gameWindow.setTitle(title);
+    }
+
+    @Override
+    public void updateGUI(final GameBoard board, final GameState gameState) throws ServerException {
+        gameWindow.updateGUI(board, gameState);
+    }
+
+    @Override
+    public void setSimpleCloseByWindow(final boolean bool) {
+        if (bool) {
+            gameWindow.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+            gameWindow.addWindowListener(null);
+        } else {
+            gameWindow.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+            gameWindow.addWindowListener(new GameWindowListener());
+        }
+    }
+
+    @Override
+    public boolean isVisible() {
+        return gameWindow.isVisible();
     }
 
     public void setCallback(final BiConsumer<Integer, Integer> callback) {
@@ -52,11 +75,15 @@ class GameWindow extends JFrame {
     private GameBoard board;
     private static BiConsumer<Integer, Integer> callback;
 
-    public GameWindow(final String title) {
-        super(title);
+    public GameWindow(final boolean simple) {
         board = new Board();
         final int size = CELL_SIZE * BOARD_SIZE;
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        if (!simple) {
+            setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+            addWindowListener(new GameWindowListener());
+        } else {
+            setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        }
         setSize(size + 125, size + 50);
         setLocationRelativeTo(null);
         setLayout(new BoxLayout(getContentPane(), BoxLayout.X_AXIS));
@@ -68,11 +95,16 @@ class GameWindow extends JFrame {
         boardPanel.setBackground(BACKGROUND_COLOR);
         boardPanel.setBorder(new LineBorder(Color.BLACK));
         infoPanel = new JPanel();
+
         initLabels();
         add(infoPanel);
         add(boardPanel);
         setResizable(false);
-        setVisible(true);
+        setVisible(false);
+    }
+
+    public GameWindow() {
+        this(false);
     }
 
     public void setCallback(final BiConsumer<Integer, Integer> callback) {
@@ -95,8 +127,12 @@ class GameWindow extends JFrame {
         infoPanel.add(opponentLabel);
     }
 
-    public void updateGUI(final GameBoard board, final GameState gameState, final String opponent) {
-        final String stateText;
+    public void updateNicknameOpponent(final String opponent) {
+        opponentLabel.setText(String.format("VS: %s", opponent));
+    }
+
+    public void updateGUI(final GameBoard board, final GameState gameState) {
+        String stateText = "";
         switch (gameState) {
             case BLACK_MOVE:
                 stateText = "ХОД ЧЕРНЫХ";
@@ -107,27 +143,13 @@ class GameWindow extends JFrame {
             case END:
                 stateText = "КОНЕЦ ИГРЫ";
                 break;
-            default:
-                throw new NotImplementedException();
         }
         stateInfoLabel.setText(stateText);
         this.board = board;
         countBlackLabel.setText(String.format("ЧЕРНЫЕ: %d", board.getCountBlackCells()));
         countWhiteLabel.setText(String.format("БЕЛЫЕ: %d", board.getCountWhiteCells()));
-        opponentLabel.setText(String.format("VS: %s", opponent));
         boardPanel.update(board);
         repaint();
-
-        if (gameState == GameState.END) {
-
-            String message = "";
-            if (board.getCountBlackCells() > board.getCountWhiteCells()) {
-                message = "Победа черных";
-            } else {
-                message = "Победа белых";
-            }
-//            JOptionPane.showMessageDialog(new JFrame(), message);
-        }
     }
 
     static class BoardPanel extends JPanel {
@@ -183,40 +205,36 @@ class GameWindow extends JFrame {
 
             for (int y = 0; y < board.getSize(); y++) {
                 for (int x = 0; x < board.getSize(); x++) {
-                    try {
-                        final Cell prevCell = prevBoard.getCell(x, y);
-                        final Cell cell = board.getCell(x, y);
-                        if (cell == Cell.EMPTY) {
-                            continue;
-                        }
-                        if (prevCell == Cell.EMPTY) {
-                            g2.setColor(Color.YELLOW);
-                            g2.drawRect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
-                        }
-                        if (cell == Cell.BLACK) {
-                            g2.setColor(Color.BLACK);
-                        }
-                        if (cell == Cell.WHITE) {
-                            g2.setColor(Color.WHITE);
-                        }
-                        g2.fillOval(
-                                x * CELL_SIZE + (int) (CELL_SIZE * 0.125),
-                                y * CELL_SIZE + (int) (CELL_SIZE * 0.125),
-                                (int) (CELL_SIZE * 0.75),
-                                (int) (CELL_SIZE * 0.75)
+                    final Cell prevCell = prevBoard.getCell(x, y);
+                    final Cell cell = board.getCell(x, y);
+                    if (cell == Cell.EMPTY) {
+                        continue;
+                    }
+                    if (prevCell == Cell.EMPTY) {
+                        g2.setColor(Color.YELLOW);
+                        g2.drawRect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+                    }
+                    if (cell == Cell.BLACK) {
+                        g2.setColor(Color.BLACK);
+                    }
+                    if (cell == Cell.WHITE) {
+                        g2.setColor(Color.WHITE);
+                    }
+                    g2.fillOval(
+                            x * CELL_SIZE + (int) (CELL_SIZE * 0.125),
+                            y * CELL_SIZE + (int) (CELL_SIZE * 0.125),
+                            (int) (CELL_SIZE * 0.75),
+                            (int) (CELL_SIZE * 0.75)
+                    );
+                    if (mouseX >= 0 && mouseY >= 0) {
+                        g2.setColor(Color.YELLOW);
+                        g2.drawRect(
+                                mouseX / CELL_SIZE * CELL_SIZE,
+                                mouseY / CELL_SIZE * CELL_SIZE,
+                                CELL_SIZE, CELL_SIZE
                         );
-                        if (mouseX >= 0 && mouseY >= 0) {
-                            g2.setColor(Color.YELLOW);
-                            g2.drawRect(
-                                    mouseX / CELL_SIZE * CELL_SIZE,
-                                    mouseY / CELL_SIZE * CELL_SIZE,
-                                    CELL_SIZE, CELL_SIZE
-                            );
-                            mouseX = -1;
-                            mouseY = -1;
-                        }
-                    } catch (final ServerException e) {
-                        e.printStackTrace();
+                        mouseX = -1;
+                        mouseY = -1;
                     }
                 }
             }
@@ -230,8 +248,6 @@ class GameWindow extends JFrame {
                 mouseY = mouseEvent.getY();
                 final int x = mouseX / CELL_SIZE;
                 final int y = mouseY / CELL_SIZE;
-                System.out.println(mouseX + " " + mouseY);
-                System.out.println(x + " " + y);
                 callback.accept(x, y);
                 repaint();
             }

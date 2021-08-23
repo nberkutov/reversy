@@ -1,18 +1,18 @@
 package selfplay;
 
-import exception.GameErrorCode;
-import exception.ServerException;
-import logic.BoardLogic;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import models.Player;
-import models.SmartPlayer;
-import models.base.Cell;
-import models.base.GameState;
-import models.base.PlayerColor;
-import models.base.interfaces.GameBoard;
-import models.board.Board;
-import models.board.Point;
+import org.example.exception.GameErrorCode;
+import org.example.exception.ServerException;
+import org.example.logic.BoardLogic;
+import org.example.models.Player;
+import org.example.models.SmartPlayer;
+import org.example.models.base.Cell;
+import org.example.models.base.GameState;
+import org.example.models.base.PlayerColor;
+import org.example.models.base.interfaces.GameBoard;
+import org.example.models.board.Board;
+import org.example.models.board.Point;
 
 
 @Slf4j

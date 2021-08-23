@@ -1,26 +1,27 @@
-package client;
+package client.bots;
 
-import dto.request.player.CreatePlayerRequest;
-import dto.request.player.MovePlayerRequest;
-import dto.request.player.WantPlayRequest;
-import dto.response.ErrorResponse;
-import dto.response.GameResponse;
-import dto.response.game.GameBoardResponse;
-import dto.response.player.CreateGameResponse;
-import dto.response.player.CreatePlayerResponse;
-import dto.response.player.MessageResponse;
-import exception.GameErrorCode;
-import exception.ServerException;
+import client.ClientController;
 import gui.GameGUI;
 import lombok.extern.slf4j.Slf4j;
-import models.ClientConnection;
-import models.Player;
-import models.SmartPlayer;
-import models.base.GameState;
-import models.base.PlayerColor;
-import models.base.interfaces.GameBoard;
-import models.board.Point;
-import utils.JsonService;
+import org.example.dto.request.player.CreateUserRequest;
+import org.example.dto.request.player.MovePlayerRequest;
+import org.example.dto.request.player.WantPlayRequest;
+import org.example.dto.response.ErrorResponse;
+import org.example.dto.response.GameResponse;
+import org.example.dto.response.game.CreateGameResponse;
+import org.example.dto.response.game.GameBoardResponse;
+import org.example.dto.response.player.CreatePlayerResponse;
+import org.example.dto.response.player.MessageResponse;
+import org.example.exception.GameErrorCode;
+import org.example.exception.ServerException;
+import org.example.models.ClientConnection;
+import org.example.models.Player;
+import org.example.models.SmartPlayer;
+import org.example.models.base.GameState;
+import org.example.models.base.PlayerColor;
+import org.example.models.base.interfaces.GameBoard;
+import org.example.models.board.Point;
+import org.example.utils.JsonService;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -72,6 +73,7 @@ public class Client extends Thread {
                 actionMessage((MessageResponse) gameResponse);
                 break;
             case ROOMS:
+                System.out.println("Rooms");
                 break;
             default:
                 log.error("Unknown response {}", gameResponse);
@@ -84,7 +86,7 @@ public class Client extends Thread {
         new Thread(() -> {
             try {
                 Thread.sleep(10);
-                ClientController.sendRequest(connection, new CreatePlayerRequest(player.getNickname()));
+                ClientController.sendRequest(connection, new CreateUserRequest(player.getNickname()));
             } catch (final InterruptedException | ServerException e) {
                 e.printStackTrace();
             }
@@ -117,7 +119,7 @@ public class Client extends Thread {
     private void actionPlaying(final GameBoardResponse response) throws ServerException, InterruptedException {
         log.debug("actionPlaying {} {}", connection.getSocket().getLocalPort(), response);
         final GameBoard board = response.getBoard();
-        gui.updateGUI(board, response.getState(), response.getOpponent().getNickname());
+        gui.updateGUI(board, response.getState());
         if (response.getState() != GameState.END) {
             if (nowMoveByMe(player, response.getState())) {
                 Thread.sleep(100);
