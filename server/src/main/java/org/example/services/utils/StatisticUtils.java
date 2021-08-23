@@ -1,11 +1,11 @@
-package services.utils;
+package org.example.services.utils;
 
 
 import com.opencsv.CSVWriter;
-import exception.GameErrorCode;
-import exception.ServerException;
 import lombok.extern.slf4j.Slf4j;
-import models.player.User;
+import org.example.exception.GameErrorCode;
+import org.example.exception.ServerException;
+import org.example.models.player.User;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -68,8 +68,8 @@ public class StatisticUtils {
 
     private static String listAgainst(final User user) {
         final StringBuilder str = new StringBuilder();
-        for (final Map.Entry<String, Integer> entry : user.getStatistics().getWinsAgainst().entrySet()) {
-            str.append(entry.getKey());
+        for (final Map.Entry<User, Integer> entry : user.getStatistics().getWinsAgainst().entrySet()) {
+            str.append(entry.getKey().getNickname());
             str.append(" - ");
             str.append(entry.getValue());
             str.append("\n");

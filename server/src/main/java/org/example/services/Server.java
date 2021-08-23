@@ -1,18 +1,22 @@
-package services;
+package org.example.services;
 
-import controllers.handlers.ServerHandler;
-import exception.ServerException;
-import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import models.ClientConnection;
-import models.DataBase;
-import models.game.Game;
-import models.game.Room;
-import models.player.User;
-import services.utils.StatisticUtils;
+import org.example.controllers.handlers.ServerHandler;
+import org.example.exception.ServerException;
+import org.example.models.CacheDataBaseDao;
+import org.example.models.DataBaseDao;
+import org.example.models.GameProperties;
+import org.example.models.game.Game;
+import org.example.models.game.Room;
+import org.example.models.player.User;
+import org.example.models.player.UserConnection;
+import org.example.services.utils.StatisticUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-import java.io.*;
+import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.List;
@@ -21,50 +25,33 @@ import java.util.regex.PatternSyntaxException;
 
 @EqualsAndHashCode(callSuper = true)
 @Slf4j
-@Data
+@Getter
+@Component
 public class Server extends Thread implements AutoCloseable {
-    private final int PORT;
-    private final ServerHandler controller;
-    public static DataBase dataBase;
+    private final int port;
     private ServerSocket serverSocket;
+    @Autowired
+    private DataBaseDao dataBaseDao;
+    @Autowired
+    private CacheDataBaseDao cacheDataBaseDao;
 
-    public Server(final int PORT, final DataBase dataBase) {
-        this.PORT = PORT;
-        Server.dataBase = dataBase;
-        this.controller = new ServerHandler();
-    }
+    @Autowired
+    private SenderService ss;
+    @Autowired
+    private ServerHandler controller;
 
     public Server() {
-        this(8000, new DataBase());
+        this(GameProperties.PORT);
     }
 
-    public static Server initServerFromFile(final int port, final String path) {
-        final DataBase dataBase = new DataBase();
-        final Server server = new Server(port, dataBase);
-        if (path != null) {
-            uploadServerFile(path);
-        }
-        return server;
-    }
-
-    public static void uploadServerFile(final String path) {
-        if (path == null) {
-            log.error("Upload server stop, path invalid {}", path);
-            return;
-        }
-        try (final ObjectInputStream ois = new ObjectInputStream(new FileInputStream(path))) {
-            dataBase = (DataBase) ois.readObject();
-            log.info("Server found and upload database in {}", path);
-            log.info("Database found: {}", dataBase);
-        } catch (final IOException | ClassNotFoundException e) {
-            log.error("Upload server from file not successfully {}", e.getMessage());
-        }
+    public Server(final int port) {
+        this.port = port;
     }
 
     @Override
     public void run() {
         try {
-            serverSocket = new ServerSocket(PORT);
+            serverSocket = new ServerSocket(port);
             log.debug("Server stated {}", serverSocket);
             while (!serverSocket.isClosed()) {
                 final Socket socket = serverSocket.accept();
@@ -80,44 +67,31 @@ public class Server extends Thread implements AutoCloseable {
             broadcastMessage("The server stops working");
             controller.close();
             serverSocket.close();
-            Thread.currentThread().interrupt();
         } catch (final IOException e) {
             log.error("Server close", e);
         }
     }
 
     public void clearDataBase() {
-        dataBase.clearAll();
+        dataBaseDao.clearAll();
+        cacheDataBaseDao.clearAll();
         log.info("Database clear");
     }
 
     public void closeAllConnects() {
         broadcastMessage("The server kicked you");
-        for (final ClientConnection connection : dataBase.getAllConnections()) {
+        for (final UserConnection connection : cacheDataBaseDao.getAllConnections()) {
             connection.close();
         }
     }
 
     public void saveStatistic(final String path) {
-        final List<User> userList = dataBase.getAllPlayers();
+        final List<User> userList = dataBaseDao.getAllPlayers();
         try {
             StatisticUtils.saveStatistic(userList, path);
             log.info("Statistic save in {}", path);
         } catch (final ServerException e) {
             log.error("Cant save statistic", e);
-        }
-    }
-
-    public void saveServerFile(final String path) {
-        if (path != null) {
-            try (final ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(new File(path)))) {
-                final DataBase dataBase = Server.dataBase.clone();
-                dataBase.removeAllConnects();
-                oos.writeObject(dataBase);
-                log.info("Server successfully save database in {}", path);
-            } catch (final IOException e) {
-                log.error("Server cant save {}", path, e);
-            }
         }
     }
 
@@ -128,7 +102,7 @@ public class Server extends Thread implements AutoCloseable {
 
     private void broadcastMessage(final String message) {
         try {
-            SenderService.broadcastMessageForAll(message);
+            ss.broadcastMessageForAll(message);
         } catch (final ServerException e) {
             log.warn("Broadcast message don't send {}", message);
         }
@@ -139,7 +113,7 @@ public class Server extends Thread implements AutoCloseable {
             final Scanner scanner = new Scanner(System.in);
             System.out.println("Enter the id: ");
             final int id = scanner.nextInt();
-            final Game game = dataBase.getGameById(id);
+            final Game game = dataBaseDao.getGameById(id);
             if (game != null) {
                 System.out.println(game);
                 return;
@@ -155,7 +129,7 @@ public class Server extends Thread implements AutoCloseable {
             final Scanner scanner = new Scanner(System.in);
             System.out.println("Enter the id: ");
             final int id = scanner.nextInt();
-            final Room room = dataBase.getRoomById(id);
+            final Room room = dataBaseDao.getRoomById(id);
             if (room != null) {
                 System.out.println(room);
                 return;
@@ -169,7 +143,7 @@ public class Server extends Thread implements AutoCloseable {
         final Scanner scanner = new Scanner(System.in);
         System.out.println("Enter the nickname: ");
         final String nickname = scanner.nextLine().trim().toLowerCase();
-        final User user = dataBase.getPlayerByNickname(nickname);
+        final User user = dataBaseDao.getUserByNickname(nickname);
         if (user == null) {
             log.warn("User not found with {}", nickname);
             return;

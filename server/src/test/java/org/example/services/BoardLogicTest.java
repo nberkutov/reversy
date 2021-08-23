@@ -1,22 +1,22 @@
-package services;
+package org.example.services;
 
-import exception.GameErrorCode;
-import exception.ServerException;
-import logic.BoardLogic;
-import logic.BoardUtils;
-import models.base.Cell;
-import models.base.PlayerColor;
-import models.base.interfaces.GameBoard;
-import models.board.Board;
-import models.board.Point;
-import models.player.User;
+import org.example.exception.GameErrorCode;
+import org.example.exception.ServerException;
+import org.example.logic.BoardLogic;
+import org.example.logic.BoardUtils;
+import org.example.models.base.Cell;
+import org.example.models.base.PlayerColor;
+import org.example.models.base.interfaces.GameBoard;
+import org.example.models.board.Board;
+import org.example.models.board.Point;
+import org.example.models.player.User;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static models.GameProperties.BOARD_SIZE;
+import static org.example.models.GameProperties.BOARD_SIZE;
 import static org.junit.jupiter.api.Assertions.*;
 
 class BoardLogicTest {
@@ -138,7 +138,7 @@ class BoardLogicTest {
     }
 
     @Test
-    void testIsPossibleMove() throws ServerException, ServerException {
+    void testIsPossibleMove() throws ServerException {
         final String boardStr = ""
                 + "0 0 0 0 0 0 0 0"
                 + "0 0 0 0 0 0 0 0"
@@ -150,7 +150,7 @@ class BoardLogicTest {
                 + "0 0 0 0 0 0 0 0";
         final GameBoard board = BoardUtils.fromString(boardStr);
 
-        final User user = new User(0, "bot");
+        final User user = new User("bot");
         user.setColor(PlayerColor.WHITE);
         assertTrue(BoardLogic.canMove(board, user.getColor()));
         user.setColor(PlayerColor.BLACK);
@@ -178,7 +178,7 @@ class BoardLogicTest {
         try {
             BoardLogic.canMove(board, null);
             fail();
-        } catch (ServerException e) {
+        } catch (final ServerException e) {
             assertEquals(e.getErrorCode(), GameErrorCode.INVALID_PLAYER_COLOR);
         }
     }
@@ -190,21 +190,21 @@ class BoardLogicTest {
         try {
             BoardLogic.getCellInAllDirection(board, null, Cell.WHITE);
             fail();
-        } catch (ServerException e) {
+        } catch (final ServerException e) {
             assertEquals(e.getErrorCode(), GameErrorCode.BAD_POINT);
         }
 
         try {
             BoardLogic.getCellInAllDirection(board, new Point(0, 0), null);
             fail();
-        } catch (ServerException e) {
+        } catch (final ServerException e) {
             assertEquals(e.getErrorCode(), GameErrorCode.INVALID_CELL);
         }
 
         try {
             BoardLogic.getCellInAllDirection(board, new Point(0, 0), Cell.EMPTY);
             fail();
-        } catch (ServerException e) {
+        } catch (final ServerException e) {
             assertEquals(e.getErrorCode(), GameErrorCode.INVALID_CELL);
         }
 
@@ -219,7 +219,7 @@ class BoardLogicTest {
             try {
                 BoardLogic.getCellInAllDirection(board, p, Cell.WHITE);
                 fail();
-            } catch (ServerException e) {
+            } catch (final ServerException e) {
                 assertEquals(e.getErrorCode(), GameErrorCode.BAD_POINT);
             }
         }
@@ -241,7 +241,7 @@ class BoardLogicTest {
         try {
             BoardLogic.makeMove(board, new Point(1, 7), Cell.WHITE);
             fail();
-        } catch (ServerException e) {
+        } catch (final ServerException e) {
             assertEquals(e.getErrorCode(), GameErrorCode.INVALID_MOVE);
         }
 
@@ -255,19 +255,19 @@ class BoardLogicTest {
         try {
             BoardLogic.getAvailableMoves(board, (Cell) null);
             fail();
-        } catch (ServerException e) {
+        } catch (final ServerException e) {
             assertEquals(e.getErrorCode(), GameErrorCode.INVALID_CELL);
         }
         try {
             BoardLogic.getAvailableMoves(board, Cell.EMPTY);
             fail();
-        } catch (ServerException e) {
+        } catch (final ServerException e) {
             assertEquals(e.getErrorCode(), GameErrorCode.INVALID_CELL);
         }
         try {
             BoardLogic.getAvailableMoves(board, (PlayerColor) null);
             fail();
-        } catch (ServerException e) {
+        } catch (final ServerException e) {
             assertEquals(e.getErrorCode(), GameErrorCode.INVALID_PLAYER_COLOR);
         }
     }

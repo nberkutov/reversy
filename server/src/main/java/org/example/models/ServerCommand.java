@@ -1,10 +1,10 @@
-package models;
+package org.example.models;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public enum ServerCommand {
-    HELP("help", "Get help about the available commands"),
+    HELP("help", "Get help about the available org.example.commands"),
     SAVE_SERVER("save server", "save database in file"),
     UPLOAD_SERVER("upload server", "upload database from file"),
     SAVE_PLAYERS("save players", "save players in CSV file"),
