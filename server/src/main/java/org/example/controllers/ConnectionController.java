@@ -74,6 +74,8 @@ public class ConnectionController extends Thread implements AutoCloseable {
     @Override
     public void close() {
         connection.close();
-        pc.actionAutoLogoutPlayer(connection);
+        if (connection.getUserId() != -1) {
+            pc.actionAutoLogoutPlayer(connection);
+        }
     }
 }

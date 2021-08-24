@@ -9,8 +9,8 @@ import org.example.dto.response.GameResponse;
 import org.example.exception.GameErrorCode;
 import org.example.exception.ServerException;
 import org.example.models.base.interfaces.GameBoard;
-import org.example.models.base.modifiedSerializer.GameBoardDeserializer;
-import org.example.models.base.modifiedSerializer.GameBoardSerializer;
+import org.example.serializer.GameBoardDeserializer;
+import org.example.serializer.GameBoardSerializer;
 
 public class JsonService {
     private static final Gson GSON = new GsonBuilder()

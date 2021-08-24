@@ -22,7 +22,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 
 @Slf4j
 @Component
-@Transactional(rollbackFor = ServerException.class, propagation = Propagation.REQUIRES_NEW, isolation = Isolation.SERIALIZABLE)
+@Transactional(rollbackFor = ServerException.class, propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)
 public class PlayerController {
     @Autowired
     private PlayerService ps;

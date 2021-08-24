@@ -3,10 +3,7 @@ package org.example.services;
 import org.example.SpringServer;
 import org.example.commands.CommandResponse;
 import org.example.dto.request.GameRequest;
-import org.example.dto.request.player.CreateUserRequest;
-import org.example.dto.request.player.GetReplayGameRequest;
-import org.example.dto.request.player.MovePlayerRequest;
-import org.example.dto.request.player.WantPlayRequest;
+import org.example.dto.request.player.*;
 import org.example.dto.request.room.CreateRoomRequest;
 import org.example.dto.request.room.JoinRoomRequest;
 import org.example.dto.response.GameResponse;
@@ -56,6 +53,7 @@ class ServerTest {
     @Autowired
     protected CacheDataBaseDao cacheDataBaseDao;
 
+
     private static final int PORT = GameProperties.PORT;
     private static final String IP = "127.0.0.1";
 
@@ -63,6 +61,9 @@ class ServerTest {
     private void clearDateBase() {
         dataBaseDao.clearAll();
         cacheDataBaseDao.clearAll();
+        assertEquals(0, dataBaseDao.getAllPlayers().size());
+        assertEquals(0, dataBaseDao.getAllGames().size());
+        assertEquals(0, dataBaseDao.getAllRooms().size());
     }
 
     private static UserConnection createConnection(final String ip, final int port, final String name) throws IOException, ServerException, InterruptedException {
@@ -109,7 +110,7 @@ class ServerTest {
 
     @Test
     @Transactional
-    void testAutoLogOut() throws InterruptedException, ExecutionException {
+    void testAutoLogOut() throws InterruptedException, ExecutionException, ServerException, IOException {
         final ExecutorService executor = Executors.newFixedThreadPool(50);
 
         class ConNickname {
@@ -124,7 +125,6 @@ class ServerTest {
             }
         }
 
-        // Список ассоциированных с Callable задач Future
         final List<Future<ConNickname>> futures = new ArrayList<>();
 
         for (int i = 0; i < 50; i++) {
@@ -146,6 +146,7 @@ class ServerTest {
         Collections.shuffle(list);
         final ConNickname tmp = list.get(0);
         tmp.con.close();
+        list.remove(0);
         Thread.sleep(300);
         final User user = dataBaseDao.getUserByNickname(tmp.nick);
         final Game gameClosed = dataBaseDao.getGameById(tmp.gameId);
@@ -153,17 +154,25 @@ class ServerTest {
         assertNull(user.getNowPlaying());
         assertEquals(50, dataBaseDao.getAllPlayers().size());
         assertEquals(49, cacheDataBaseDao.getAllConnections().size());
+        for (final ConNickname con : list) {
+            sendRequest(con.con, new LogoutPlayerRequest());
+            getResponseByFilter(con.con, CommandResponse.LOGOUT);
+        }
+        assertEquals(0, cacheDataBaseDao.getAllConnections().size());
+        for (final Game g : dataBaseDao.getAllGames()) {
+            assertEquals(GameState.END, g.getState());
+        }
     }
 
     @Test
-    void createMultiGames() throws IOException, ServerException, InterruptedException {
-
+    @Transactional
+    void createMultiGames() throws InterruptedException {
         final List<Thread> threads = new ArrayList<>();
         for (int i = 0; i < 50; i++) {
             final int finalI = i;
             final Thread tmp = new Thread(() -> {
                 try {
-                    final UserConnection cl = createConnection(IP, PORT, "BotA" + finalI);
+                    final UserConnection cl = createConnection(IP, PORT, "botb" + finalI);
                     wantPlay(cl);
                     getResponseByFilter(cl, CommandResponse.GAME_PLAYING);
                 } catch (final IOException | ServerException | InterruptedException e) {
@@ -208,7 +217,7 @@ class ServerTest {
     }
 
     @Test
-    void testGetReplayGame() throws ServerException, IOException, InterruptedException {
+    void testMovesInReplayGame() throws ServerException, IOException, InterruptedException {
         final UserConnection connectionBot1 = createConnection(IP, PORT, "Bot1");
         final UserConnection connectionBot2 = createConnection(IP, PORT, "Bot2");
 
@@ -216,7 +225,7 @@ class ServerTest {
         final LinkedBlockingDeque<GameResponse> responsesBot1 = new LinkedBlockingDeque<>();
         final LinkedBlockingDeque<GameResponse> responsesBot2 = new LinkedBlockingDeque<>();
         final List<Move> moves = Collections.synchronizedList(new ArrayList<>());
-        final PlayerColor[] colorMove = {PlayerColor.BLACK};
+
 
         //get
         new Thread(() -> {
@@ -236,8 +245,7 @@ class ServerTest {
                     public Point move(final GameBoard board) throws ServerException {
                         final List<Point> points = BoardLogic.getAvailableMoves(board, color);
                         final Point p = points.get(new Random().nextInt(points.size()));
-                        moves.add(new Move(colorMove[0], p));
-                        colorMove[0] = colorMove[0].getOpponent();
+                        moves.add(new Move(color, p));
                         return p;
                     }
                 };
@@ -285,8 +293,7 @@ class ServerTest {
                     public Point move(final GameBoard board) throws ServerException {
                         final List<Point> points = BoardLogic.getAvailableMoves(board, color);
                         final Point p = points.get(new Random().nextInt(points.size()));
-                        moves.add(new Move(colorMove[0], p));
-                        colorMove[0] = colorMove[0].getOpponent();
+                        moves.add(new Move(color, p));
                         return p;
                     }
                 };
@@ -324,8 +331,9 @@ class ServerTest {
         threadBot2.join();
         assertEquals(GameState.END, dataBaseDao.getAllGames().get(0).getState());
         final Game game = dataBaseDao.getAllGames().get(0);
-        sendRequest(connectionBot1, new GetReplayGameRequest(game.getId()));
-        final ReplayResponse response = (ReplayResponse) getResponseByFilter(connectionBot1, CommandResponse.GAME_REPLAY);
+        final UserConnection connectionBot3 = createConnection(IP, PORT, "bot3");
+        sendRequest(connectionBot3, new GetReplayGameRequest(game.getId()));
+        final ReplayResponse response = (ReplayResponse) getResponseByFilter(connectionBot3, CommandResponse.GAME_REPLAY);
         final List<MoveResponse> moveResponses = response.getMoves();
         assertEquals(moves.size(), moveResponses.size());
         for (int i = 0; i < moveResponses.size(); i++) {
@@ -571,6 +579,7 @@ class ServerTest {
     }
 
     @Test
+    @Transactional
     void getReplayGameOnServer() throws IOException, ServerException, InterruptedException {
         final int needPlayGames = 1;
 

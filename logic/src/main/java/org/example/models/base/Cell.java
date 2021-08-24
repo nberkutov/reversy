@@ -15,7 +15,7 @@ public enum Cell implements Serializable {
         return id;
     }
 
-    public static Cell valueOf(PlayerColor color) {
+    public static Cell valueOf(final PlayerColor color) {
         if (color == PlayerColor.BLACK) {
             return Cell.BLACK;
         }

@@ -3,11 +3,13 @@ package org.example.dto.response.player;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.example.dto.response.GameResponse;
 
 
 @EqualsAndHashCode
 @Data
+@ToString
 @AllArgsConstructor
 public class PlayerResponse implements GameResponse {
     private final String nickname;

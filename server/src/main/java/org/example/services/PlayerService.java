@@ -21,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
-@Transactional(rollbackFor = ServerException.class, propagation = Propagation.REQUIRES_NEW, isolation = Isolation.SERIALIZABLE)
+@Transactional(rollbackFor = ServerException.class, propagation = Propagation.REQUIRES_NEW, isolation = Isolation.DEFAULT)
 public class PlayerService extends DataBaseService {
 
     public User createUser(final CreateUserRequest createUserRequest, final UserConnection connection) throws ServerException {
@@ -57,10 +57,36 @@ public class PlayerService extends DataBaseService {
         userIsNotNull(user);
         cdbd.removeConnection(user.getId(), user.getNickname());
         connection.setUserId(-1);
+
+
+        final Game nowPlayGame = user.getNowPlaying();
+        final Room nowRoom = user.getNowRoom();
+        if (nowPlayGame != null && nowPlayGame.getState() != GameState.END) {
+            nowPlayGame.setState(GameState.END);
+            final GameResult result = GameResult.techWinner(nowPlayGame, user);
+            gs.finishGame(result, nowPlayGame);
+            dbd.saveGame(nowPlayGame);
+
+            final UserConnection whiteConnection = cdbd.getConnectionById(nowPlayGame.getWhiteUser().getId());
+            final UserConnection blackConnection = cdbd.getConnectionById(nowPlayGame.getBlackUser().getId());
+            ss.sendResponse(whiteConnection, Mapper.toDtoGame(nowPlayGame));
+            ss.sendResponse(whiteConnection, Mapper.toDtoMessage("Ваш оппонент вышел из игры. Вы выиграли!"));
+            ss.sendResponse(blackConnection, Mapper.toDtoGame(nowPlayGame));
+            ss.sendResponse(blackConnection, Mapper.toDtoMessage("Ваш оппонент вышел из игры. Вы выиграли!"));
+        }
+
+        if (nowRoom != null) {
+            nowRoom.setWhiteUser(null);
+            nowRoom.setBlackUser(null);
+            dbd.removeRoom(nowRoom);
+            user.setNowRoom(null);
+        }
+        user.setState(PlayerState.NONE);
         dbd.saveUser(user);
         return user;
     }
 
+    @Transactional(rollbackFor = ServerException.class, propagation = Propagation.REQUIRED, isolation = Isolation.DEFAULT)
     public void autoLogoutPlayer(final UserConnection connection) throws ServerException {
         final User user = dbd.getUserById(connection.getUserId());
         if (user == null) {
@@ -95,7 +121,37 @@ public class PlayerService extends DataBaseService {
         dbd.saveUser(user);
     }
 
-    @Transactional(rollbackFor = ServerException.class, propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
+    private void closeNowGameAndNowRoom(final User user, final UserConnection connection) throws ServerException {
+        cdbd.removeConnection(user.getId(), user.getNickname());
+        connection.setUserId(-1);
+
+        final Game nowPlayGame = user.getNowPlaying();
+        final Room nowRoom = user.getNowRoom();
+        if (nowPlayGame != null && nowPlayGame.getState() != GameState.END) {
+            nowPlayGame.setState(GameState.END);
+            final GameResult result = GameResult.techWinner(nowPlayGame, user);
+            gs.finishGame(result, nowPlayGame);
+            dbd.saveGame(nowPlayGame);
+
+            final UserConnection whiteConnection = cdbd.getConnectionById(nowPlayGame.getWhiteUser().getId());
+            final UserConnection blackConnection = cdbd.getConnectionById(nowPlayGame.getBlackUser().getId());
+            ss.sendResponse(whiteConnection, Mapper.toDtoGame(nowPlayGame));
+            ss.sendResponse(whiteConnection, Mapper.toDtoMessage("Ваш оппонент вышел из игры. Вы выиграли!"));
+            ss.sendResponse(blackConnection, Mapper.toDtoGame(nowPlayGame));
+            ss.sendResponse(blackConnection, Mapper.toDtoMessage("Ваш оппонент вышел из игры. Вы выиграли!"));
+        }
+
+        if (nowRoom != null) {
+            nowRoom.setWhiteUser(null);
+            nowRoom.setBlackUser(null);
+            dbd.removeRoom(nowRoom);
+            user.setNowRoom(null);
+        }
+        user.setState(PlayerState.NONE);
+        dbd.saveUser(user);
+    }
+
+    @Transactional(rollbackFor = ServerException.class, propagation = Propagation.REQUIRED, isolation = Isolation.DEFAULT)
     public UserConnection getConnectionByPlayer(final User user) throws ServerException {
         userIsNotNull(user);
         final UserConnection connection = cdbd.getConnectionById(user.getId());
@@ -119,7 +175,7 @@ public class PlayerService extends DataBaseService {
         setPlayerStateNone(user);
     }
 
-    @Transactional(rollbackFor = ServerException.class, propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
+    @Transactional(rollbackFor = ServerException.class, propagation = Propagation.REQUIRED, isolation = Isolation.DEFAULT)
     public void setPlayerStateNone(final User user) throws ServerException {
         userIsNotNull(user);
         user.setState(PlayerState.NONE);
@@ -129,14 +185,14 @@ public class PlayerService extends DataBaseService {
         dbd.saveUser(user);
     }
 
-    //    @Transactional(rollbackFor = ServerException.class, propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
+    //    @Transactional(rollbackFor = ServerException.class, propagation = Propagation.REQUIRED, isolation = Isolation.DEFAULT)
     public User canPlayerSearchGame(final UserConnection userConnection) throws ServerException {
         connectionIsNotNullAndConnected(userConnection);
         final User user = dbd.getUserById(userConnection.getUserId());
         return canPlayerSearchGame(user);
     }
 
-    @Transactional(rollbackFor = ServerException.class, propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
+    @Transactional(rollbackFor = ServerException.class, propagation = Propagation.REQUIRED, isolation = Isolation.DEFAULT)
     public User canPlayerSearchGame(final User user) throws ServerException {
         userIsNotNull(user);
         userIsNotStateNone(user);

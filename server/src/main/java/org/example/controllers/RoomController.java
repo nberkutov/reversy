@@ -23,7 +23,7 @@ import java.util.List;
 
 @Slf4j
 @Component
-@Transactional(rollbackFor = ServerException.class, propagation = Propagation.REQUIRES_NEW, isolation = Isolation.SERIALIZABLE)
+@Transactional(rollbackFor = ServerException.class, propagation = Propagation.REQUIRES_NEW, isolation = Isolation.DEFAULT)
 public class RoomController {
     @Autowired
     private RoomService rs;

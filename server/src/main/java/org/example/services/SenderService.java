@@ -53,7 +53,7 @@ public class SenderService {
         }
     }
 
-    @Transactional(rollbackFor = ServerException.class, propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
+    @Transactional(rollbackFor = ServerException.class, propagation = Propagation.REQUIRED, isolation = Isolation.DEFAULT)
     public void sendResponse(final User user, final GameResponse response) throws ServerException {
         sendResponse(ps.getConnectionByPlayer(user), response);
     }

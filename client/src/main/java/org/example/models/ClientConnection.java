@@ -4,8 +4,6 @@ package org.example.models;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.example.exception.GameErrorCode;
-import org.example.exception.ServerException;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -24,7 +22,8 @@ public class ClientConnection implements AutoCloseable, Serializable {
     private final DataInputStream in;
     private final DataOutputStream out;
 
-    private final Lock lock = new ReentrantLock();
+    private final Lock write = new ReentrantLock();
+    private final Lock read = new ReentrantLock();
 
     public ClientConnection(final Socket socket) throws IOException {
         this.socket = socket;
@@ -37,21 +36,26 @@ public class ClientConnection implements AutoCloseable, Serializable {
     }
 
     public String readMsg() throws IOException {
-        return in.readUTF();
+        try {
+            read.lock();
+            return in.readUTF();
+        } finally {
+            read.unlock();
+        }
     }
 
-    public void send(final String msg) throws ServerException {
+    public void send(final String msg) {
         try {
-            lock.lock();
+            write.lock();
             out.writeUTF(msg);
             out.flush();
         } catch (final IOException e) {
-            log.warn("Can't send {}, {}", msg, e.getMessage());
-            throw new ServerException(GameErrorCode.SERVER_ERROR);
+            log.warn("Can't send {}, {}, {}", msg, e.getMessage(), socket);
         } finally {
-            lock.unlock();
+            write.unlock();
         }
     }
+
 
     @Override
     public void close() {

@@ -1,4 +1,4 @@
-package org.example.models.base.modifiedSerializer;
+package org.example.serializer;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;

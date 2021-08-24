@@ -17,7 +17,6 @@ import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
-//@Transactional(rollbackFor = ServerException.class, propagation = Propagation.REQUIRED)
 public class DataBaseService {
     @Autowired
     protected PlayerService ps;
@@ -31,12 +30,6 @@ public class DataBaseService {
     protected DataBaseDao dbd;
     @Autowired
     protected CacheDataBaseDao cdbd;
-
-    protected void nicknameIsUsedAlready(final String nickname) throws ServerException {
-        if (dbd.getUserByNickname(nickname) != null || cdbd.getConnectionByNickname(nickname) != null) {
-            throw new ServerException(GameErrorCode.NICKNAME_ALREADY_USED);
-        }
-    }
 
     /**
      * Функция провероки

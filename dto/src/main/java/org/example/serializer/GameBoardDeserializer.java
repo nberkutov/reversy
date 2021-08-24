@@ -1,4 +1,4 @@
-package org.example.models.base.modifiedSerializer;
+package org.example.serializer;
 
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;

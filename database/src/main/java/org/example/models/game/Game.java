@@ -27,20 +27,20 @@ public class Game implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @JoinColumn(name = "black_user", referencedColumnName = "id")
     private User blackUser;
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @JoinColumn(name = "white_user", referencedColumnName = "id")
     private User whiteUser;
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY, targetEntity = ArrayBoard.class)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY, targetEntity = ArrayBoard.class, orphanRemoval = true)
     @JoinColumn(name = "game_board", referencedColumnName = "id")
     private GameBoard board;
 
     @Column
     @Enumerated(EnumType.STRING)
     private GameState state;
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @JoinColumn(name = "game_result", referencedColumnName = "id")
     private GameResult result;
     //    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)

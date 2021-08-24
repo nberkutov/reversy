@@ -27,7 +27,7 @@ import java.util.Random;
 
 @Slf4j
 @Service
-@Transactional(rollbackFor = ServerException.class, propagation = Propagation.REQUIRES_NEW, isolation = Isolation.SERIALIZABLE)
+@Transactional(rollbackFor = ServerException.class, propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)
 public class GameService extends DataBaseService {
 
     public Game createGameBySearch(final UserConnection firstC,
@@ -53,7 +53,7 @@ public class GameService extends DataBaseService {
         return game;
     }
 
-    @Transactional(rollbackFor = ServerException.class, propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
+    @Transactional(rollbackFor = ServerException.class, propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
     public Game createGame(final User black, final User white) throws ServerException {
         userIsNotNull(black);
         userIsNotNull(white);
@@ -67,7 +67,7 @@ public class GameService extends DataBaseService {
         return game;
     }
 
-    @Transactional(rollbackFor = ServerException.class, propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
+    @Transactional(rollbackFor = ServerException.class, propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
     public Game createGameByRoom(final Room room) throws ServerException {
         roomIsNotNull(room);
         final User black = room.getBlackUser();
@@ -84,7 +84,7 @@ public class GameService extends DataBaseService {
         return makePlayerMove(game, movePlayer.getPoint(), user);
     }
 
-    @Transactional(rollbackFor = ServerException.class, propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
+    @Transactional(rollbackFor = ServerException.class, propagation = Propagation.REQUIRED, isolation = Isolation.DEFAULT)
     public Game makePlayerMove(final Game game, final Point point, final User user) throws ServerException {
         gameIsNotNull(game);
         gameIsNotEnd(game);
@@ -102,7 +102,7 @@ public class GameService extends DataBaseService {
         return game;
     }
 
-    @Transactional(rollbackFor = ServerException.class, propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
+    @Transactional(rollbackFor = ServerException.class, propagation = Propagation.REQUIRED, isolation = Isolation.DEFAULT)
     public void finishGame(final GameResult result, final Game game) throws ServerException {
         gameIsNotNull(game);
         gameResultIsNotNull(result);
@@ -155,7 +155,7 @@ public class GameService extends DataBaseService {
      * @param game - Игра
      * @return GameResult
      */
-    @Transactional(rollbackFor = ServerException.class, propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
+    @Transactional(rollbackFor = ServerException.class, propagation = Propagation.REQUIRED, isolation = Isolation.DEFAULT)
     public GameResult getGameResult(final Game game) {
         final GameBoard board = game.getBoard();
         final long blackCells = BoardLogic.getCountBlack(board);

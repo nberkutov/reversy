@@ -20,7 +20,8 @@ public class UserConnection implements AutoCloseable, Serializable {
     private final Socket socket;
     private final DataInputStream in;
     private final DataOutputStream out;
-    private final Lock lock = new ReentrantLock();
+    private final Lock write = new ReentrantLock();
+    private final Lock read = new ReentrantLock();
     private long userId;
 
     public UserConnection(final Socket socket) throws IOException {
@@ -30,23 +31,29 @@ public class UserConnection implements AutoCloseable, Serializable {
         userId = -1;
     }
 
+
     public boolean isConnected() {
         return socket != null && socket.isConnected();
     }
 
     public String readMsg() throws IOException {
-        return in.readUTF();
+        try {
+            read.lock();
+            return in.readUTF();
+        } finally {
+            read.unlock();
+        }
     }
 
     public void send(final String msg) {
         try {
-            lock.lock();
+            write.lock();
             out.writeUTF(msg);
             out.flush();
         } catch (final IOException e) {
             log.warn("Can't send {}, {}, {}", msg, e.getMessage(), socket);
         } finally {
-            lock.unlock();
+            write.unlock();
         }
     }
 

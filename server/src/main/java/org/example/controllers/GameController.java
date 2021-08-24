@@ -17,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Component
-@Transactional(rollbackFor = ServerException.class, propagation = Propagation.REQUIRES_NEW, isolation = Isolation.SERIALIZABLE)
+@Transactional(rollbackFor = ServerException.class, propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)
 public class GameController {
     @Autowired
     private GameService gs;

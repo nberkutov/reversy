@@ -136,8 +136,8 @@ public class PostgreSQLImpl implements DataBaseDao {
 
     @Override
     public void clearAll() {
-        userRepository.deleteAll();
         roomRepository.deleteAll();
         gameRepository.deleteAll();
+        userRepository.deleteAll();
     }
 }
