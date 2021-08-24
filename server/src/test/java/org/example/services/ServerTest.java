@@ -59,11 +59,13 @@ class ServerTest {
 
     @BeforeEach
     private void clearDateBase() {
+
         dataBaseDao.clearAll();
         cacheDataBaseDao.clearAll();
         assertEquals(0, dataBaseDao.getAllPlayers().size());
         assertEquals(0, dataBaseDao.getAllGames().size());
         assertEquals(0, dataBaseDao.getAllRooms().size());
+
     }
 
     private static UserConnection createConnection(final String ip, final int port, final String name) throws IOException, ServerException, InterruptedException {
@@ -477,12 +479,12 @@ class ServerTest {
     }
 
     @Test
-    void play10players1000GamesOnServer() throws IOException, ServerException, InterruptedException {
-        final int needPlayGames = 1000;
+    void play10players300GamesOnServer() throws IOException, ServerException, InterruptedException {
+        final int needPlayGames = 300;
 
         final List<Thread> threads = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
-            threads.add(createClientForPlay(PORT, IP, i, needPlayGames));
+            threads.add(createClientForPlay(PORT, IP, "300g" + i, needPlayGames));
         }
         for (final Thread th : threads) {
             th.join();
@@ -493,8 +495,8 @@ class ServerTest {
         assertTrue(needPlayGames <= dataBaseDao.getAllGames().size());
     }
 
-    private Thread createClientForPlay(final int PORT, final String IP, final int i, final int needPlayGames) throws ServerException, InterruptedException, IOException {
-        final UserConnection connection = createConnection(IP, PORT, "Bot" + i);
+    private Thread createClientForPlay(final int PORT, final String IP, final String nickname, final int needPlayGames) throws ServerException, InterruptedException, IOException {
+        final UserConnection connection = createConnection(IP, PORT, nickname);
         final AtomicBoolean play = new AtomicBoolean(true);
         final LinkedBlockingDeque<GameResponse> responsesBot = new LinkedBlockingDeque<>();
 
@@ -585,7 +587,7 @@ class ServerTest {
 
         final List<Thread> threads = new ArrayList<>();
         for (int i = 0; i < 2; i++) {
-            threads.add(createClientForPlay(PORT, IP, i, needPlayGames));
+            threads.add(createClientForPlay(PORT, IP, "BoReplay" + i, needPlayGames));
         }
         for (final Thread th : threads) {
             th.join();
@@ -595,7 +597,7 @@ class ServerTest {
         }
 
         final LinkedBlockingDeque<GameResponse> responsesBot3 = new LinkedBlockingDeque<>();
-        final UserConnection connectionBot3 = createConnection(IP, PORT, "BotReplay");
+        final UserConnection connectionBot3 = createConnection(IP, PORT, "BotRepl");
         final Game game = dataBaseDao.getAllGames().get(0);
 
         final AtomicBoolean needGetInfo = new AtomicBoolean(true);

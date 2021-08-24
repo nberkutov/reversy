@@ -15,7 +15,7 @@ import java.util.Map;
 
 @Slf4j
 public class StatisticUtils {
-    private static final String[] HEADING = {"ID", "Nickname", "Total games", "Number of wins", "Number of losses", "Number of games for white", "Number of games for black", "Wins against"};
+    private static final String[] HEADING = {"Id", "Nickname", "Total games", "Number of wins", "Number of losses", "Number of games for white", "Number of games for black", "Wins against"};
     private static final char DEFAULT_SEPARATOR = ';';
 
     private StatisticUtils() {

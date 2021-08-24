@@ -11,8 +11,8 @@ public class ThreadConfig {
     @Bean("handlers")
     public TaskExecutor threadPoolTaskHandlers() {
         final ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(GameProperties.HANDLER_THREADS + GameProperties.GAME_SEARCH_THREADS);
-        executor.setMaxPoolSize(GameProperties.HANDLER_THREADS + GameProperties.GAME_SEARCH_THREADS);
+        executor.setCorePoolSize(GameProperties.HANDLER_THREADS + GameProperties.GAME_SEARCH_THREADS + GameProperties.CLIENT_AUTO_LOGOUT_THREADS);
+        executor.setMaxPoolSize(GameProperties.HANDLER_THREADS + GameProperties.GAME_SEARCH_THREADS + GameProperties.CLIENT_AUTO_LOGOUT_THREADS);
         executor.setThreadNamePrefix("task_executor_thread_");
         executor.initialize();
         return executor;
@@ -20,6 +20,15 @@ public class ThreadConfig {
 
     @Bean("clientControllers")
     public TaskExecutor threadPoolClients() {
+        final ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(GameProperties.CLIENT_THREADS);
+        executor.setThreadNamePrefix("client_");
+        executor.initialize();
+        return executor;
+    }
+
+    @Bean("clientControllers")
+    public TaskExecutor threadPoolAutoLogout() {
         final ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(GameProperties.CLIENT_THREADS);
         executor.setThreadNamePrefix("client_");

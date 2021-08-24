@@ -1,9 +1,13 @@
 package org.example.models;
 
+import org.example.exception.ServerException;
 import org.example.models.player.User;
 import org.example.models.player.UserConnection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,11 +56,13 @@ public class CacheDataBaseImpl implements CacheDataBaseDao {
     }
 
     @Override
+    @Transactional(rollbackFor = ServerException.class, propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)
     public void removeAllConnects() {
         for (final Map.Entry<Long, UserConnection> entry : connects.entrySet()) {
             final long id = entry.getKey();
             final UserConnection connection = entry.getValue();
-            final User user = dbd.getUserById(id);
+            final User user = dbd.getUserById(connection.getUserId());
+            connection.setUserId(-1);
             if (user != null) {
                 login_connects.remove(user.getNickname());
             }
@@ -79,6 +85,7 @@ public class CacheDataBaseImpl implements CacheDataBaseDao {
 
     @Override
     public void clearAll() {
+        removeAllConnects();
         connects.clear();
         login_connects.clear();
     }

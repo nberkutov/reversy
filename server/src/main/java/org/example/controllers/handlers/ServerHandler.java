@@ -23,7 +23,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 
 @Slf4j
 @Component
-public class ServerHandler implements AutoCloseable, ApplicationRunner {
+public class ServerHandler implements ApplicationRunner {
     @Autowired
     private LinkedBlockingDeque<TaskRequest> requests;
 
@@ -47,6 +47,12 @@ public class ServerHandler implements AutoCloseable, ApplicationRunner {
         return new LinkedBlockingDeque<>();
     }
 
+    @Bean(name = "logouts")
+    public LinkedBlockingDeque<UserConnection> createDequeLogout() {
+        return new LinkedBlockingDeque<>();
+    }
+
+
     @Autowired
     private SenderService ss;
 
@@ -68,12 +74,6 @@ public class ServerHandler implements AutoCloseable, ApplicationRunner {
         ss.sendResponse(connection, Mapper.toDtoMessage("You can authorize or register"));
     }
 
-    public void close() {
-
-//
-//        gameSearcher.interrupt();
-    }
-
     @Override
     public void run(ApplicationArguments args) throws Exception {
         for (int i = 0; i < GameProperties.HANDLER_THREADS; i++) {
@@ -83,6 +83,11 @@ public class ServerHandler implements AutoCloseable, ApplicationRunner {
         for (int i = 0; i < GameProperties.GAME_SEARCH_THREADS; i++) {
             final Thread searcher = applicationContext.getBean(GameSearcher.class);
             executorHandlers.execute(searcher);
+        }
+
+        for (int i = 0; i < GameProperties.CLIENT_AUTO_LOGOUT_THREADS; i++) {
+            final Thread logoutHandler = applicationContext.getBean(AutoLogoutHandler.class);
+            executorHandlers.execute(logoutHandler);
         }
     }
 }

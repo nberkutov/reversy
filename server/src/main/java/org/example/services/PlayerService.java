@@ -21,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
-@Transactional(rollbackFor = ServerException.class, propagation = Propagation.REQUIRES_NEW, isolation = Isolation.DEFAULT)
+@Transactional(rollbackFor = ServerException.class, propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)
 public class PlayerService extends DataBaseService {
 
     public User createUser(final CreateUserRequest createUserRequest, final UserConnection connection) throws ServerException {
@@ -86,7 +86,6 @@ public class PlayerService extends DataBaseService {
         return user;
     }
 
-    @Transactional(rollbackFor = ServerException.class, propagation = Propagation.REQUIRED, isolation = Isolation.DEFAULT)
     public void autoLogoutPlayer(final UserConnection connection) throws ServerException {
         final User user = dbd.getUserById(connection.getUserId());
         if (user == null) {
@@ -105,10 +104,11 @@ public class PlayerService extends DataBaseService {
 
             final UserConnection whiteConnection = cdbd.getConnectionById(nowPlayGame.getWhiteUser().getId());
             final UserConnection blackConnection = cdbd.getConnectionById(nowPlayGame.getBlackUser().getId());
-            ss.sendResponse(whiteConnection, Mapper.toDtoGame(nowPlayGame));
-            ss.sendResponse(whiteConnection, Mapper.toDtoMessage("Ваш оппонент вышел из игры. Вы выиграли!"));
-            ss.sendResponse(blackConnection, Mapper.toDtoGame(nowPlayGame));
             ss.sendResponse(blackConnection, Mapper.toDtoMessage("Ваш оппонент вышел из игры. Вы выиграли!"));
+            ss.sendResponse(whiteConnection, Mapper.toDtoMessage("Ваш оппонент вышел из игры. Вы выиграли!"));
+            ss.sendResponse(whiteConnection, Mapper.toDtoGame(nowPlayGame));
+            ss.sendResponse(blackConnection, Mapper.toDtoGame(nowPlayGame));
+
         }
 
         if (nowRoom != null) {
@@ -151,7 +151,7 @@ public class PlayerService extends DataBaseService {
         dbd.saveUser(user);
     }
 
-    @Transactional(rollbackFor = ServerException.class, propagation = Propagation.REQUIRED, isolation = Isolation.DEFAULT)
+    @Transactional(rollbackFor = ServerException.class, propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
     public UserConnection getConnectionByPlayer(final User user) throws ServerException {
         userIsNotNull(user);
         final UserConnection connection = cdbd.getConnectionById(user.getId());
@@ -175,7 +175,7 @@ public class PlayerService extends DataBaseService {
         setPlayerStateNone(user);
     }
 
-    @Transactional(rollbackFor = ServerException.class, propagation = Propagation.REQUIRED, isolation = Isolation.DEFAULT)
+    @Transactional(rollbackFor = ServerException.class, propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
     public void setPlayerStateNone(final User user) throws ServerException {
         userIsNotNull(user);
         user.setState(PlayerState.NONE);
@@ -185,14 +185,14 @@ public class PlayerService extends DataBaseService {
         dbd.saveUser(user);
     }
 
-    //    @Transactional(rollbackFor = ServerException.class, propagation = Propagation.REQUIRED, isolation = Isolation.DEFAULT)
+    //    @Transactional(rollbackFor = ServerException.class, propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
     public User canPlayerSearchGame(final UserConnection userConnection) throws ServerException {
         connectionIsNotNullAndConnected(userConnection);
         final User user = dbd.getUserById(userConnection.getUserId());
         return canPlayerSearchGame(user);
     }
 
-    @Transactional(rollbackFor = ServerException.class, propagation = Propagation.REQUIRED, isolation = Isolation.DEFAULT)
+    @Transactional(rollbackFor = ServerException.class, propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
     public User canPlayerSearchGame(final User user) throws ServerException {
         userIsNotNull(user);
         userIsNotStateNone(user);

@@ -5,7 +5,7 @@ import org.encog.neural.neat.NEATPopulation;
 import org.example.models.ai.neural.BoardNeuralScore;
 import org.example.models.ai.neural.Neural;
 import org.example.models.base.PlayerColor;
-import org.example.models.board.Board;
+import org.example.models.board.ArrayBoard;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -27,7 +27,7 @@ class NeuralTest {
 
     @Test
     void testTrain() {
-        final Board board = new Board();
+        final ArrayBoard board = new ArrayBoard();
         final PlayerColor color = PlayerColor.BLACK;
         final BoardNeuralScore score = new BoardNeuralScore(color, board);
         final NEATPopulation pop = Neural.createNetwork();
@@ -41,7 +41,7 @@ class NeuralTest {
 
     @Test
     void testTrainSaveAndLoad() {
-        final Board board = new Board();
+        final ArrayBoard board = new ArrayBoard();
         final PlayerColor color = PlayerColor.BLACK;
         final BoardNeuralScore score = new BoardNeuralScore(color, board);
         final NEATPopulation pop = Neural.createNetwork();

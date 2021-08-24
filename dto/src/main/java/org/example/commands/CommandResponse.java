@@ -28,6 +28,7 @@ public enum CommandResponse {
     CLOSE_ROOM_RESPONSE("close_room_response", CloseRoomResponse.class),
     ROOMS("rooms", ListRoomResponse.class);
 
+
     private final String commandName;
     private final Class<? extends GameResponse> response;
 

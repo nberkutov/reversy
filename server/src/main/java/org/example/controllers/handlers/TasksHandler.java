@@ -31,8 +31,6 @@ public class TasksHandler extends Thread {
     @Autowired
     private LinkedBlockingDeque<TaskRequest> requests;
     @Autowired
-    private LinkedBlockingDeque<UserConnection> waiting;
-    @Autowired
     private GameController gc;
     @Autowired
     private PlayerController pc;

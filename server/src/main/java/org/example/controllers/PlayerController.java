@@ -12,6 +12,7 @@ import org.example.services.PlayerService;
 import org.example.services.RoomService;
 import org.example.services.SenderService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
@@ -33,6 +34,7 @@ public class PlayerController {
     @Autowired
     private RoomService rs;
     @Autowired
+    @Qualifier("waitings")
     private LinkedBlockingDeque<UserConnection> waiting;
 
     public void actionCreatePlayer(final CreateUserRequest createPlayer, final UserConnection connection) throws ServerException {
@@ -69,12 +71,8 @@ public class PlayerController {
         log.debug("action logoutPlayer {} {}", connection.getSocket().getPort(), logoutPlayer);
     }
 
-    public void actionAutoLogoutPlayer(final UserConnection connection) {
-        try {
-            ps.autoLogoutPlayer(connection);
-        } catch (final ServerException e) {
-            log.warn("action AutoLogout player {} {}", connection, e.getMessage());
-        }
+    public void actionAutoLogoutPlayer(final UserConnection connection) throws ServerException {
+        ps.autoLogoutPlayer(connection);
     }
 
     public boolean canPlay(final UserConnection connection) throws ServerException {

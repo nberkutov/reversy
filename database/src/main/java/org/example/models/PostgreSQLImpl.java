@@ -74,7 +74,7 @@ public class PostgreSQLImpl implements DataBaseDao {
     }
 
     @Override
-    public void removeRoom(Room room) throws ServerException {
+    public void removeRoom(final Room room) throws ServerException {
         try {
             roomRepository.delete(room);
         } catch (final RuntimeException e) {

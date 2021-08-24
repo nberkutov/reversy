@@ -2,6 +2,7 @@ import org.example.commands.CommandRequest;
 import org.example.commands.CommandResponse;
 import org.example.dto.request.GameRequest;
 import org.example.dto.request.player.*;
+import org.example.dto.request.room.CloseRoomRequest;
 import org.example.dto.request.room.CreateRoomRequest;
 import org.example.dto.request.room.GetRoomsRequest;
 import org.example.dto.request.room.JoinRoomRequest;
@@ -14,6 +15,7 @@ import org.example.dto.response.player.CreatePlayerResponse;
 import org.example.dto.response.player.LogoutResponse;
 import org.example.dto.response.player.MessageResponse;
 import org.example.dto.response.player.PlayerResponse;
+import org.example.dto.response.room.CloseRoomResponse;
 import org.example.dto.response.room.ListRoomResponse;
 import org.example.dto.response.room.RoomResponse;
 import org.example.exception.GameErrorCode;
@@ -46,6 +48,7 @@ class JsonServiceCommandTest {
                 Arguments.of(CREATE_ROOM, new CreateRoomRequest()),
                 Arguments.of(JOIN_ROOM, new JoinRoomRequest(0)),
                 Arguments.of(GET_ROOMS, new GetRoomsRequest()),
+                Arguments.of(CLOSE_ROOM_REQUEST, new CloseRoomRequest()),
                 Arguments.of(GET_REPLAY_GAME, new GetReplayGameRequest(0))
         );
     }
@@ -61,6 +64,7 @@ class JsonServiceCommandTest {
                 Arguments.of(GAME_REPLAY, new ReplayResponse(null, null, null, null, null)),
                 Arguments.of(CREATE_PLAYER, new CreatePlayerResponse(0, null)),
                 Arguments.of(ROOM, new RoomResponse(0, null, null)),
+                Arguments.of(CLOSE_ROOM_RESPONSE, new CloseRoomResponse()),
                 Arguments.of(ROOMS, new ListRoomResponse(null))
         );
     }

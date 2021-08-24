@@ -4,7 +4,7 @@ import gui.Ui;
 import org.example.exception.ServerException;
 import org.example.models.GameProperties;
 
-public class ClientGUIStart {
+public class Main {
     private static final String IP = "127.0.0.1";
 
     private static final int PORT = GameProperties.PORT;

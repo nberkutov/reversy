@@ -10,6 +10,7 @@ import org.example.models.player.UserConnection;
 import org.example.services.PlayerService;
 import org.example.utils.JsonService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -30,6 +31,9 @@ public class ConnectionController extends Thread implements AutoCloseable {
         this.connection = connection;
     }
 
+    @Autowired
+    @Qualifier("logouts")
+    private LinkedBlockingDeque<UserConnection> logouts;
     @Autowired
     private LinkedBlockingDeque<TaskRequest> requests;
     @Autowired
@@ -75,7 +79,12 @@ public class ConnectionController extends Thread implements AutoCloseable {
     public void close() {
         connection.close();
         if (connection.getUserId() != -1) {
-            pc.actionAutoLogoutPlayer(connection);
+            try {
+                logouts.putLast(connection);
+            } catch (final InterruptedException e) {
+                log.warn("cant close UserConnection {}", e.getMessage());
+            }
+//            pc.actionAutoLogoutPlayer(connection);
         }
     }
 }

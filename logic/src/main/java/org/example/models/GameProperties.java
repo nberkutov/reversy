@@ -16,8 +16,10 @@ public class GameProperties {
     public static final int MAX_SIZE_NICKNAME = 10;
 
     public static final int PORT = 8070;
+    public static final String STATS_FILE = PROJECT_PATH + File.separator + "stats.csv";
     public static final String NEURAL_FILE = PROJECT_PATH + File.separator + "neural.eg";
     public static final int CLIENT_THREADS = 10000;
+    public static final int CLIENT_AUTO_LOGOUT_THREADS = 1;
     public static final int HANDLER_THREADS = 4;
     public static final int GAME_SEARCH_THREADS = 1;
 

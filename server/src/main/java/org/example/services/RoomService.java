@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Random;
 
 @Service
-@Transactional(rollbackFor = ServerException.class, propagation = Propagation.REQUIRES_NEW, isolation = Isolation.DEFAULT)
+@Transactional(rollbackFor = ServerException.class, propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)
 public class RoomService extends DataBaseService {
 
     public Room createRoom(final CreateRoomRequest createRoom, final UserConnection connection) throws ServerException {

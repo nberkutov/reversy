@@ -24,11 +24,8 @@ public class SpringServer implements CommandLineRunner {
     @Autowired
     private Server server;
 
-
-
     public static void main(final String[] args) {
         SpringApplication.run(SpringServer.class, args);
-
     }
 
     @Override
