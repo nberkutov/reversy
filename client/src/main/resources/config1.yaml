@@ -1,7 +1,7 @@
 host: "127.0.0.1"
 port: 8080
-botType: "random"
-guiType: "empty"
+botType: "profile"
+guiType: "window"
 playerColor: "BLACK"
 nickname: "никита"
 numberOfGames: 1000000

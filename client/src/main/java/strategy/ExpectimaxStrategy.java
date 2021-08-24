@@ -5,6 +5,7 @@ import logic.BoardLogic;
 import models.base.Cell;
 import models.base.PlayerColor;
 import models.base.interfaces.GameBoard;
+import models.board.ArrayBoard;
 import models.board.Point;
 
 import java.util.List;

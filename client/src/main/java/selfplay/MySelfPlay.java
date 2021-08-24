@@ -1,19 +1,13 @@
 package selfplay;
 
 import exception.ServerException;
-import gui.EmptyGUI;
 import gui.GameGUI;
 import gui.WindowGUI;
-import lombok.extern.java.Log;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.log4j.ConsoleAppender;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import models.board.ArrayBoard;
 import player.Player;
 import models.base.GameState;
 import models.base.PlayerColor;
 import models.base.interfaces.GameBoard;
-import player.RandomBotPlayer;
 import strategy.*;
 
 public class MySelfPlay {

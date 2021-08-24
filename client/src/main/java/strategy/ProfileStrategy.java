@@ -7,18 +7,22 @@ import models.base.PlayerColor;
 import models.base.interfaces.GameBoard;
 import models.board.ArrayBoard;
 import models.board.Point;
+import parser.LogParser;
+import profile.Profile;
 
 import java.util.List;
 import java.util.function.ToIntBiFunction;
 
-public class ABPruningStrategy implements Strategy {
+public class ProfileStrategy implements Strategy {
     private final int depth;
     private final ToIntBiFunction<GameBoard, PlayerColor> utility;
+    private final Profile profile;
     private PlayerColor color;
 
-    public ABPruningStrategy(final int depth, final ToIntBiFunction<GameBoard, PlayerColor> utility){
+    public ProfileStrategy(final int depth, final ToIntBiFunction<GameBoard, PlayerColor> utility) {
         this.depth = depth;
         this.utility = utility;
+        profile = new LogParser().parse();
     }
 
     @Override
@@ -29,7 +33,7 @@ public class ABPruningStrategy implements Strategy {
         for (final Point move : moves) {
             final GameBoard boardCopy = new ArrayBoard(board);
             BoardLogic.makeMove(boardCopy, move, Cell.valueOf(color));
-            final int win = minimax(boardCopy, depth, revert(color), Integer.MIN_VALUE, Integer.MAX_VALUE);
+            final int win = expectimax(boardCopy, depth, revert(color));
             if (win > maxWin) {
                 maxWin = win;
                 maxMove = move;
@@ -41,54 +45,47 @@ public class ABPruningStrategy implements Strategy {
         return maxMove;
     }
 
-    private int minimax(final GameBoard board, final int depth, final PlayerColor currentColor, int alpha, int beta)
-            throws ServerException {
+    private int expectimax(final GameBoard board, final int depth, final PlayerColor currentColor) throws ServerException {
         final PlayerColor simColor;
         final ToIntBiFunction<GameBoard, PlayerColor> estimateFunc;
-        final boolean maximizingPlayer;
         if (currentColor == color) {
             simColor = color;
-            estimateFunc =  utility;
-            maximizingPlayer = true;
         } else {
             simColor = revert(color);
-            estimateFunc = utility;
-            maximizingPlayer = false;
         }
+        estimateFunc = utility;
 
         final PlayerColor winner = getEndOfGame(board);
         if (depth == 0 || winner != PlayerColor.NONE) {
             return estimateFunc.applyAsInt(board, simColor);
         }
         final List<Point> availableMoves = BoardLogic.getAvailableMoves(board, simColor);
-        int maxWin = Integer.MIN_VALUE;
+        if (simColor == color) {
+            int maxWin = Integer.MIN_VALUE;
+            for (final Point move : availableMoves) {
+                final GameBoard copy = new ArrayBoard(board);
+                BoardLogic.makeMove(copy, move, Cell.valueOf(simColor));
+                final int win = expectimax(copy, depth - 1, revert(simColor));
+                if (win > maxWin) {
+                    maxWin = win;
+                }
+            }
+            return maxWin;
+        }
+        final int maxWin = 0;
         for (final Point move : availableMoves) {
             final GameBoard copy = new ArrayBoard(board);
             BoardLogic.makeMove(copy, move, Cell.valueOf(simColor));
-            final int win = minimax(copy, depth - 1, revert(currentColor), alpha, beta);
-            if (maximizingPlayer) {
-                if (win > beta) {
-                    break;
-                }
-            } else {
-                if (win < alpha) {
-                    break;
-                }
-            }
-            if (win > maxWin) {
-                maxWin = win;
-            }
-            if (maximizingPlayer) {
-                alpha = Math.max(win, alpha);
-            } else {
-                beta = Math.min(win, beta);
-            }
+            final int win = expectimax(copy, depth - 1, revert(simColor)) *
+                    profile.getProbability(board.toString(), copy.toString());
         }
         return maxWin;
+        //return win / availableMoves.size();
     }
 
     @Override
     public void setColor(final PlayerColor color) {
         this.color = color;
+        profile.setOpponentState(revert(color));
     }
 }

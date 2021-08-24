@@ -15,6 +15,7 @@
         <module>dto</module>
         <module>vyacheslav</module>
         <module>bot-service</module>
+        <module>profiler</module>
     </modules>
 
     <properties>

@@ -19,17 +19,18 @@ import gui.TextGUI;
 import gui.WindowGUI;
 import lombok.extern.slf4j.Slf4j;
 import models.ClientConnection;
-import models.Player;
 import models.base.GameState;
 import models.base.PlayerColor;
-import models.base.interfaces.GameBoard;
 import models.board.Point;
-import models.players.SmartBot;
-import models.strategies.RandomStrategy;
 import org.apache.log4j.FileAppender;
 import org.apache.log4j.Logger;
 import org.apache.log4j.RollingFileAppender;
-import strategy.ArrayBoard;
+import models.board.ArrayBoard;
+import player.Player;
+import selfplay.BotPlayer;
+import strategy.ProfileStrategy;
+import strategy.RandomStrategy;
+import strategy.Utility;
 import utils.JsonService;
 
 import java.io.File;
@@ -101,10 +102,12 @@ public class Client extends Thread {
         clientLogsFileAppender.activateOptions();
     }
 
-    private static Player getPlayer(final String playerType, final String nickname) {
+    private static player.Player getPlayer(final String playerType, final String nickname) {
         switch (playerType) {
+            case "profile":
+                return new BotPlayer("nikita", new ProfileStrategy(4, Utility::advanced));
             default:
-                return new SmartBot(nickname, new RandomStrategy());
+                return new BotPlayer(nickname, new RandomStrategy());
         }
     }
 
@@ -197,11 +200,14 @@ public class Client extends Thread {
             if (nowMoveByMe(player, response.getState())) {
                 final Point move = player.move(board);
                 ClientController.sendRequest(connection, MovePlayerRequest.toDto(response.getGameId(), move));
-            } else {
-                player.triggerMoveOpponent(board);
             }
         } else {
-            player.triggerGameEnd(response.getState(), board);
+            try {
+                Thread.sleep(3000);
+            } catch (final InterruptedException e) {
+                e.printStackTrace();
+            }
+            //player.triggerGameEnd(response.getState(), board);
             player.setColor(revertColor(player.getColor()));
             if (gamesCounter++ < numberOfGames - 1) {
                 ClientController.sendRequest(connection, new WantPlayRequest(player.getColor()));

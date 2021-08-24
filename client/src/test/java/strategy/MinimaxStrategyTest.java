@@ -1,13 +1,11 @@
 package strategy;
 
 import exception.ServerException;
-import gui.GameGUI;
-import gui.WindowGUI;
 import logic.BoardLogic;
 import models.base.Cell;
-import models.base.GameState;
 import models.base.PlayerColor;
 import models.base.interfaces.GameBoard;
+import models.board.ArrayBoard;
 import models.board.Point;
 import org.junit.jupiter.api.Test;
 import player.Player;
