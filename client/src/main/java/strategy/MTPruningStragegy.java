@@ -12,20 +12,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RecursiveTask;
+import java.util.function.ToDoubleBiFunction;
 import java.util.function.ToIntBiFunction;
 
 public class MTPruningStragegy implements Strategy {
-    private static final class MinimaxValue extends RecursiveTask<Integer> {
+    private static final class MinimaxValue extends RecursiveTask<Double> {
         private final GameBoard board;
         private final int depth;
         private final PlayerColor color;
-        private final ToIntBiFunction<GameBoard, PlayerColor> utility;
-        final int alpha;
-        final int beta;
+        private final ToDoubleBiFunction<GameBoard, PlayerColor> utility;
+        private double alpha;
+        private double beta;
 
         public MinimaxValue(
                             final GameBoard board, final int depth,
-                            final PlayerColor color, final ToIntBiFunction<GameBoard, PlayerColor> utility, final int alpha, final int beta) {
+                            final PlayerColor color, final ToDoubleBiFunction<GameBoard, PlayerColor> utility, final double alpha, final double beta) {
             this.board = board;
             this.depth = depth;
             this.color = color;
@@ -36,57 +37,53 @@ public class MTPruningStragegy implements Strategy {
 
         @SneakyThrows
         @Override
-        protected Integer compute() {
+        protected Double compute() {
             return minimax(board, depth, color, alpha, beta);
         }
 
-        private int minimax(final GameBoard board, final int depth, final PlayerColor currentColor, int alpha, int beta) throws ServerException {
+        private double minimax(final GameBoard board, final int depth, final PlayerColor currentColor, final double alpha, final double beta) throws ServerException {
             final PlayerColor simColor;
-            final ToIntBiFunction<GameBoard, PlayerColor> estimateFunc;
+            final ToDoubleBiFunction<GameBoard, PlayerColor> estimateFunc;
             final boolean maximizingPlayer;
             if (currentColor == color) {
-                simColor = color;
                 maximizingPlayer = true;
+                estimateFunc = utility;
             } else {
-                simColor = revert(color);
                 maximizingPlayer = false;
+                estimateFunc = (b, c) -> -utility.applyAsDouble(b, c);
             }
-            estimateFunc = utility;
             final PlayerColor winner = getEndOfGame(board);
             if (depth == 0 || winner != PlayerColor.NONE) {
-                return estimateFunc.applyAsInt(board, simColor);
+                return estimateFunc.applyAsDouble(board, currentColor);
             }
-            final List<Point> availableMoves = BoardLogic.getAvailableMoves(board, simColor);
-            final List<MinimaxValue> subtasks = new ArrayList<>();
-            int maxWin = Integer.MIN_VALUE;
+            final List<Point> availableMoves = BoardLogic.getAvailableMoves(board, currentColor);
+            //final List<MinimaxValue> subtasks = new ArrayList<>();
+            double maxWin = Integer.MIN_VALUE;
 
             for (final Point move : availableMoves) {
                 final GameBoard copy = new ArrayBoard(board);
-                BoardLogic.makeMove(copy, move, Cell.valueOf(simColor));
-                final MinimaxValue val = new MinimaxValue(copy, depth - 1, revert(color), utility, alpha, beta);
-                //forkJoinPool.submit(val);
-                val.fork();
-                subtasks.add(val);
-            }
-            for (final MinimaxValue task : subtasks) {
-                final int win = task.join();
-                if (win > maxWin) {
-                    maxWin = win;
-                }
+                ClientBoardLogic.makeMove(copy, move, Cell.valueOf(currentColor));
+                final MinimaxValue minimaxValue = new MinimaxValue(board, depth - 1, revert(currentColor), utility, alpha, beta);
+                final double win = minimaxValue.fork().join();
                 if (maximizingPlayer) {
                     if (win > beta) {
                         break;
                     }
+                    this.alpha = Math.max(win, alpha);
                 } else {
                     if (win < alpha) {
                         break;
                     }
+                    this.beta = Math.min(win, beta);
                 }
-                if (maximizingPlayer) {
-                    alpha = Math.max(win, alpha);
-                } else {
-                    beta = Math.min(win, beta);
+                if (win > maxWin) {
+                    maxWin = win;
                 }
+            /*if (maximizingPlayer) {
+                alpha = Math.max(win, alpha);
+            } else {
+                beta = Math.min(win, beta);
+            }*/
             }
             return maxWin;
         }
@@ -117,12 +114,12 @@ public class MTPruningStragegy implements Strategy {
     }
 
     private final int depth;
-    private final ToIntBiFunction<GameBoard, PlayerColor> utility;
+    private final ToDoubleBiFunction<GameBoard, PlayerColor> utility;
     private final ForkJoinPool forkJoinPool;
     private PlayerColor color;
 
 
-    public MTPruningStragegy(final int depth, final ToIntBiFunction<GameBoard, PlayerColor> utility) {
+    public MTPruningStragegy(final int depth, final ToDoubleBiFunction<GameBoard, PlayerColor> utility) {
         this.depth = depth;
         this.utility = utility;
         forkJoinPool = new ForkJoinPool(6);
@@ -135,23 +132,27 @@ public class MTPruningStragegy implements Strategy {
     @Override
     public Point move(final GameBoard board) throws ServerException {
         final List<Point> moves = BoardLogic.getAvailableMoves(board, color);
-        int maxWin = Integer.MIN_VALUE;
+        double maxWin = Integer.MIN_VALUE;
         Point maxMove = null;
         final List<MinimaxValue> subtasks = new ArrayList<>();
         for (final Point move : moves) {
             final GameBoard boardCopy = new ArrayBoard(board);
             BoardLogic.makeMove(boardCopy, move, Cell.valueOf(color));
             final MinimaxValue val = new MinimaxValue(boardCopy, depth, revert(color), utility, Integer.MIN_VALUE, Integer.MAX_VALUE);
-            forkJoinPool.submit(val);
-            subtasks.add(val);
+            final double win = val.fork().join();
+            if (win > maxWin) {
+                maxWin = win;
+                maxMove = move;
+            }
+            //subtasks.add(val);
         }
-        for (final MinimaxValue task : subtasks) {
-            final int win = task.join();
+        /*for (final MinimaxValue task : subtasks) {
+            final double win = task.join();
             if (win > maxWin) {
                 maxWin = win;
                 maxMove = moves.get(subtasks.indexOf(task));
             }
-        }
+        }*/
         if (maxMove == null) {
             return moves.get(0);
         }

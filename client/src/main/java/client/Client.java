@@ -64,7 +64,7 @@ public class Client extends Thread {
             final GameGUI gameGUI = getGUI(properties.getGuiType().orElse("empty"));
             final int numberOfGames = properties.getNumberOfGames().orElse(1);
             initLogger(properties);
-            final Client client = new Client(host, port, player, gameGUI, numberOfGames, properties.getWindowDelay().orElse(0l));
+            final Client client = new Client(host, port, player, gameGUI, numberOfGames, properties.getWindowDelay().orElse(0L));
             client.start();
         } catch (final IOException | ServerException e) {
             e.printStackTrace();
@@ -106,10 +106,14 @@ public class Client extends Thread {
 
     private static Player getPlayer(final String playerType, final String nickname, final int depth) {
         switch (playerType) {
+            case "ab pruning":
+                return new BotPlayer(nickname, new ABPruningStrategy(depth, Utility::multiHeuristic));
             case "expectimax":
                 return new BotPlayer(nickname, new ExpectimaxStrategy(depth, Utility::advanced));
             case "minimax":
                 return new BotPlayer(nickname, new MinimaxStrategy(depth, Utility::multiHeuristic));
+            case "fjp minimax":
+                return  new BotPlayer(nickname, new MTMinimaxStrategy(depth, Utility::multiHeuristic));
             default:
                 return new BotPlayer(nickname, new RandomStrategy());
         }
@@ -205,7 +209,7 @@ public class Client extends Thread {
                 ClientController.sendRequest(connection, MovePlayerRequest.toDto(response.getGameId(), move));
                 try {
                     Thread.sleep(delay);
-                } catch (InterruptedException e) {
+                } catch (final InterruptedException e) {
                     e.printStackTrace();
                 }
             }

@@ -18,10 +18,9 @@ public class MySelfPlay {
         int blackWins = 0;
         int whiteWins = 0;
 
-        final Player player1 = new BotPlayer("Minimax1", new MinimaxStrategy(3, Utility::multiHeuristic));
-        final Player player2 = new BotPlayer("Random2", new MinimaxStrategy(3, Utility::advanced));
+        final Player player1 = new BotPlayer("Minimax1", new ExpectimaxStrategy(3, Utility::multiHeuristic));
+        final Player player2 = new BotPlayer("Random", new RandomStrategy());
 
-        //final Player player2 = new RandomBotPlayer("randomBot");
         final GameBoard board = new ArrayBoard();
 
         player1.setColor(PlayerColor.BLACK);

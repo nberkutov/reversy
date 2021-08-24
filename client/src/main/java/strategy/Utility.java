@@ -38,8 +38,8 @@ public class Utility {
 
     public static double multiHeuristic(final GameBoard board, final PlayerColor playerColor) {
         return coinParityHeuristic(board, playerColor)
-                + mobilityHeuristic(board, playerColor)
-                + 2 * countCapturedCorners(board, playerColor);
+                + 100 * mobilityHeuristic(board, playerColor)
+                + 200 * countCapturedCorners(board, playerColor);
     }
 
     // Coin Parity Heuristic Value =
@@ -122,3 +122,5 @@ public class Utility {
         }
     }
 }
+
+
