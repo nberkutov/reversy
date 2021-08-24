@@ -21,18 +21,17 @@ import lombok.extern.slf4j.Slf4j;
 import models.ClientConnection;
 import models.base.GameState;
 import models.base.PlayerColor;
+import models.base.interfaces.GameBoard;
 import models.board.Point;
 import org.apache.log4j.FileAppender;
 import org.apache.log4j.Logger;
 import org.apache.log4j.RollingFileAppender;
-import models.board.ArrayBoard;
 import player.Player;
 import selfplay.BotPlayer;
-import strategy.ProfileStrategy;
-import strategy.RandomStrategy;
-import strategy.Utility;
+import strategy.*;
 import utils.JsonService;
 
+import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.Socket;
@@ -43,6 +42,7 @@ public class Client extends Thread {
     private final ClientConnection connection;
     private final int numberOfGames;
     private final GameGUI gui;
+    private final long delay;
 
     private int gamesCounter;
 
@@ -57,20 +57,21 @@ public class Client extends Thread {
             final ClientProperties properties = mapper.readValue(configFile, ClientProperties.class);
             final String host = properties.getHost().orElse("127.0.0.1");
             final int port = properties.getPort().orElse(8080);
-            final Player player = getPlayer(properties.getBotType().orElse("random"), properties.getNickname());
+            final Player player = getPlayer(properties.getBotType().orElse("random"),
+                    properties.getNickname(), properties.getDepth().orElse(1));
             final PlayerColor color = PlayerColor.valueOf(properties.getPlayerColor().orElse("NONE"));
             player.setColor(color);
             final GameGUI gameGUI = getGUI(properties.getGuiType().orElse("empty"));
             final int numberOfGames = properties.getNumberOfGames().orElse(1);
             initLogger(properties);
-            final Client client = new Client(host, port, player, gameGUI, numberOfGames);
+            final Client client = new Client(host, port, player, gameGUI, numberOfGames, properties.getWindowDelay().orElse(0L));
             client.start();
         } catch (final IOException | ServerException e) {
             e.printStackTrace();
         }
     }
 
-    public Client(final String ip, final int port, final Player player, final GameGUI gui, final int numberOfGames)
+    public Client(final String ip, final int port, final Player player, final GameGUI gui, final int numberOfGames, final long delay)
             throws ServerException {
         try {
             this.player = player;
@@ -79,6 +80,7 @@ public class Client extends Thread {
             this.gui = gui;
             this.numberOfGames = numberOfGames;
             gamesCounter = 0;
+            this.delay = delay;
         } catch (final IOException e) {
             throw new ServerException(GameErrorCode.SERVER_NOT_STARTED);
         }
@@ -102,10 +104,16 @@ public class Client extends Thread {
         clientLogsFileAppender.activateOptions();
     }
 
-    private static player.Player getPlayer(final String playerType, final String nickname) {
+    private static Player getPlayer(final String playerType, final String nickname, final int depth) {
         switch (playerType) {
-            case "profile":
-                return new BotPlayer("nikita", new ProfileStrategy(4, Utility::advanced));
+            case "ab pruning":
+                return new BotPlayer(nickname, new ABPruningStrategy(depth, Utility::multiHeuristic));
+            case "expectimax":
+                return new BotPlayer(nickname, new ExpectimaxStrategy(depth, Utility::advanced));
+            case "minimax":
+                return new BotPlayer(nickname, new MinimaxStrategy(depth, Utility::multiHeuristic));
+            case "fjp minimax":
+                return  new BotPlayer(nickname, new MTMinimaxStrategy(depth, Utility::multiHeuristic));
             default:
                 return new BotPlayer(nickname, new RandomStrategy());
         }
@@ -152,13 +160,12 @@ public class Client extends Thread {
                 actionMessage((MessageResponse) gameResponse);
                 break;
             default:
-                break;// log.error("Unknown response {}", gameResponse);
+                break;
         }
     }
 
     @Override
     public void run() {
-        //log.info("Debug connect {}", connection);
         new Thread(() -> {
             try {
                 Thread.sleep(10);
@@ -200,14 +207,28 @@ public class Client extends Thread {
             if (nowMoveByMe(player, response.getState())) {
                 final Point move = player.move(board);
                 ClientController.sendRequest(connection, MovePlayerRequest.toDto(response.getGameId(), move));
+                try {
+                    Thread.sleep(delay);
+                } catch (final InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         } else {
-            try {
-                Thread.sleep(3000);
-            } catch (final InterruptedException e) {
-                e.printStackTrace();
+            if (gui.getClass() == WindowGUI.class) {
+                String msg;
+                if (board.getCountBlackCells() > board.getCountWhiteCells()) {
+                    msg = "Победа черных";
+                    if (player.getColor() == PlayerColor.BLACK) {
+                        msg += " (Вы)";
+                    }
+                } else {
+                    msg = "Победа белых";
+                    if (player.getColor() == PlayerColor.WHITE) {
+                        msg += " (Вы)";
+                    }
+                }
+                JOptionPane.showMessageDialog(new JFrame(), msg);
             }
-            //player.triggerGameEnd(response.getState(), board);
             player.setColor(revertColor(player.getColor()));
             if (gamesCounter++ < numberOfGames - 1) {
                 ClientController.sendRequest(connection, new WantPlayRequest(player.getColor()));

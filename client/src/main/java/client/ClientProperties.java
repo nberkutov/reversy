@@ -12,6 +12,8 @@ public class ClientProperties {
     private String logPath;
     private String logFile;
     private int numberOfGames;
+    private int depth;
+    private long windowDelay;
 
     public ClientProperties() {
     }
@@ -86,5 +88,21 @@ public class ClientProperties {
 
     public void setLogFile(final String logFile) {
         this.logFile = logFile;
+    }
+
+    public Optional<Integer> getDepth() {
+        return Optional.of(depth);
+    }
+
+    public void setDepth(int depth) {
+        this.depth = depth;
+    }
+
+    public Optional<Long> getWindowDelay() {
+        return Optional.of(windowDelay);
+    }
+
+    public void setWindowDelay(long windowDelay) {
+        this.windowDelay = windowDelay;
     }
 }

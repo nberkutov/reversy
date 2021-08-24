@@ -1,4 +1,4 @@
-package models.board;
+package strategy;
 
 import exception.GameErrorCode;
 import exception.ServerException;
@@ -39,16 +39,19 @@ public class ArrayBoard implements GameBoard {
             for (int x = 0; x < board.getSize(); x++) {
                 final Cell cell = board.getCell(x, y);
                 this.board[get1d(x, y)] = cell;
+                emptyCells++;
                 switch (cell) {
                     case BLACK:
                         blackCells++;
-                        emptyCells--;
                         break;
                     case WHITE:
                         whiteCells++;
-                        emptyCells--;
+                        break;
+                    default:
+                        emptyCells++;
                         break;
                 }
+                emptyCells--;
             }
         }
     }

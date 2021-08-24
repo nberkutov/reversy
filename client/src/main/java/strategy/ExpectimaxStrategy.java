@@ -9,14 +9,15 @@ import models.board.ArrayBoard;
 import models.board.Point;
 
 import java.util.List;
+import java.util.function.ToDoubleBiFunction;
 import java.util.function.ToIntBiFunction;
 
 public class ExpectimaxStrategy implements Strategy {
     private final int depth;
-    private final ToIntBiFunction<GameBoard, PlayerColor> utility;
+    private final ToDoubleBiFunction<GameBoard, PlayerColor> utility;
     private PlayerColor color;
 
-    public ExpectimaxStrategy(final int depth, final ToIntBiFunction<GameBoard, PlayerColor> utility) {
+    public ExpectimaxStrategy(final int depth, final ToDoubleBiFunction<GameBoard, PlayerColor> utility) {
         this.depth = depth;
         this.utility = utility;
     }
@@ -24,12 +25,12 @@ public class ExpectimaxStrategy implements Strategy {
     @Override
     public Point move(final GameBoard board) throws ServerException {
         final List<Point> moves = BoardLogic.getAvailableMoves(board, color);
-        int maxWin = Integer.MIN_VALUE;
+        double maxWin = Integer.MIN_VALUE;
         Point maxMove = null;
         for (final Point move : moves) {
             final GameBoard boardCopy = new ArrayBoard(board);
             BoardLogic.makeMove(boardCopy, move, Cell.valueOf(color));
-            final int win = expectimax(boardCopy, depth, revert(color));
+            final double win = expectimax(boardCopy, depth, revert(color));
             if (win > maxWin) {
                 maxWin = win;
                 maxMove = move;
@@ -41,34 +42,35 @@ public class ExpectimaxStrategy implements Strategy {
         return maxMove;
     }
 
-    private int expectimax(final GameBoard board, final int depth, final PlayerColor currentColor) throws ServerException {
+    private double expectimax(final GameBoard board, final int depth, final PlayerColor currentColor) throws ServerException {
         final PlayerColor simColor;
-        final ToIntBiFunction<GameBoard, PlayerColor> estimateFunc;
+        final ToDoubleBiFunction<GameBoard, PlayerColor> estimateFunc;
         if (currentColor == color) {
             simColor = color;
+            estimateFunc = utility;
         } else {
             simColor = revert(color);
+            estimateFunc = (b, c) -> -utility.applyAsDouble(b, c);
         }
-        estimateFunc = utility;
 
         final PlayerColor winner = getEndOfGame(board);
         if (depth == 0 || winner != PlayerColor.NONE) {
-            return estimateFunc.applyAsInt(board, simColor);
+            return estimateFunc.applyAsDouble(board, simColor);
         }
         final List<Point> availableMoves = BoardLogic.getAvailableMoves(board, simColor);
         if (simColor == color) {
-            int maxWin = Integer.MIN_VALUE;
+            double maxWin = Integer.MIN_VALUE;
             for (final Point move : availableMoves) {
                 final GameBoard copy = new ArrayBoard(board);
                 BoardLogic.makeMove(copy, move, Cell.valueOf(simColor));
-                final int win = expectimax(copy, depth - 1, revert(simColor));
+                final double win = expectimax(copy, depth - 1, revert(simColor));
                 if (win > maxWin) {
                     maxWin = win;
                 }
             }
             return maxWin;
         }
-        int win = 0;
+        double win = 0;
         for (final Point move : availableMoves) {
             final GameBoard copy = new ArrayBoard(board);
             BoardLogic.makeMove(copy, move, Cell.valueOf(simColor));

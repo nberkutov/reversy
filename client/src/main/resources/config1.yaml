@@ -1,9 +1,11 @@
 host: "127.0.0.1"
 port: 8080
-botType: "profile"
-guiType: "window"
+botType: "ab pruning"
+depth: 5
+guiType: "empty"
+windowDelay: 0
 playerColor: "BLACK"
-nickname: "никита"
-numberOfGames: 1000000
+nickname: "nikita"
+numberOfGames: 100
 logPath: "/home/nikita/local_client/logs/"
 logFile: "client.log"
