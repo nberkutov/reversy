@@ -12,19 +12,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RecursiveTask;
+import java.util.function.ToDoubleBiFunction;
 import java.util.function.ToIntBiFunction;
 
 public class MTMinimaxStrategy implements Strategy {
-    private static final class MinimaxValue extends RecursiveTask<Integer> {
+    private static final class MinimaxValue extends RecursiveTask<Double> {
         private final GameBoard board;
         private final int depth;
         private final PlayerColor color;
-        private final ToIntBiFunction<GameBoard, PlayerColor> utility;
+        private final ToDoubleBiFunction<GameBoard, PlayerColor> utility;
         private final ForkJoinPool forkJoinPool;
 
         public MinimaxValue(final ForkJoinPool forkJoinPool,
                             final GameBoard board, final int depth,
-                            final PlayerColor color, final ToIntBiFunction<GameBoard, PlayerColor> utility) {
+                            final PlayerColor color, final ToDoubleBiFunction<GameBoard, PlayerColor> utility) {
             this.board = board;
             this.depth = depth;
             this.color = color;
@@ -34,13 +35,13 @@ public class MTMinimaxStrategy implements Strategy {
 
         @SneakyThrows
         @Override
-        protected Integer compute() {
+        protected Double compute() {
             return minimax(board, depth, color);
         }
 
-        private int minimax(final GameBoard board, final int depth, final PlayerColor currentColor) throws ServerException {
+        private double minimax(final GameBoard board, final int depth, final PlayerColor currentColor) throws ServerException {
             final PlayerColor simColor;
-            final ToIntBiFunction<GameBoard, PlayerColor> estimateFunc;
+            final ToDoubleBiFunction<GameBoard, PlayerColor> estimateFunc;
             if (currentColor == color) {
                 simColor = color;
             } else {
@@ -49,11 +50,11 @@ public class MTMinimaxStrategy implements Strategy {
             estimateFunc = utility;
             final PlayerColor winner = getEndOfGame(board);
             if (depth == 0 || winner != PlayerColor.NONE) {
-                return estimateFunc.applyAsInt(board, simColor);
+                return estimateFunc.applyAsDouble(board, simColor);
             }
             final List<Point> availableMoves = BoardLogic.getAvailableMoves(board, simColor);
             final List<MinimaxValue> subtasks = new ArrayList<>();
-            int maxWin = Integer.MIN_VALUE;
+            double maxWin = Integer.MIN_VALUE;
 
             for (final Point move : availableMoves) {
                 final GameBoard copy = new ArrayBoard(board);
@@ -64,7 +65,7 @@ public class MTMinimaxStrategy implements Strategy {
                 subtasks.add(val);
             }
             for (final MinimaxValue task : subtasks) {
-                final int win = task.join();
+                final double win = task.join();
                 if (win > maxWin) {
                     maxWin = win;
                 }
@@ -98,12 +99,12 @@ public class MTMinimaxStrategy implements Strategy {
     }
 
     private final int depth;
-    private final ToIntBiFunction<GameBoard, PlayerColor> utility;
+    private final ToDoubleBiFunction<GameBoard, PlayerColor> utility;
     private final ForkJoinPool forkJoinPool;
     private PlayerColor color;
 
 
-    public MTMinimaxStrategy(final int depth, final ToIntBiFunction<GameBoard, PlayerColor> utility) {
+    public MTMinimaxStrategy(final int depth, final ToDoubleBiFunction<GameBoard, PlayerColor> utility) {
         this.depth = depth;
         this.utility = utility;
         forkJoinPool = new ForkJoinPool(6);
@@ -116,7 +117,7 @@ public class MTMinimaxStrategy implements Strategy {
     @Override
     public Point move(final GameBoard board) throws ServerException {
         final List<Point> moves = BoardLogic.getAvailableMoves(board, color);
-        int maxWin = Integer.MIN_VALUE;
+        double maxWin = Double.MIN_VALUE;
         Point maxMove = null;
         final List<MinimaxValue> subtasks = new ArrayList<>();
         for (final Point move : moves) {
@@ -127,7 +128,7 @@ public class MTMinimaxStrategy implements Strategy {
             subtasks.add(val);
         }
         for (final MinimaxValue task : subtasks) {
-            final int win = task.join();
+            final double win = task.join();
             if (win > maxWin) {
                 maxWin = win;
                 maxMove = moves.get(subtasks.indexOf(task));
