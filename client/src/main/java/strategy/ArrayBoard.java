@@ -88,7 +88,7 @@ public class ArrayBoard implements GameBoard {
 
     @Override
     public int getSize() {
-        return 8;
+        return SIZE;
     }
 
     @Override
