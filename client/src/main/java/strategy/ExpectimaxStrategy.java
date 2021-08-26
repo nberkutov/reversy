@@ -38,28 +38,25 @@ public class ExpectimaxStrategy implements Strategy {
         return maxMove;
     }
 
-    private double expectimax(final GameBoard board, final int depth, final PlayerColor currentColor) throws ServerException {
-        final PlayerColor simColor;
+    private double expectimax(final GameBoard board, final int depth, final PlayerColor currentColor) throws ServerException {   
         final ToDoubleBiFunction<GameBoard, PlayerColor> estimateFunc;
-        if (currentColor == color) {
-            simColor = color;
+        if (currentColor == color) {            
             estimateFunc = utility;
-        } else {
-            simColor = revert(color);
+        } else {            
             estimateFunc = (b, c) -> -utility.applyAsDouble(b, c);
         }
 
         final PlayerColor winner = getEndOfGame(board);
         if (depth == 0 || winner != PlayerColor.NONE) {
-            return estimateFunc.applyAsDouble(board, simColor);
+            return estimateFunc.applyAsDouble(board, currentColor);
         }
-        final List<Point> availableMoves = BoardLogic.getAvailableMoves(board, simColor);
-        if (simColor == color) {
+        final List<Point> availableMoves = BoardLogic.getAvailableMoves(board, currentColor);
+        if (currentColor == color) {
             double maxWin = Integer.MIN_VALUE;
             for (final Point move : availableMoves) {
                 final GameBoard copy = new ArrayBoard(board);
-                BoardLogic.makeMove(copy, move, Cell.valueOf(simColor));
-                final double win = expectimax(copy, depth - 1, revert(simColor));
+                BoardLogic.makeMove(copy, move, Cell.valueOf(currentColor));
+                final double win = expectimax(copy, depth - 1, revert(currentColor));
                 if (win > maxWin) {
                     maxWin = win;
                 }
@@ -69,8 +66,8 @@ public class ExpectimaxStrategy implements Strategy {
         double win = 0;
         for (final Point move : availableMoves) {
             final GameBoard copy = new ArrayBoard(board);
-            BoardLogic.makeMove(copy, move, Cell.valueOf(simColor));
-            win += expectimax(copy, depth - 1, revert(simColor));
+            BoardLogic.makeMove(copy, move, Cell.valueOf(currentColor));
+            win += expectimax(copy, depth - 1, revert(currentColor));
         }
         return win / availableMoves.size();
     }
