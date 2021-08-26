@@ -68,7 +68,7 @@ public class Server extends Thread implements AutoCloseable {
         }
     }
 
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true, rollbackFor = ServerException.class)
     public void saveStatistic(final String path) {
         final List<User> userList = dataBaseDao.getAllPlayers();
         try {

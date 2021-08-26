@@ -100,12 +100,4 @@ public class TasksHandler extends Thread {
             Thread.currentThread().interrupt();
         }
     }
-
-//    @Transactional(rollbackFor = ServerException.class, propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)
-//    public void actionWantPlay(final WantPlayRequest wantPlay, final UserConnection connection) throws InterruptedException, IOException, ServerException {
-//        ps.canPlayerSearchGame(connection);
-//        waiting.putLast(connection);
-//        ss.sendResponse(connection, Mapper.toDtoMessage("Search game"));
-//        log.debug("player put in waiting {}", connection.getUserId());
-//    }
 }

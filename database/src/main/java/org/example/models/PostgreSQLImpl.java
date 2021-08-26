@@ -17,13 +17,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
 @Slf4j
-//@Transactional(rollbackFor = ServerException.class, propagation = Propagation.SUPPORTS)
+@Transactional(rollbackFor = ServerException.class, propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
 public class PostgreSQLImpl implements DataBaseDao {
     @Autowired
     private GameRepository gameRepository;

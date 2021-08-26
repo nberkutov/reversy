@@ -35,7 +35,8 @@ public enum GameErrorCode {
     CELL_IS_EMPTY("Cell is empty."),
     SOCKET_IMPOSSIBLE_READ_MSG("The socket has an error"),
     SERVER_ERROR("Server not responding"),
-    DATABASE_ERROR("Database not responding");
+    DATABASE_ERROR("Database not responding"),
+    DATABASE_NOT_POSTGRESQL("Database not postgres");
     private final String message;
 
     GameErrorCode(final String message) {

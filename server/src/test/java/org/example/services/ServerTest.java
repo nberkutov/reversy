@@ -1,6 +1,5 @@
 package org.example.services;
 
-import org.example.SpringServer;
 import org.example.commands.CommandResponse;
 import org.example.dto.request.GameRequest;
 import org.example.dto.request.player.*;
@@ -13,8 +12,6 @@ import org.example.dto.response.game.MoveResponse;
 import org.example.dto.response.game.ReplayResponse;
 import org.example.exception.ServerException;
 import org.example.logic.BoardLogic;
-import org.example.models.CacheDataBaseDao;
-import org.example.models.DataBaseDao;
 import org.example.models.GameProperties;
 import org.example.models.Player;
 import org.example.models.base.*;
@@ -28,7 +25,6 @@ import org.example.utils.JsonService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
@@ -43,16 +39,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest(classes = {SpringServer.class})
-class ServerTest {
+class ServerTest extends BaseServiceTest {
     @Autowired
     private Server server;
-
-    @Autowired
-    protected DataBaseDao dataBaseDao;
-    @Autowired
-    protected CacheDataBaseDao cacheDataBaseDao;
-
 
     private static final int PORT = GameProperties.PORT;
     private static final String IP = "127.0.0.1";
@@ -478,7 +467,7 @@ class ServerTest {
         assertEquals(RoomState.CLOSE, dataBaseDao.getAllRooms().get(0).getState());
     }
 
-    @Test
+    //    @Test
     void play10players300GamesOnServer() throws IOException, ServerException, InterruptedException {
         final int needPlayGames = 300;
 

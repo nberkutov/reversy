@@ -84,7 +84,7 @@ public class GameService extends DataBaseService {
         return makePlayerMove(game, movePlayer.getPoint(), user);
     }
 
-    @Transactional(rollbackFor = ServerException.class, propagation = Propagation.REQUIRED, isolation = Isolation.DEFAULT)
+    @Transactional(rollbackFor = ServerException.class, propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
     public Game makePlayerMove(final Game game, final Point point, final User user) throws ServerException {
         gameIsNotNull(game);
         gameIsNotEnd(game);
@@ -102,7 +102,7 @@ public class GameService extends DataBaseService {
         return game;
     }
 
-    @Transactional(rollbackFor = ServerException.class, propagation = Propagation.REQUIRED, isolation = Isolation.DEFAULT)
+    @Transactional(rollbackFor = ServerException.class, propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
     public void finishGame(final GameResult result, final Game game) throws ServerException {
         gameIsNotNull(game);
         gameResultIsNotNull(result);
@@ -155,7 +155,7 @@ public class GameService extends DataBaseService {
      * @param game - Игра
      * @return GameResult
      */
-    @Transactional(rollbackFor = ServerException.class, propagation = Propagation.REQUIRED, isolation = Isolation.DEFAULT)
+    @Transactional(rollbackFor = ServerException.class, propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
     public GameResult getGameResult(final Game game) {
         final GameBoard board = game.getBoard();
         final long blackCells = BoardLogic.getCountBlack(board);

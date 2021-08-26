@@ -55,34 +55,7 @@ public class PlayerService extends DataBaseService {
         connectionIsNotNullAndConnected(connection);
         final User user = dbd.getUserById(connection.getUserId());
         userIsNotNull(user);
-        cdbd.removeConnection(user.getId(), user.getNickname());
-        connection.setUserId(-1);
-
-
-        final Game nowPlayGame = user.getNowPlaying();
-        final Room nowRoom = user.getNowRoom();
-        if (nowPlayGame != null && nowPlayGame.getState() != GameState.END) {
-            nowPlayGame.setState(GameState.END);
-            final GameResult result = GameResult.techWinner(nowPlayGame, user);
-            gs.finishGame(result, nowPlayGame);
-            dbd.saveGame(nowPlayGame);
-
-            final UserConnection whiteConnection = cdbd.getConnectionById(nowPlayGame.getWhiteUser().getId());
-            final UserConnection blackConnection = cdbd.getConnectionById(nowPlayGame.getBlackUser().getId());
-            ss.sendResponse(whiteConnection, Mapper.toDtoGame(nowPlayGame));
-            ss.sendResponse(whiteConnection, Mapper.toDtoMessage("Ваш оппонент вышел из игры. Вы выиграли!"));
-            ss.sendResponse(blackConnection, Mapper.toDtoGame(nowPlayGame));
-            ss.sendResponse(blackConnection, Mapper.toDtoMessage("Ваш оппонент вышел из игры. Вы выиграли!"));
-        }
-
-        if (nowRoom != null) {
-            nowRoom.setWhiteUser(null);
-            nowRoom.setBlackUser(null);
-            dbd.removeRoom(nowRoom);
-            user.setNowRoom(null);
-        }
-        user.setState(PlayerState.NONE);
-        dbd.saveUser(user);
+        closeNowGameAndNowRoom(user, connection);
         return user;
     }
 
@@ -91,34 +64,7 @@ public class PlayerService extends DataBaseService {
         if (user == null) {
             return;
         }
-        cdbd.removeConnection(user.getId(), user.getNickname());
-        connection.setUserId(-1);
-
-        final Game nowPlayGame = user.getNowPlaying();
-        final Room nowRoom = user.getNowRoom();
-        if (nowPlayGame != null && nowPlayGame.getState() != GameState.END) {
-            nowPlayGame.setState(GameState.END);
-            final GameResult result = GameResult.techWinner(nowPlayGame, user);
-            gs.finishGame(result, nowPlayGame);
-            dbd.saveGame(nowPlayGame);
-
-            final UserConnection whiteConnection = cdbd.getConnectionById(nowPlayGame.getWhiteUser().getId());
-            final UserConnection blackConnection = cdbd.getConnectionById(nowPlayGame.getBlackUser().getId());
-            ss.sendResponse(blackConnection, Mapper.toDtoMessage("Ваш оппонент вышел из игры. Вы выиграли!"));
-            ss.sendResponse(whiteConnection, Mapper.toDtoMessage("Ваш оппонент вышел из игры. Вы выиграли!"));
-            ss.sendResponse(whiteConnection, Mapper.toDtoGame(nowPlayGame));
-            ss.sendResponse(blackConnection, Mapper.toDtoGame(nowPlayGame));
-
-        }
-
-        if (nowRoom != null) {
-            nowRoom.setWhiteUser(null);
-            nowRoom.setBlackUser(null);
-            dbd.removeRoom(nowRoom);
-            user.setNowRoom(null);
-        }
-        user.setState(PlayerState.NONE);
-        dbd.saveUser(user);
+        closeNowGameAndNowRoom(user, connection);
     }
 
     private void closeNowGameAndNowRoom(final User user, final UserConnection connection) throws ServerException {
@@ -133,22 +79,19 @@ public class PlayerService extends DataBaseService {
             gs.finishGame(result, nowPlayGame);
             dbd.saveGame(nowPlayGame);
 
-            final UserConnection whiteConnection = cdbd.getConnectionById(nowPlayGame.getWhiteUser().getId());
-            final UserConnection blackConnection = cdbd.getConnectionById(nowPlayGame.getBlackUser().getId());
-            ss.sendResponse(whiteConnection, Mapper.toDtoGame(nowPlayGame));
-            ss.sendResponse(whiteConnection, Mapper.toDtoMessage("Ваш оппонент вышел из игры. Вы выиграли!"));
-            ss.sendResponse(blackConnection, Mapper.toDtoGame(nowPlayGame));
-            ss.sendResponse(blackConnection, Mapper.toDtoMessage("Ваш оппонент вышел из игры. Вы выиграли!"));
+            final UserConnection winner = cdbd.getConnectionById(result.getWinner().getId());
+            if (winner != null && winner.isConnected()) {
+                ss.sendResponse(winner, Mapper.toDtoMessage("Ваш оппонент вышел из игры. Вы выиграли!"));
+                ss.sendResponse(winner, Mapper.toDtoGame(nowPlayGame));
+            }
         }
 
         if (nowRoom != null) {
             nowRoom.setWhiteUser(null);
             nowRoom.setBlackUser(null);
             dbd.removeRoom(nowRoom);
-            user.setNowRoom(null);
         }
-        user.setState(PlayerState.NONE);
-        dbd.saveUser(user);
+        ps.setPlayerStateNone(user);
     }
 
     @Transactional(rollbackFor = ServerException.class, propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)

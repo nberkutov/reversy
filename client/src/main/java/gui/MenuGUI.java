@@ -100,6 +100,7 @@ public class MenuGUI extends JFrame {
     }
 
     private void init() {
+        setTitle("Меню");
         setSize(700, 300);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);

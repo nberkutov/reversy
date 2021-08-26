@@ -49,6 +49,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
+                <version>3.2.0</version>
                 <configuration>
                     <archive>
                         <manifest>
@@ -84,119 +85,5 @@
         </plugins>
     </build>
 
-
-    <!--    <build>-->
-
-    <!--        &lt;!&ndash; THIS IS THE FINAL NAME OF THE JAR &ndash;&gt;-->
-    <!--        <finalName>${project.artifactId}-${project.version}</finalName>-->
-
-    <!--        &lt;!&ndash; RESOURCES &ndash;&gt;-->
-    <!--        <resources>-->
-    <!--            <resource>-->
-    <!--                <directory>src/main/resources</directory>-->
-    <!--                <filtering>true</filtering>-->
-    <!--            </resource>-->
-    <!--        </resources>-->
-
-    <!-- PLUGINS -->
-    <!--        <plugins>-->
-
-    <!--            <plugin>-->
-    <!--                <artifactId>maven-compiler-plugin</artifactId>-->
-    <!--                <version>3.8.1</version>-->
-    <!--                <configuration>-->
-    <!--                    <source>1.8</source>-->
-    <!--                    <target>1.8</target>-->
-    <!--                </configuration>-->
-    <!--            </plugin>-->
-
-    <!--            <plugin>-->
-    <!--                <groupId>org.apache.maven.plugins</groupId>-->
-    <!--                <artifactId>maven-enforcer-plugin</artifactId>-->
-    <!--                <version>3.0.0-M2</version>-->
-    <!--                <executions>-->
-    <!--                    <execution>-->
-    <!--                        <goals>-->
-    <!--                            <goal>enforce</goal>-->
-    <!--                        </goals>-->
-    <!--                    </execution>-->
-    <!--                </executions>-->
-    <!--                <configuration>-->
-    <!--                    <rules>-->
-    <!--                        <requireJavaVersion>-->
-    <!--                            <version>${java.version}</version>-->
-    <!--                        </requireJavaVersion>-->
-    <!--                    </rules>-->
-    <!--                </configuration>-->
-    <!--            </plugin>-->
-
-    <!--            <plugin>-->
-    <!--                <groupId>org.apache.maven.plugins</groupId>-->
-    <!--                <artifactId>maven-release-plugin</artifactId>-->
-    <!--                <configuration>-->
-    <!--                    <localCheckout>true</localCheckout>-->
-    <!--                    <pushChanges>false</pushChanges>-->
-    <!--                </configuration>-->
-    <!--            </plugin>-->
-
-    <!--            &lt;!&ndash; copy all required dependencies into the folder &ndash;&gt;-->
-    <!--            &lt;!&ndash; https://www.baeldung.com/executable-jar-with-maven &ndash;&gt;-->
-    <!--            <plugin>-->
-    <!--                <groupId>org.apache.maven.plugins</groupId>-->
-    <!--                <artifactId>maven-dependency-plugin</artifactId>-->
-    <!--                <version>3.1.1</version>-->
-    <!--                <executions>-->
-    <!--                    <execution>-->
-    <!--                        <id>copy-dependencies</id>-->
-    <!--                        <phase>prepare-package</phase>-->
-    <!--                        <goals>-->
-    <!--                            <goal>copy-dependencies</goal>-->
-    <!--                        </goals>-->
-    <!--                        <configuration>-->
-    <!--                            <outputDirectory>-->
-    <!--                                ${project.build.directory}/lib-->
-    <!--                            </outputDirectory>-->
-    <!--                        </configuration>-->
-    <!--                    </execution>-->
-    <!--                </executions>-->
-    <!--            </plugin>-->
-
-    <!--            <plugin>-->
-    <!--                <groupId>org.apache.maven.plugins</groupId>-->
-    <!--                <artifactId>maven-jar-plugin</artifactId>-->
-    <!--                <version>3.1.2</version>-->
-    <!--                <configuration>-->
-    <!--                    <archive>-->
-    <!--                        <manifest>-->
-    <!--                            &lt;!&ndash; Build an executable JAR &ndash;&gt;-->
-    <!--                            <addClasspath>true</addClasspath>-->
-    <!--                            <classpathPrefix>lib/</classpathPrefix>-->
-    <!--                            <mainClass>org.test.project</mainClass>-->
-    <!--                        </manifest>-->
-    <!--                    </archive>-->
-    <!--                </configuration>-->
-    <!--            </plugin>-->
-
-    <!--            &lt;!&ndash; Create one single jar with libraries using onejar &ndash;&gt;-->
-    <!--            <plugin>-->
-    <!--                <groupId>com.jolira</groupId>-->
-    <!--                <artifactId>onejar-maven-plugin</artifactId>-->
-    <!--                <version>1.4.4</version>-->
-    <!--                <executions>-->
-    <!--                    <execution>-->
-    <!--                        <configuration>-->
-    <!--                            <mainClass>client.Main</mainClass>-->
-    <!--                            <attachToBuild>false</attachToBuild>-->
-    <!--                            <classifier>onejar</classifier>-->
-    <!--                        </configuration>-->
-    <!--                        <goals>-->
-    <!--                            <goal>one-jar</goal>-->
-    <!--                        </goals>-->
-    <!--                    </execution>-->
-    <!--                </executions>-->
-    <!--            </plugin>-->
-    <!--        </plugins>-->
-
-    <!--    </build>-->
 
 </project>

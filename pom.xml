@@ -15,7 +15,7 @@
         <module>dto</module>
         <module>vyacheslav</module>
         <module>database</module>
-        <module>gui</module>
+        <module>statistic</module>
     </modules>
 
     <parent>
