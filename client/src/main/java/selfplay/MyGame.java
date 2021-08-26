@@ -31,7 +31,7 @@ public class MyGame {
     public GameBoard playNext() throws ServerException {
         final List<Point> blackMoves = BoardLogic.getAvailableMoves(board, blackPlayer.getColor());
         final List<Point> whiteMoves = BoardLogic.getAvailableMoves(board, whitePlayer.getColor());
-        if (board.getCountEmpty() == 0 || blackMoves.isEmpty() && whiteMoves.isEmpty()) {
+        if (blackMoves.isEmpty() && whiteMoves.isEmpty()) {
             gameState = GameState.END;
             return board;
         }
