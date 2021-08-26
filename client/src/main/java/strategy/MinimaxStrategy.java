@@ -29,7 +29,7 @@ public class MinimaxStrategy implements Strategy {
     public Point move(final GameBoard board) throws ServerException {
         final List<Point> moves = BoardLogic.getAvailableMoves(board, color);
         double maxWin = Integer.MIN_VALUE;
-        Point maxMove = null;
+        Point maxMove = moves.get(0);
         for (final Point move : moves) {
             final GameBoard boardCopy = new ArrayBoard(board);
             BoardLogic.makeMove(boardCopy, move, Cell.valueOf(color));
@@ -38,9 +38,6 @@ public class MinimaxStrategy implements Strategy {
                 maxWin = win;
                 maxMove = move;
             }
-        }
-        if (maxMove == null) {
-            return moves.get(0);
         }
         return maxMove;
     }
