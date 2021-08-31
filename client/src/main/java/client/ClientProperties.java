@@ -11,6 +11,7 @@ public class ClientProperties {
     private String nickname;
     private String logPath;
     private String logFile;
+    private String profilePath;
     private int numberOfGames;
     private int depth;
     private long windowDelay;
@@ -94,7 +95,7 @@ public class ClientProperties {
         return Optional.of(depth);
     }
 
-    public void setDepth(int depth) {
+    public void setDepth(final int depth) {
         this.depth = depth;
     }
 
@@ -102,7 +103,15 @@ public class ClientProperties {
         return Optional.of(windowDelay);
     }
 
-    public void setWindowDelay(long windowDelay) {
+    public void setWindowDelay(final long windowDelay) {
         this.windowDelay = windowDelay;
+    }
+
+    public Optional<String> getProfilePath() {
+        return Optional.of(profilePath);
+    }
+
+    public void setProfilePath(final String profilePath) {
+        this.profilePath = profilePath;
     }
 }

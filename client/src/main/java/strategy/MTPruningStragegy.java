@@ -6,7 +6,6 @@ import lombok.SneakyThrows;
 import models.base.Cell;
 import models.base.PlayerColor;
 import models.base.interfaces.GameBoard;
-import models.board.ArrayBoard;
 import models.board.Point;
 
 import java.util.ArrayList;
@@ -58,14 +57,24 @@ public class MTPruningStragegy implements Strategy {
                 return estimateFunc.applyAsDouble(board, currentColor);
             }
             final List<Point> availableMoves = BoardLogic.getAvailableMoves(board, currentColor);
-            //final List<MinimaxValue> subtasks = new ArrayList<>();
+            final List<MinimaxValue> subtasks = new ArrayList<>();
             double maxWin = Integer.MIN_VALUE;
 
             for (final Point move : availableMoves) {
                 final GameBoard copy = new ArrayBoard(board);
                 ClientBoardLogic.makeMove(copy, move, Cell.valueOf(currentColor));
                 final MinimaxValue minimaxValue = new MinimaxValue(board, depth - 1, revert(currentColor), utility, alpha, beta);
-                final double win = minimaxValue.fork().join();
+                minimaxValue.fork();
+                subtasks.add(minimaxValue);
+
+            /*if (maximizingPlayer) {
+                alpha = Math.max(win, alpha);
+            } else {
+                beta = Math.min(win, beta);
+            }*/
+            }
+            for (MinimaxValue task : subtasks) {
+                final double win = task.join();
                 if (maximizingPlayer) {
                     if (win > beta) {
                         break;
@@ -80,11 +89,6 @@ public class MTPruningStragegy implements Strategy {
                 if (win > maxWin) {
                     maxWin = win;
                 }
-            /*if (maximizingPlayer) {
-                alpha = Math.max(win, alpha);
-            } else {
-                beta = Math.min(win, beta);
-            }*/
             }
             return maxWin;
         }
@@ -140,18 +144,37 @@ public class MTPruningStragegy implements Strategy {
             final GameBoard boardCopy = new ArrayBoard(board);
             BoardLogic.makeMove(boardCopy, move, Cell.valueOf(color));
             final MinimaxValue val = new MinimaxValue(boardCopy, depth, revert(color), utility, Integer.MIN_VALUE, Integer.MAX_VALUE);
-            final double win = val.fork().join();
+            val.fork();
+            subtasks.add(val);
+            /*final double win = val.fork().join();
             if (win > maxWin) {
                 maxWin = win;
                 maxMove = move;
-            }
+            }*/
             //subtasks.add(val);
         }
-        /*for (final MinimaxValue task : subtasks) {
+        for (final MinimaxValue task : subtasks) {
             final double win = task.join();
             if (win > maxWin) {
                 maxWin = win;
                 maxMove = moves.get(subtasks.indexOf(task));
+            }
+        }
+        /*for (MinimaxValue task : subtasks) {
+            final double win = task.join();
+            if (maximizingPlayer) {
+                if (win > beta) {
+                    break;
+                }
+                this.alpha = Math.max(win, alpha);
+            } else {
+                if (win < alpha) {
+                    break;
+                }
+                this.beta = Math.min(win, beta);
+            }
+            if (win > maxWin) {
+                maxWin = win;
             }
         }*/
         if (maxMove == null) {

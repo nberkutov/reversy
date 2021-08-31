@@ -58,7 +58,10 @@ public class Server extends Thread implements AutoCloseable {
             initLogger(properties);
             try (final Server server = new Server(properties)) {
                 server.start();
-                handleCommands(server);
+                server.join();
+                //handleCommands(server);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         } catch (final IOException e) {
             e.printStackTrace();

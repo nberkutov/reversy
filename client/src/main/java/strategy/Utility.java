@@ -20,7 +20,7 @@ public class Utility {
     }
 
     public static int advanced(final GameBoard board, final PlayerColor playerColor) {
-        final int cornerPawnWeight = 50;
+        final int cornerPawnWeight = 20;
         int estimation = 0;
         try {
             for (final Point point : cornerPoints) {
@@ -31,15 +31,18 @@ public class Utility {
         } catch (final ServerException e) {
             e.printStackTrace();
         }
-        final int pawnDifference = Math.abs(board.getCountBlackCells() - board.getCountWhiteCells());
+        int pawnDifference = board.getCountBlackCells() - board.getCountWhiteCells();
+        if (playerColor == PlayerColor.WHITE) {
+            pawnDifference *= -1;
+        }
         estimation += pawnDifference;
         return estimation;
     }
 
     public static double multiHeuristic(final GameBoard board, final PlayerColor playerColor) {
         return coinParityHeuristic(board, playerColor)
-                + 100 * mobilityHeuristic(board, playerColor)
-                + 200 * countCapturedCorners(board, playerColor);
+                +  mobilityHeuristic(board, playerColor)
+                +  10 * countCapturedCorners(board, playerColor);
     }
 
     // Coin Parity Heuristic Value =

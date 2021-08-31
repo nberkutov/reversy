@@ -5,7 +5,6 @@ import logic.BoardLogic;
 import models.base.Cell;
 import models.base.PlayerColor;
 import models.base.interfaces.GameBoard;
-import models.board.ArrayBoard;
 import models.board.Point;
 
 import java.util.List;
@@ -57,6 +56,7 @@ public class ExpectimaxStrategy implements Strategy {
         if (depth == 0 || winner != PlayerColor.NONE) {
             return estimateFunc.applyAsDouble(board, simColor);
         }
+
         final List<Point> availableMoves = BoardLogic.getAvailableMoves(board, simColor);
         if (simColor == color) {
             double maxWin = Integer.MIN_VALUE;
@@ -70,6 +70,7 @@ public class ExpectimaxStrategy implements Strategy {
             }
             return maxWin;
         }
+
         double win = 0;
         for (final Point move : availableMoves) {
             final GameBoard copy = new ArrayBoard(board);

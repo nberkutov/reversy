@@ -5,49 +5,51 @@ import logic.BoardLogic;
 import models.base.Cell;
 import models.base.PlayerColor;
 import models.base.interfaces.GameBoard;
-import models.board.ArrayBoard;
 import models.board.Point;
 import parser.LogParser;
 import profile.Profile;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.function.ToDoubleBiFunction;
 import java.util.function.ToIntBiFunction;
 
 public class ProfileStrategy implements Strategy {
+    //private  static final String LOG_FILE = "/home/nikita/client/commonLog.log";
     private final int depth;
-    private final ToIntBiFunction<GameBoard, PlayerColor> utility;
+    private final ToDoubleBiFunction<GameBoard, PlayerColor> utility;
     private final Profile profile;
     private PlayerColor color;
 
-    public ProfileStrategy(final int depth, final ToIntBiFunction<GameBoard, PlayerColor> utility) {
+    public ProfileStrategy(final int depth, final Profile profile, final ToDoubleBiFunction<GameBoard, PlayerColor> utility) {
         this.depth = depth;
         this.utility = utility;
-        profile = new LogParser().parse();
+        this.profile = profile;
+
     }
 
     @Override
     public Point move(final GameBoard board) throws ServerException {
         final List<Point> moves = BoardLogic.getAvailableMoves(board, color);
-        int maxWin = Integer.MIN_VALUE;
-        Point maxMove = null;
+        double maxWin = Integer.MIN_VALUE;
+        Point maxMove = moves.get(0);
         for (final Point move : moves) {
             final GameBoard boardCopy = new ArrayBoard(board);
             BoardLogic.makeMove(boardCopy, move, Cell.valueOf(color));
-            final int win = expectimax(boardCopy, depth, revert(color));
+            final double win = expectimax(boardCopy, depth, revert(color));
             if (win > maxWin) {
                 maxWin = win;
                 maxMove = move;
             }
         }
-        if (maxMove == null) {
-            return moves.get(0);
-        }
+
         return maxMove;
     }
 
-    private int expectimax(final GameBoard board, final int depth, final PlayerColor currentColor) throws ServerException {
+    private double expectimax(final GameBoard board, final int depth, final PlayerColor currentColor) throws ServerException {
         final PlayerColor simColor;
-        final ToIntBiFunction<GameBoard, PlayerColor> estimateFunc;
+        final ToDoubleBiFunction<GameBoard, PlayerColor> estimateFunc;
         if (currentColor == color) {
             simColor = color;
         } else {
@@ -57,30 +59,38 @@ public class ProfileStrategy implements Strategy {
 
         final PlayerColor winner = getEndOfGame(board);
         if (depth == 0 || winner != PlayerColor.NONE) {
-            return estimateFunc.applyAsInt(board, simColor);
+            return estimateFunc.applyAsDouble(board, simColor);
         }
+
         final List<Point> availableMoves = BoardLogic.getAvailableMoves(board, simColor);
         if (simColor == color) {
-            int maxWin = Integer.MIN_VALUE;
+            double maxWin = Integer.MIN_VALUE;
             for (final Point move : availableMoves) {
                 final GameBoard copy = new ArrayBoard(board);
                 BoardLogic.makeMove(copy, move, Cell.valueOf(simColor));
-                final int win = expectimax(copy, depth - 1, revert(simColor));
+                final double win = expectimax(copy, depth - 1, revert(simColor));
                 if (win > maxWin) {
                     maxWin = win;
                 }
             }
             return maxWin;
         }
-        final int maxWin = 0;
+
+        double maxWin = 0;
+        double x = 0;
         for (final Point move : availableMoves) {
             final GameBoard copy = new ArrayBoard(board);
             BoardLogic.makeMove(copy, move, Cell.valueOf(simColor));
-            final int win = expectimax(copy, depth - 1, revert(simColor)) *
-                    profile.getProbability(board.toString(), copy.toString());
+            int p = profile.getFrequency(board.toString(), copy.toString());
+            if (p == 0) p = 1;
+            x += p;
+            final double win = expectimax(copy, depth - 1, revert(simColor));
+            maxWin += win * profile.getFrequency(board.toString(), copy.toString());
         }
-        return maxWin;
-        //return win / availableMoves.size();
+        /*if (x == 0) {
+            x = availableMoves.size();
+        }*/
+        return maxWin / x;
     }
 
     @Override

@@ -1,16 +1,13 @@
 package strategy;
 
 import exception.ServerException;
-import logic.BoardLogic;
 import models.base.Cell;
 import models.base.PlayerColor;
 import models.base.interfaces.GameBoard;
-import models.board.ArrayBoard;
 import models.board.Point;
 
 import java.util.List;
 import java.util.function.ToDoubleBiFunction;
-import java.util.function.ToIntBiFunction;
 
 public class ABPruningStrategy implements Strategy {
     private final int depth;

@@ -1,20 +1,21 @@
 package parser;
 
 import models.base.GameState;
-import models.board.ArrayBoard;
 import profile.Profile;
+import strategy.ArrayBoard;
 
 import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 
 public class LogParser {
-    private final Map<String, Map<String, Integer>> blackMovesFreq;
+    public final Map<String, Map<String, Integer>> blackMovesFreq;
     private final Map<String, Map<String, Integer>> whiteMovesFreq;
     private GameState opponentState;
     private GameState playerState;
 
     private String prevLine;
+    private int games;
 
     public LogParser() {
         blackMovesFreq = new HashMap<>();
@@ -22,15 +23,21 @@ public class LogParser {
         playerState = GameState.BLACK_MOVE;
         opponentState = GameState.WHITE_MOVE;
         prevLine = new ArrayBoard().toString();
+        games = 0;
     }
 
     public static void main(final String[] args) {
         final LogParser parser = new LogParser();
-        parser.parse();
+        final Profile profile = Profile.parse("/home/nikita/client/commonLog.log");
+        //profile.save("/home/nikita/client/profile.dat");
+        /*try {
+            final Profile profile = Profile.fromFile("/home/nikita/client/profile.dat");
+        } catch (final Exception e) {
+            e.printStackTrace();
+        }*/
     }
 
-    public Profile parse() {
-        final String path = "/home/nikita/client/commonLog.log";
+    public Profile parse(final String path) {
         final File file = new File(path);
         try (final BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;

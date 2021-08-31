@@ -26,7 +26,9 @@ import models.board.Point;
 import org.apache.log4j.FileAppender;
 import org.apache.log4j.Logger;
 import org.apache.log4j.RollingFileAppender;
+import parser.LogParser;
 import player.Player;
+import profile.Profile;
 import selfplay.BotPlayer;
 import strategy.*;
 import utils.JsonService;
@@ -35,6 +37,7 @@ import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.function.ToDoubleBiFunction;
 
 @Slf4j
 public class Client extends Thread {
@@ -43,13 +46,15 @@ public class Client extends Thread {
     private final int numberOfGames;
     private final GameGUI gui;
     private final long delay;
-
+    private final Profile profile;
+    private String prevBoard;
     private int gamesCounter;
 
     public static void main(final String[] args) {
         if (args.length == 0) {
             System.out.println("Config file missed.");
         }
+
         final File configFile = new File(args[0]);
         try {
             final ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
@@ -57,23 +62,28 @@ public class Client extends Thread {
             final ClientProperties properties = mapper.readValue(configFile, ClientProperties.class);
             final String host = properties.getHost().orElse("127.0.0.1");
             final int port = properties.getPort().orElse(8080);
-            final Player player = getPlayer(properties.getBotType().orElse("random"),
-                    properties.getNickname(), properties.getDepth().orElse(1));
+            final String botType = properties.getBotType().orElse("random");
+            final String nickname = properties.getNickname();
+            final int depth = properties.getDepth().orElse(1);
+            final Profile profile = new LogParser().parse(properties.getProfilePath().orElse("profile.log"));
+            final Player player = getPlayer(botType, nickname, depth, Utility::multiHeuristic, profile);
             final PlayerColor color = PlayerColor.valueOf(properties.getPlayerColor().orElse("NONE"));
             player.setColor(color);
             final GameGUI gameGUI = getGUI(properties.getGuiType().orElse("empty"));
             final int numberOfGames = properties.getNumberOfGames().orElse(1);
             initLogger(properties);
-            final Client client = new Client(host, port, player, gameGUI, numberOfGames, properties.getWindowDelay().orElse(0L));
+            final Client client = new Client(host, port, player, gameGUI, numberOfGames, properties.getWindowDelay().orElse(0L), profile);
             client.start();
         } catch (final IOException | ServerException e) {
             e.printStackTrace();
         }
     }
 
-    public Client(final String ip, final int port, final Player player, final GameGUI gui, final int numberOfGames, final long delay)
+    public Client(final String ip, final int port, final Player player, final GameGUI gui, final int numberOfGames, final long delay, final Profile profile)
             throws ServerException {
         try {
+            prevBoard = "";
+            this.profile = profile;
             this.player = player;
             final Socket socket = new Socket(ip, port);
             this.connection = new ClientConnection(socket);
@@ -104,18 +114,26 @@ public class Client extends Thread {
         clientLogsFileAppender.activateOptions();
     }
 
-    private static Player getPlayer(final String playerType, final String nickname, final int depth) {
+    private static Player getPlayer(
+            final String playerType,
+            final String nickname,
+            final int depth,
+            final ToDoubleBiFunction<GameBoard, PlayerColor> utility,
+            final Profile profile
+    ) {
         switch (playerType) {
             case "ab pruning":
-                return new BotPlayer(nickname, new ABPruningStrategy(depth, Utility::multiHeuristic));
+                return new BotPlayer(nickname, new ABPruningStrategy(depth, utility));
             case "expectimax":
-                return new BotPlayer(nickname, new ExpectimaxStrategy(depth, Utility::advanced));
+                return new BotPlayer(nickname, new ExpectimaxStrategy(depth, utility));
             case "minimax":
-                return new BotPlayer(nickname, new MinimaxStrategy(depth, Utility::multiHeuristic));
+                return new BotPlayer(nickname, new MinimaxStrategy(depth, utility));
             case "fjp minimax":
-                return  new BotPlayer(nickname, new MTMinimaxStrategy(depth, Utility::multiHeuristic));
+                return  new BotPlayer(nickname, new MTMinimaxStrategy(depth, utility));
+            case "profile":
+                return new BotPlayer(nickname, new ProfileStrategy(depth, profile, utility));
             default:
-                return new BotPlayer(nickname, new RandomStrategy());
+                throw new IllegalArgumentException();
         }
     }
 
@@ -205,6 +223,9 @@ public class Client extends Thread {
         gui.updateGUI(board, response.getState(), response.getOpponent().getNickname());
         if (response.getState() != GameState.END) {
             if (nowMoveByMe(player, response.getState())) {
+                if (prevBoard.length() > 0) {
+                    //profile.addOrInc(prevBoard, response.getBoard().toString());
+                }
                 final Point move = player.move(board);
                 ClientController.sendRequest(connection, MovePlayerRequest.toDto(response.getGameId(), move));
                 try {
@@ -212,6 +233,8 @@ public class Client extends Thread {
                 } catch (final InterruptedException e) {
                     e.printStackTrace();
                 }
+            } else {
+                prevBoard = response.getBoard().toString();
             }
         } else {
             if (gui.getClass() == WindowGUI.class) {
@@ -240,6 +263,7 @@ public class Client extends Thread {
         player.setColor(response.getColor());
         log.info("color={}", response.getColor());
         System.out.println("Game " + gamesCounter + " color=" + response.getColor());
+        profile.setOpponentState(revertColor(player.getColor()));
         //System.out.println(player.getNickname() + " " + response.getColor());
     }
 

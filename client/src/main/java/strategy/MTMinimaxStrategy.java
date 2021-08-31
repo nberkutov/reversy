@@ -6,7 +6,6 @@ import lombok.SneakyThrows;
 import models.base.Cell;
 import models.base.PlayerColor;
 import models.base.interfaces.GameBoard;
-import models.board.ArrayBoard;
 import models.board.Point;
 
 import java.util.ArrayList;
@@ -14,7 +13,6 @@ import java.util.List;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RecursiveTask;
 import java.util.function.ToDoubleBiFunction;
-import java.util.function.ToIntBiFunction;
 
 public class MTMinimaxStrategy implements Strategy {
     private static final class MinimaxValue extends RecursiveTask<Double> {
@@ -61,7 +59,6 @@ public class MTMinimaxStrategy implements Strategy {
                 final GameBoard copy = new ArrayBoard(board);
                 BoardLogic.makeMove(copy, move, Cell.valueOf(simColor));
                 final MinimaxValue val = new MinimaxValue(forkJoinPool, copy, depth - 1, revert(color), utility);
-                //forkJoinPool.submit(val);
                 val.fork();
                 subtasks.add(val);
             }
