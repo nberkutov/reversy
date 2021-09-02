@@ -1,5 +1,6 @@
 package client;
 
+import base.BotType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import dto.request.player.CreatePlayerRequest;
@@ -13,15 +14,13 @@ import dto.response.player.MessageResponse;
 import dto.response.player.SearchGameResponse;
 import exception.GameErrorCode;
 import exception.ServerException;
-import gui.EmptyGUI;
+import gui.GUIType;
 import gui.GameGUI;
-import gui.TextGUI;
 import gui.WindowGUI;
 import lombok.extern.slf4j.Slf4j;
 import models.ClientConnection;
 import models.base.GameState;
 import models.base.PlayerColor;
-import models.base.interfaces.GameBoard;
 import models.board.Point;
 import org.apache.log4j.FileAppender;
 import org.apache.log4j.Logger;
@@ -29,15 +28,15 @@ import org.apache.log4j.RollingFileAppender;
 import parser.LogParser;
 import player.Player;
 import profile.Profile;
-import selfplay.BotPlayer;
-import strategy.*;
+import models.ArrayBoard;
+import strategy.Utility;
 import utils.JsonService;
+import utils.Utils;
 
 import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.Socket;
-import java.util.function.ToDoubleBiFunction;
 
 @Slf4j
 public class Client extends Thread {
@@ -47,6 +46,7 @@ public class Client extends Thread {
     private final GameGUI gui;
     private final long delay;
     private final Profile profile;
+
     private String prevBoard;
     private int gamesCounter;
 
@@ -66,20 +66,27 @@ public class Client extends Thread {
             final String nickname = properties.getNickname();
             final int depth = properties.getDepth().orElse(1);
             final Profile profile = new LogParser().parse(properties.getProfilePath().orElse("profile.log"));
-            final Player player = getPlayer(botType, nickname, depth, Utility::multiHeuristic, profile);
+            final Player player =
+                    Player.getBotPlayer(BotType.valueOf(botType), nickname, depth, Utility::multiHeuristic, profile);
             final PlayerColor color = PlayerColor.valueOf(properties.getPlayerColor().orElse("NONE"));
             player.setColor(color);
-            final GameGUI gameGUI = getGUI(properties.getGuiType().orElse("empty"));
+            final GameGUI gameGUI = GameGUI.getGUI(GUIType.valueOf(properties.getGuiType().orElse("empty")));
             final int numberOfGames = properties.getNumberOfGames().orElse(1);
             initLogger(properties);
-            final Client client = new Client(host, port, player, gameGUI, numberOfGames, properties.getWindowDelay().orElse(0L), profile);
+            final Client client =
+                    new Client(host, port, player, gameGUI, numberOfGames, properties.getWindowDelay().orElse(0L), profile);
             client.start();
         } catch (final IOException | ServerException e) {
             e.printStackTrace();
         }
     }
 
-    public Client(final String ip, final int port, final Player player, final GameGUI gui, final int numberOfGames, final long delay, final Profile profile)
+    public Client(
+            final String ip, final int port,
+            final Player player, final GameGUI gui,
+            final int numberOfGames, final long delay,
+            final Profile profile
+    )
             throws ServerException {
         try {
             prevBoard = "";
@@ -114,40 +121,6 @@ public class Client extends Thread {
         clientLogsFileAppender.activateOptions();
     }
 
-    private static Player getPlayer(
-            final String playerType,
-            final String nickname,
-            final int depth,
-            final ToDoubleBiFunction<GameBoard, PlayerColor> utility,
-            final Profile profile
-    ) {
-        switch (playerType) {
-            case "ab pruning":
-                return new BotPlayer(nickname, new ABPruningStrategy(depth, utility));
-            case "expectimax":
-                return new BotPlayer(nickname, new ExpectimaxStrategy(depth, utility));
-            case "minimax":
-                return new BotPlayer(nickname, new MinimaxStrategy(depth, utility));
-            case "fjp minimax":
-                return  new BotPlayer(nickname, new MTMinimaxStrategy(depth, utility));
-            case "profile":
-                return new BotPlayer(nickname, new ProfileStrategy(depth, profile, utility));
-            default:
-                throw new IllegalArgumentException();
-        }
-    }
-
-    private static GameGUI getGUI(final String guiType) {
-        switch (guiType) {
-            case "window":
-                return new WindowGUI();
-            case "console":
-                return new TextGUI();
-            default:
-                return new EmptyGUI();
-        }
-    }
-
     private static boolean nowMoveByMe(final Player player, final GameState state) {
         if (player.getColor() == PlayerColor.WHITE && state == GameState.WHITE_MOVE) {
             return true;
@@ -156,7 +129,7 @@ public class Client extends Thread {
     }
 
     private void actionMessage(final MessageResponse response) {
-        //log.info("actionMessage {}", response);
+        log.info("actionMessage {}", response);
     }
 
     private void actionByResponseFromServer(final GameResponse gameResponse)
@@ -224,7 +197,7 @@ public class Client extends Thread {
         if (response.getState() != GameState.END) {
             if (nowMoveByMe(player, response.getState())) {
                 if (prevBoard.length() > 0) {
-                    //profile.addOrInc(prevBoard, response.getBoard().toString());
+                    profile.addOrInc(prevBoard, response.getBoard().toString());
                 }
                 final Point move = player.move(board);
                 ClientController.sendRequest(connection, MovePlayerRequest.toDto(response.getGameId(), move));
@@ -252,7 +225,7 @@ public class Client extends Thread {
                 }
                 JOptionPane.showMessageDialog(new JFrame(), msg);
             }
-            player.setColor(revertColor(player.getColor()));
+            player.setColor(Utils.reverse(player.getColor()));
             if (gamesCounter++ < numberOfGames - 1) {
                 ClientController.sendRequest(connection, new WantPlayRequest(player.getColor()));
             }
@@ -262,19 +235,6 @@ public class Client extends Thread {
     private void actionStartGame(final SearchGameResponse response) {
         player.setColor(response.getColor());
         log.info("color={}", response.getColor());
-        System.out.println("Game " + gamesCounter + " color=" + response.getColor());
-        profile.setOpponentState(revertColor(player.getColor()));
-        //System.out.println(player.getNickname() + " " + response.getColor());
-    }
-
-    private PlayerColor revertColor(final PlayerColor playerColor) {
-        switch (playerColor) {
-            case WHITE:
-                return PlayerColor.BLACK;
-            case BLACK:
-                return PlayerColor.WHITE;
-            default:
-                return PlayerColor.NONE;
-        }
+        profile.setOpponentState(Utils.reverse(player.getColor()));
     }
 }

@@ -1,5 +1,6 @@
 package strategy;
 
+import base.Strategy;
 import exception.ServerException;
 import models.base.PlayerColor;
 import models.base.interfaces.GameBoard;

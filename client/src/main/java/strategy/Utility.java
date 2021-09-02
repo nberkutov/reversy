@@ -6,6 +6,7 @@ import models.base.Cell;
 import models.base.PlayerColor;
 import models.base.interfaces.GameBoard;
 import models.board.Point;
+import utils.Utils;
 
 public class Utility {
     private static final Point[] cornerPoints = {
@@ -15,38 +16,24 @@ public class Utility {
             new Point(7, 7)
     };
 
-    public static int simple(final GameBoard board, final PlayerColor playerColor) {
-        return Math.abs(board.getCountWhiteCells() - board.getCountBlackCells());
-    }
-
-    public static int advanced(final GameBoard board, final PlayerColor playerColor) {
-        final int cornerPawnWeight = 20;
-        int estimation = 0;
-        try {
-            for (final Point point : cornerPoints) {
-                if (board.getCell(point) == Cell.valueOf(playerColor)) {
-                    estimation += cornerPawnWeight;
-                }
-            }
-        } catch (final ServerException e) {
-            e.printStackTrace();
-        }
-        int pawnDifference = board.getCountBlackCells() - board.getCountWhiteCells();
-        if (playerColor == PlayerColor.WHITE) {
-            pawnDifference *= -1;
-        }
-        estimation += pawnDifference;
-        return estimation;
-    }
-
+    /**
+     * Комбинация эвристик, учитывающая количество фишек, занятых углов, мобильность.
+     * @param board доска игры
+     * @param playerColor игрок, для которого считаем полезность.
+     * @return Полезность состояния (доски)
+     */
     public static double multiHeuristic(final GameBoard board, final PlayerColor playerColor) {
         return coinParityHeuristic(board, playerColor)
                 +  mobilityHeuristic(board, playerColor)
                 +  10 * countCapturedCorners(board, playerColor);
     }
 
-    // Coin Parity Heuristic Value =
-    //	100 * (Max Player Coins - Min Player Coins ) / (Max Player Coins + Min Player Coins)
+    /**
+     * Эвристика, основанная на количестве фишек игрока.
+     * @param board доска игры
+     * @param maxPlayer игрок, для которого считаем полезность.
+     * @return Полезность состояния (доски)
+     */
     public static double coinParityHeuristic(final GameBoard board, final PlayerColor maxPlayer) {
         final int maxPlayerCoins;
         final int minPlayerCoins;
@@ -60,10 +47,12 @@ public class Utility {
         return 100 * (double) (maxPlayerCoins - minPlayerCoins) / (maxPlayerCoins + minPlayerCoins);
     }
 
-    // Mobility Heuristic Value =
-    //		100 * (Max Player Moves - Min Player Moves) / (Max Player Moves + Min Player Moves)
-    //else
-    //	Mobility Heuristic Value = 0
+    /**
+     * Эвристика, основанная на количестве доступных для игрока ходов.
+     * @param board доска игры
+     * @param maxPlayer игрок, для которого считаем полезность.
+     * @return Полезность состояния (доски)
+     */
     public static double mobilityHeuristic(final GameBoard board, final PlayerColor maxPlayer) {
         double val = 0;
         try {
@@ -85,17 +74,19 @@ public class Utility {
         return val;
     }
 
-    //if ( Max Player Corners + Min Player Corners != 0)
-    //	Corner Heuristic Value =
-    //		100 * (Max Player Corners - Min Player Corners) / (Max Player Corners + Min Player Corners)
-    //else
-    //	Corner Heuristic Value = 0
+    /**
+     * Эвристика, основанная на количестве занятых углов.
+     * @param board доска игры
+     * @param maxPlayer игрок, для которого считаем полезность.
+     * @return Полезность состояния (доски)
+     */
     public static double cornerHeuristic(final GameBoard board, final PlayerColor maxPlayer) {
         final int maxPlayerCorners = countCapturedCorners(board, maxPlayer);
-        final int minPlayerCorners = countCapturedCorners(board, revert(maxPlayer));
+        final int minPlayerCorners = countCapturedCorners(board, Utils.reverse(maxPlayer));
         return 100 * (double) (maxPlayerCorners - minPlayerCorners) / (maxPlayerCorners + minPlayerCorners);
     }
 
+    // Подсчет занятых углов
     private static int countCapturedCorners(final GameBoard board, final PlayerColor playerColor) {
         int counter = 0;
         try {
@@ -109,20 +100,6 @@ public class Utility {
             e.printStackTrace();
         }
         return 0;
-    }
-
-
-    private static PlayerColor revert(final PlayerColor color) {
-        switch (color) {
-            case WHITE:
-                return PlayerColor.BLACK;
-
-            case BLACK:
-                return PlayerColor.WHITE;
-
-            default:
-                return color;
-        }
     }
 }
 

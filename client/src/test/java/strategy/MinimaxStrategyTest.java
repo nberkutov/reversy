@@ -2,6 +2,7 @@ package strategy;
 
 import exception.ServerException;
 import logic.BoardLogic;
+import models.ArrayBoard;
 import models.base.Cell;
 import models.base.PlayerColor;
 import models.base.interfaces.GameBoard;
@@ -22,7 +23,7 @@ class MinimaxStrategyTest {
         minimaxPlayer.setColor(PlayerColor.WHITE);
         randomBot.setColor(PlayerColor.BLACK);
 
-        final GameBoard board = new ArrayBoard("wwwwwwwbwbwwbwwwwwbwwbwbwwbwbwwbwwwbwwwbwwbbbwwewbwwwbwebbwbbbbe");
+        final GameBoard board = new models.ArrayBoard("wwwwwwwbwbwwbwwwwwbwwbwbwwbwbwwbwwwbwwwbwwbbbwwewbwwwbwebbwbbbbe");
 
         try {
             Point move = minimaxPlayer.move(board);

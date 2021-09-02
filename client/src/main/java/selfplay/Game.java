@@ -1,6 +1,5 @@
 package selfplay;
 
-
 import exception.ServerException;
 import logic.BoardLogic;
 import player.Player;
@@ -11,13 +10,16 @@ import models.board.Point;
 
 import java.util.List;
 
-public class MyGame {
+public class Game {
     private final Player blackPlayer;
     private final Player whitePlayer;
     private final GameBoard board;
     private GameState gameState;
 
-    public MyGame(final Player blackPlayer, final Player whitePlayer, final GameBoard board) {
+    /**
+     * Игра для SelfPlay.
+     */
+    public Game(final Player blackPlayer, final Player whitePlayer, final GameBoard board) {
         this.blackPlayer = blackPlayer;
         this.whitePlayer = whitePlayer;
         this.board = board;
@@ -42,7 +44,6 @@ public class MyGame {
             }
             final Point move = blackPlayer.move(board);
             BoardLogic.makeMove(board, move, Cell.valueOf(blackPlayer.getColor()));
-
         } else if (gameState == GameState.WHITE_MOVE) {
             gameState = GameState.BLACK_MOVE;
             if (whiteMoves.isEmpty()) {

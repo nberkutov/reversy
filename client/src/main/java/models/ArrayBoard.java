@@ -1,4 +1,4 @@
-package strategy;
+package models;
 
 import exception.GameErrorCode;
 import exception.ServerException;
@@ -9,6 +9,9 @@ import models.board.Point;
 import java.util.Arrays;
 import java.util.Collection;
 
+/**
+ * Реализация доски на массиве.
+ */
 public class ArrayBoard implements GameBoard {
     private static final int SIZE = 8;
     private final Cell[] board;
@@ -56,6 +59,9 @@ public class ArrayBoard implements GameBoard {
         }
     }
 
+    /**
+     * Создание доски из строки длиной в 64 символа ('e', 'w', 'b').
+     */
     public ArrayBoard(final String boardString) {
         if (boardString.length() < 64) {
             throw new IllegalArgumentException("Board string length is less than 64.");
@@ -67,7 +73,7 @@ public class ArrayBoard implements GameBoard {
         for (int i = 0; i < boardString.length(); i++) {
             final char c = boardString.charAt(i);
             switch (c) {
-                case 'e':
+                case 'c':
                     board[i] = Cell.EMPTY;
                     break;
                 case 'w':
@@ -88,16 +94,16 @@ public class ArrayBoard implements GameBoard {
 
     @Override
     public int getSize() {
-        return 8;
+        return SIZE;
     }
 
     @Override
-    public Cell getCell(final int x, final int y) throws ServerException {
+    public Cell getCell(final int x, final int y) {
         return board[get1d(x, y)];
     }
 
     @Override
-    public Cell getCell(final Point point) throws ServerException {
+    public Cell getCell(final Point point) {
         return board[get1d(point.getX(), point.getY())];
     }
 

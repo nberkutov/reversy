@@ -12,20 +12,22 @@ import models.board.Point;
 import utils.Utils;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.RecursiveTask;
 import java.util.function.ToDoubleBiFunction;
 
-public class MTMinimaxStrategy implements Strategy {
-    private static final class MinimaxValue extends RecursiveTask<Double> {
+public class MTExpectimaxStrategy implements Strategy {
+    private static class ExpectimaxValue extends RecursiveTask<Double> {
         private final GameBoard board;
         private final int depth;
         private final PlayerColor color;
         private final ToDoubleBiFunction<GameBoard, PlayerColor> utility;
         private final ForkJoinPool forkJoinPool;
 
-        public MinimaxValue(
+        public ExpectimaxValue(
                 final ForkJoinPool forkJoinPool,
                 final GameBoard board,
                 final int depth,
@@ -42,10 +44,10 @@ public class MTMinimaxStrategy implements Strategy {
         @SneakyThrows
         @Override
         protected Double compute() {
-            return minimax(board, depth, color);
+            return expectimax(board, depth, color);
         }
 
-        private double minimax(final GameBoard board, final int depth, final PlayerColor currentColor)
+        private double expectimax(final GameBoard board, final int depth, final PlayerColor currentColor)
                 throws ServerException {
             final ToDoubleBiFunction<GameBoard, PlayerColor> estimateFunc;
             if (currentColor == color) {
@@ -53,26 +55,40 @@ public class MTMinimaxStrategy implements Strategy {
             } else {
                 estimateFunc = (b, c) -> -utility.applyAsDouble(b, c);
             }
+
             final PlayerColor winner = Utils.getEndOfGame(board);
             if (depth == 0 || winner != PlayerColor.NONE) {
                 return estimateFunc.applyAsDouble(board, currentColor);
             }
+
             final List<Point> availableMoves = BoardLogic.getAvailableMoves(board, currentColor);
-            final List<MinimaxValue> subtasks = new ArrayList<>();
-            double maxWin = Integer.MIN_VALUE;
+            if (currentColor == color) {
+                final List<ExpectimaxValue> subtasks = new ArrayList<>();
+                for (final Point move : availableMoves) {
+                    final GameBoard copy = new ArrayBoard(board);
+                    BoardLogic.makeMove(copy, move, Cell.valueOf(currentColor));
+                    final ExpectimaxValue val =
+                            new ExpectimaxValue(forkJoinPool, board, depth - 1, Utils.reverse(color), utility);
+                    val.fork();
+                    subtasks.add(val);
+                }
+                return subtasks.stream().mapToDouble(ForkJoinTask::join).max().orElse(Integer.MIN_VALUE);
+            }
+
+            double win = 0;
+            final List<ExpectimaxValue> subtasks = new ArrayList<>();
             for (final Point move : availableMoves) {
                 final GameBoard copy = new ArrayBoard(board);
                 BoardLogic.makeMove(copy, move, Cell.valueOf(currentColor));
-                final MinimaxValue val =
-                        new MinimaxValue(forkJoinPool, copy, depth - 1, Utils.reverse(color), utility);
+                final ExpectimaxValue val =
+                        new ExpectimaxValue(forkJoinPool, board, depth - 1, Utils.reverse(color), utility);
                 val.fork();
                 subtasks.add(val);
             }
-            for (final MinimaxValue task : subtasks) {
-                final double win = task.join();
-                maxWin = Math.max(win, maxWin);
+            for (final ExpectimaxValue task : subtasks) {
+                win += task.join();
             }
-            return maxWin;
+            return win / availableMoves.size();
         }
     }
 
@@ -82,41 +98,41 @@ public class MTMinimaxStrategy implements Strategy {
     private PlayerColor color;
 
     /**
-     * Алгоритм Минимакс с использованием ForkJoin Pool.
-     *
-     * @param depth   максимальная глубина дерева.
-     * @param utility функция полезности.
+     * Expectimax c ForkJoinPool.
+     * @param depth глубина
+     * @param utility функция полезности
      */
-    public MTMinimaxStrategy(final int depth, final ToDoubleBiFunction<GameBoard, PlayerColor> utility) {
+    public MTExpectimaxStrategy(final int depth, final ToDoubleBiFunction<GameBoard, PlayerColor> utility) {
         this.depth = depth;
         this.utility = utility;
         forkJoinPool = new ForkJoinPool(6);
     }
 
-    public void setColor(final PlayerColor color) {
-        this.color = color;
-    }
-
     @Override
     public Point move(final GameBoard board) throws ServerException {
         final List<Point> moves = BoardLogic.getAvailableMoves(board, color);
-        double maxWin = Double.MIN_VALUE;
+        double maxWin = Integer.MIN_VALUE;
         Point maxMove = moves.get(0);
-        final List<MinimaxValue> subtasks = new ArrayList<>();
+        final List<ExpectimaxValue> subtasks = new ArrayList<>();
         for (final Point move : moves) {
             final GameBoard boardCopy = new ArrayBoard(board);
             BoardLogic.makeMove(boardCopy, move, Cell.valueOf(color));
-            final MinimaxValue val = new MinimaxValue(forkJoinPool, boardCopy, depth, Utils.reverse(color), utility);
-            forkJoinPool.submit(val);
+            final ExpectimaxValue val = new ExpectimaxValue(forkJoinPool, board, depth, color, utility);
+            val.fork();
             subtasks.add(val);
         }
-        for (final MinimaxValue task : subtasks) {
-            final double win = task.join();
+        for (int  i = 0; i < subtasks.size(); i++) {
+            final double win = subtasks.get(i).join();
             if (win > maxWin) {
                 maxWin = win;
-                maxMove = moves.get(subtasks.indexOf(task));
+                maxMove = moves.get(i);
             }
         }
         return maxMove;
+    }
+
+    @Override
+    public void setColor(final PlayerColor color) {
+        this.color = color;
     }
 }

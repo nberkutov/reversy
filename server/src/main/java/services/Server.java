@@ -59,8 +59,7 @@ public class Server extends Thread implements AutoCloseable {
             try (final Server server = new Server(properties)) {
                 server.start();
                 server.join();
-                //handleCommands(server);
-            } catch (InterruptedException e) {
+            } catch (final InterruptedException e) {
                 e.printStackTrace();
             }
         } catch (final IOException e) {

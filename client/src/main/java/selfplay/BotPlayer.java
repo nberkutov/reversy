@@ -4,7 +4,7 @@ import exception.ServerException;
 import models.base.interfaces.GameBoard;
 import models.board.Point;
 import player.Player;
-import strategy.Strategy;
+import base.Strategy;
 
 public class BotPlayer extends Player {
     public BotPlayer(final String nickname, final Strategy strategy) {

@@ -3,6 +3,7 @@ package selfplay;
 import exception.ServerException;
 import gui.GameGUI;
 import gui.WindowGUI;
+import models.ArrayBoard;
 import models.base.GameState;
 import models.base.PlayerColor;
 import models.base.interfaces.GameBoard;
@@ -14,16 +15,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class MySelfPlay {
-    private static final int GAMES_COUNT = 1;
+public class SelfPlay {
+    private static final int GAMES_COUNT = 10;
     private static final long DELAY = 0L;
 
     public static void main(final String[] args) {
         int blackWins = 0;
         int whiteWins = 0;
 
-        final Player player1 = new BotPlayer("Minimax1", new ExpectimaxStrategy(3, Utility::advanced));
-        final Player player2 = new BotPlayer("Minimax2", new ExpectimaxStrategy(3, Utility::advanced));
+        final Player player1 = new BotPlayer("Minimax1", new MTMinimaxStrategy(3, Utility::multiHeuristic));
+        final Player player2 = new BotPlayer("Minimax2", new RandomStrategy());
 
         final GameBoard board = new ArrayBoard();
 
@@ -34,7 +35,7 @@ public class MySelfPlay {
         final List<Long> moveTime = new ArrayList<>();
         for (int i = 0; i < GAMES_COUNT; i++) {
             System.out.printf("Game %d started\n", i);
-            final MyGame game = new MyGame(player1, player2, new ArrayBoard());
+            final Game game = new Game(player1, player2, new ArrayBoard());
             GameBoard gameBoard = board;
             final StopWatch stopWatch = new StopWatch();
             try {
@@ -55,7 +56,6 @@ public class MySelfPlay {
                 } else {
                     whiteWins++;
                 }
-                //logger.info(String.format("black: %d white: %d", blackWins, whiteWins));
             } catch (final ServerException e) {
                 e.printStackTrace();
             }
