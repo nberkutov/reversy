@@ -15,7 +15,6 @@ public class LogParser {
     private GameState playerState;
 
     private String prevLine;
-    private int games;
 
     public LogParser() {
         blackMovesFreq = new HashMap<>();
@@ -23,21 +22,9 @@ public class LogParser {
         playerState = GameState.BLACK_MOVE;
         opponentState = GameState.WHITE_MOVE;
         prevLine = new ArrayBoard().toString();
-        games = 0;
     }
 
-    public static void main(final String[] args) {
-        final LogParser parser = new LogParser();
-        final Profile profile = Profile.parse("/home/nikita/client/commonLog.log");
-        //profile.save("/home/nikita/client/profile.dat");
-        /*try {
-            final Profile profile = Profile.fromFile("/home/nikita/client/profile.dat");
-        } catch (final Exception e) {
-            e.printStackTrace();
-        }*/
-    }
-
-    public Profile parse(final String path) {
+    public Profile parseProfile(final String path) {
         final File file = new File(path);
         try (final BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;

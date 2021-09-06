@@ -29,6 +29,7 @@ import parser.LogParser;
 import player.Player;
 import profile.Profile;
 import models.ArrayBoard;
+import profile.ProfileService;
 import strategy.Utility;
 import utils.JsonService;
 import utils.Utils;
@@ -65,7 +66,7 @@ public class Client extends Thread {
             final String botType = properties.getBotType().orElse("random");
             final String nickname = properties.getNickname();
             final int depth = properties.getDepth().orElse(1);
-            final Profile profile = new LogParser().parse(properties.getProfilePath().orElse("profile.log"));
+            final Profile profile = ProfileService.parse(properties.getProfilePath().orElse("profile.log"));
             final Player player =
                     Player.getBotPlayer(BotType.valueOf(botType), nickname, depth, Utility::multiHeuristic, profile);
             final PlayerColor color = PlayerColor.valueOf(properties.getPlayerColor().orElse("NONE"));

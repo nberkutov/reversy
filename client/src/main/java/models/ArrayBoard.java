@@ -198,30 +198,6 @@ public class ArrayBoard implements GameBoard {
         return null;
     }
 
-    public String compress() {
-        Cell prev = Cell.EMPTY;
-        Cell current;
-        int counter = 0;
-        final StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
-                current = board[get1d(j, i)];
-                if (current == prev) {
-                    counter++;
-                } else {
-                    if (counter > 1) {
-                        sb.append(counter).append(getCellChar(prev));
-                    } else {
-                        sb.append(getCellChar(prev));
-                    }
-                    counter = 0;
-                }
-                prev = current;
-            }
-        }
-        return sb.toString();
-    }
-
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder();
@@ -234,7 +210,7 @@ public class ArrayBoard implements GameBoard {
         return sb.toString();
     }
 
-    public static int get1d(final int x, final int y) {
+    private static int get1d(final int x, final int y) {
         if (x < 0 || y < 0) {
             throw new IllegalArgumentException(String.format("Illegal coordinates: (%d, %d) ", x, y));
         }

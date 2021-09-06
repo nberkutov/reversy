@@ -83,18 +83,6 @@ public class Server extends Thread implements AutoCloseable {
         controllersFileAppender.activateOptions();
     }
 
-    private static void handleCommands(final Server server) {
-        while (true) {
-            try {
-                final String input = scanner.nextLine().trim().toLowerCase();
-                final Command command = Command.parse(input, server, SERVER_FILE);
-                command.execute();
-            } catch (final Exception e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
     public Server(final int port, final DataBase database) {
         this.port = port;
         Server.database = database;
