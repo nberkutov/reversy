@@ -17,7 +17,11 @@ import models.game.Game;
 import models.game.GameResult;
 import models.game.Room;
 import models.player.User;
+import services.utils.StatisticUtils;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
 import java.util.Random;
 
 @Slf4j
@@ -107,8 +111,32 @@ public class GameService extends DataBaseService {
         log.info("GameEnd {} {}", game.getId(), result);
         game.setResult(result);
         calculateStatistic(result);
+        try {
+            saveStatistic();
+        } catch (final IOException e) {
+            log.error("Saving statistics failed: {}", e.getMessage());
+        }
         PlayerService.setPlayerStateNone(game.getBlackUser());
         PlayerService.setPlayerStateNone(game.getWhiteUser());
+    }
+
+    private static void saveStatistic() throws IOException {
+        final String dirPath = "stats/"; //properties.getStatsPath().orElse("stats");
+        final File statsDir = new File(dirPath);
+        if (!statsDir.exists() && !statsDir.mkdirs()) {
+            throw new IOException(String.format("Не удалось создать директорию %s", dirPath));
+        }
+        final File statsFile = new File(dirPath + "stats.csv");
+        if (!statsFile.exists() && !statsFile.createNewFile()) {
+            throw new IOException(String.format("Не удалось создать файл %s", statsFile));
+        }
+        final List<User> userList = Server.database.getAllPlayers();
+        try {
+            StatisticUtils.saveStatistic(userList, statsFile.getAbsolutePath());
+            log.info("Statistic save in {}", statsFile.getAbsolutePath());
+        } catch (final ServerException e) {
+            log.error("Cant save statistic", e);
+        }
     }
 
     private static void calculateStatistic(final GameResult gameResult) {

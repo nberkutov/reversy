@@ -1,5 +1,6 @@
 package client;
 
+import base.BotType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import dto.request.player.CreatePlayerRequest;
@@ -13,21 +14,27 @@ import dto.response.player.MessageResponse;
 import dto.response.player.SearchGameResponse;
 import exception.GameErrorCode;
 import exception.ServerException;
-import gui.EmptyGUI;
+import gui.GUIType;
 import gui.GameGUI;
-import gui.TextGUI;
 import gui.WindowGUI;
 import lombok.extern.slf4j.Slf4j;
 import models.ClientConnection;
-import models.Player;
 import models.base.GameState;
 import models.base.PlayerColor;
-import models.base.interfaces.GameBoard;
 import models.board.Point;
-import models.players.SmartBot;
-import models.strategies.RandomStrategy;
+import org.apache.log4j.FileAppender;
+import org.apache.log4j.Logger;
+import org.apache.log4j.RollingFileAppender;
+import parser.LogParser;
+import player.Player;
+import profile.Profile;
+import models.ArrayBoard;
+import profile.ProfileService;
+import strategy.Utility;
 import utils.JsonService;
+import utils.Utils;
 
+import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.Socket;
@@ -38,13 +45,17 @@ public class Client extends Thread {
     private final ClientConnection connection;
     private final int numberOfGames;
     private final GameGUI gui;
+    private final long delay;
+    private final Profile profile;
 
+    private String prevBoard;
     private int gamesCounter;
 
     public static void main(final String[] args) {
         if (args.length == 0) {
             System.out.println("Config file missed.");
         }
+
         final File configFile = new File(args[0]);
         try {
             final ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
@@ -52,48 +63,63 @@ public class Client extends Thread {
             final ClientProperties properties = mapper.readValue(configFile, ClientProperties.class);
             final String host = properties.getHost().orElse("127.0.0.1");
             final int port = properties.getPort().orElse(8080);
-            final Player player = getPlayer(properties.getBotType().orElse("random"), properties.getNickname());
+            final String botType = properties.getBotType().orElse("random");
+            final String nickname = properties.getNickname();
+            final int depth = properties.getDepth().orElse(1);
+            final Profile profile = ProfileService.parse(properties.getProfilePath().orElse("profile.log"));
+            final Player player =
+                    Player.getBotPlayer(BotType.valueOf(botType), nickname, depth, Utility::multiHeuristic, profile);
             final PlayerColor color = PlayerColor.valueOf(properties.getPlayerColor().orElse("NONE"));
             player.setColor(color);
-            final GameGUI gameGUI = getGUI(properties.getGuiType().orElse("empty"));
+            final GameGUI gameGUI = GameGUI.getGUI(GUIType.valueOf(properties.getGuiType().orElse("empty")));
             final int numberOfGames = properties.getNumberOfGames().orElse(1);
-            final Client client = new Client(host, port, player, gameGUI, numberOfGames);
+            initLogger(properties);
+            final Client client =
+                    new Client(host, port, player, gameGUI, numberOfGames, properties.getWindowDelay().orElse(0L), profile);
             client.start();
         } catch (final IOException | ServerException e) {
             e.printStackTrace();
         }
     }
 
-    public Client(final String ip, final int port, final Player player, final GameGUI gui, final int numberOfGames)
+    public Client(
+            final String ip, final int port,
+            final Player player, final GameGUI gui,
+            final int numberOfGames, final long delay,
+            final Profile profile
+    )
             throws ServerException {
         try {
+            prevBoard = "";
+            this.profile = profile;
             this.player = player;
             final Socket socket = new Socket(ip, port);
             this.connection = new ClientConnection(socket);
             this.gui = gui;
             this.numberOfGames = numberOfGames;
             gamesCounter = 0;
+            this.delay = delay;
         } catch (final IOException e) {
             throw new ServerException(GameErrorCode.SERVER_NOT_STARTED);
         }
     }
 
-    private static Player getPlayer(final String playerType, final String nickname) {
-        switch (playerType) {
-            default:
-                return new SmartBot(nickname, new RandomStrategy());
-        }
-    }
+    private static void initLogger(final ClientProperties properties) throws IOException {
+        final FileAppender clientLogsFileAppender = (RollingFileAppender) Logger.getLogger("client")
+                .getAllAppenders().nextElement();
+        final String logDir = properties.getLogPath().orElse("tmp");
 
-    private static GameGUI getGUI(final String guiType) {
-        switch (guiType) {
-            case "window":
-                return new WindowGUI();
-            case "console":
-                return new TextGUI();
-            default:
-                return new EmptyGUI();
+        final String servicesLogFileName = logDir + File.separator + properties.getLogFile().orElse("client.log");
+        final File file = new File(servicesLogFileName);
+        final File dir = new File(logDir);
+        if (!dir.exists() && !dir.mkdirs()) {
+            throw new RuntimeException("Не удалось создать директорию " + logDir);
         }
+        if (!file.exists() && !file.createNewFile()) {
+            throw new RuntimeException("Не удалось создать файл");
+        }
+        clientLogsFileAppender.setFile(servicesLogFileName);
+        clientLogsFileAppender.activateOptions();
     }
 
     private static boolean nowMoveByMe(final Player player, final GameState state) {
@@ -126,18 +152,17 @@ public class Client extends Thread {
                 actionMessage((MessageResponse) gameResponse);
                 break;
             default:
-                log.error("Unknown response {}", gameResponse);
+                break;
         }
     }
 
     @Override
     public void run() {
-        log.info("Debug connect {}", connection);
         new Thread(() -> {
             try {
                 Thread.sleep(10);
                 ClientController.sendRequest(connection, new CreatePlayerRequest(player.getNickname()));
-            } catch (final InterruptedException | IOException | ServerException e) {
+            } catch (final IOException | ServerException | InterruptedException e) {
                 e.printStackTrace();
             }
         }).start();
@@ -166,21 +191,42 @@ public class Client extends Thread {
         ClientController.sendRequest(connection, new WantPlayRequest(player.getColor()));
     }
 
-    private void actionPlaying(final GameBoardResponse response) throws ServerException, IOException, InterruptedException {
-        log.debug("actionPlaying {} {}", connection.getSocket().getLocalPort(), response);
-        final GameBoard board = response.getBoard();
+    private void actionPlaying(final GameBoardResponse response) throws ServerException, IOException {
+        final ArrayBoard board = new ArrayBoard(response.getBoard());
+        log.info("{} {} {}", response.getGameId(), response.getState(), board);
         gui.updateGUI(board, response.getState(), response.getOpponent().getNickname());
         if (response.getState() != GameState.END) {
             if (nowMoveByMe(player, response.getState())) {
-                Thread.sleep(100);
+                if (prevBoard.length() > 0) {
+                    profile.addOrInc(prevBoard, response.getBoard().toString());
+                }
                 final Point move = player.move(board);
                 ClientController.sendRequest(connection, MovePlayerRequest.toDto(response.getGameId(), move));
+                try {
+                    Thread.sleep(delay);
+                } catch (final InterruptedException e) {
+                    e.printStackTrace();
+                }
             } else {
-                player.triggerMoveOpponent(board);
+                prevBoard = response.getBoard().toString();
             }
         } else {
-            player.triggerGameEnd(response.getState(), board);
-            player.setColor(revertColor(player.getColor()));
+            if (gui.getClass() == WindowGUI.class) {
+                String msg;
+                if (board.getCountBlackCells() > board.getCountWhiteCells()) {
+                    msg = "Победа черных";
+                    if (player.getColor() == PlayerColor.BLACK) {
+                        msg += " (Вы)";
+                    }
+                } else {
+                    msg = "Победа белых";
+                    if (player.getColor() == PlayerColor.WHITE) {
+                        msg += " (Вы)";
+                    }
+                }
+                JOptionPane.showMessageDialog(new JFrame(), msg);
+            }
+            player.setColor(Utils.reverse(player.getColor()));
             if (gamesCounter++ < numberOfGames - 1) {
                 ClientController.sendRequest(connection, new WantPlayRequest(player.getColor()));
             }
@@ -188,19 +234,8 @@ public class Client extends Thread {
     }
 
     private void actionStartGame(final SearchGameResponse response) {
-        log.debug("actionStartGame {}", response);
         player.setColor(response.getColor());
-        System.out.println(player.getNickname() + " " + response.getColor());
-    }
-
-    private PlayerColor revertColor(final PlayerColor playerColor) {
-        switch (playerColor) {
-            case WHITE:
-                return PlayerColor.BLACK;
-            case BLACK:
-                return PlayerColor.WHITE;
-            default:
-                return PlayerColor.NONE;
-        }
+        log.info("color={}", response.getColor());
+        profile.setOpponentState(Utils.reverse(player.getColor()));
     }
 }

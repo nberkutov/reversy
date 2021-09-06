@@ -1,5 +1,4 @@
 port: 8080
-numberOfGames: 10
 statsPath: "/home/nikita/server/stats/"
 logPath: "/home/nikita/server/log/"
 controllersLogFileName: "controllers.log"

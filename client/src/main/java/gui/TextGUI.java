@@ -9,6 +9,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class TextGUI implements GameGUI {
+    private static final String BLACK_MOVE_MSG = "ХОД ЧЕРНЫХ";
+    private static final String WHITE_MOVE_MSG = "ХОД БЕЛЫХ";
+    private static final String GAME_END_MSG = "КОНЕЦ ИГРЫ";
+    private static final String LABEL_BLACK = "ЧЕРНЫЕ: ";
+    private static final String LABEL_WHITE = "БЕЛЫЕ: ";
+    private static final String BLACK_WINS = "ПОБЕДА ЧЕРНЫХ!";
+    private static final String WHITE_WINS = "ПОБЕДА БЕЛЫХ!";
+
     private final Map<Cell, String> tiles;
 
     public TextGUI() {
@@ -22,20 +30,20 @@ public class TextGUI implements GameGUI {
         final StringBuilder boardBuilder = new StringBuilder();
         switch (gameState) {
             case BLACK_MOVE:
-                boardBuilder.append("ХОД ЧЕРНЫХ");
+                boardBuilder.append(BLACK_MOVE_MSG);
                 break;
             case WHITE_MOVE:
-                boardBuilder.append("ХОД БЕЛЫХ");
+                boardBuilder.append(WHITE_MOVE_MSG);
                 break;
             case END:
-                boardBuilder.append("КОНЕЦ ИГРЫ");
+                boardBuilder.append(GAME_END_MSG);
                 break;
         }
         boardBuilder.append('\n');
-        boardBuilder.append("ЧЕРНЫЕ: ").append(board.getCountBlackCells()).append('\n');
-        boardBuilder.append("БЕЛЫЕ: ").append(board.getCountWhiteCells()).append('\n');
+        boardBuilder.append(LABEL_BLACK).append(board.getCountBlackCells()).append('\n');
+        boardBuilder.append(LABEL_WHITE).append(board.getCountWhiteCells()).append('\n');
         boardBuilder.append("  ");
-        for (int i = 1; i <= 8; i++) {
+        for (int i = 1; i <= board.getSize(); i++) {
             boardBuilder.append(i).append(' ');
         }
         boardBuilder.append('\n');
@@ -50,9 +58,9 @@ public class TextGUI implements GameGUI {
 
         if (gameState == GameState.END) {
             if (board.getCountBlackCells() > board.getCountWhiteCells()) {
-                System.out.println("ПОБЕДА ЧЕРНЫХ!");
+                System.out.println(BLACK_WINS);
             } else {
-                System.out.println("ПОБЕДА БЕЛЫХ!");
+                System.out.println(WHITE_WINS);
             }
         }
     }

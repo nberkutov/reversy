@@ -1,93 +1,76 @@
 package selfplay;
 
-import exception.GameErrorCode;
 import exception.ServerException;
-import logic.BoardLogic;
-import lombok.extern.slf4j.Slf4j;
-import models.Player;
-import models.base.Cell;
+import gui.GameGUI;
+import gui.WindowGUI;
+import models.ArrayBoard;
 import models.base.GameState;
 import models.base.PlayerColor;
 import models.base.interfaces.GameBoard;
-import models.board.Board;
-import models.board.Point;
+import org.apache.commons.lang3.time.StopWatch;
+import player.Player;
+import strategy.*;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
-@Slf4j
 public class SelfPlay {
-    private final Player first;
-    private final Player second;
-    private final SelfGame selfGame;
+    private static final int GAMES_COUNT = 10;
+    private static final long DELAY = 0L;
 
-    public SelfPlay(final Player first, final Player second) {
-        this.first = first;
-        this.second = second;
-        final GameBoard board = new Board();
+    public static void main(final String[] args) {
+        int blackWins = 0;
+        int whiteWins = 0;
 
-        first.setColor(PlayerColor.BLACK);
-        second.setColor(PlayerColor.WHITE);
-        selfGame = new SelfGame(board, first, second);
-    }
+        final Player player1 = new BotPlayer("Minimax1", new ExpectimaxStrategy(3, Utility::multiHeuristic));
+        final Player player2 = new BotPlayer("Minimax2", new RandomStrategy());
 
-    /**
-     * Функция делает ход игры
-     *
-     * @param selfGame - Игра
-     */
-    private static void playNext(final SelfGame selfGame, Player first, Player second) throws ServerException {
-        switch (selfGame.getState()) {
-            case BLACK_MOVE:
-                if (!BoardLogic.getAvailableMoves(selfGame.getBoard(), selfGame.getBlackPlayer().getColor()).isEmpty()) {
-                    final Point move = first.move(selfGame.getBoard());
-                    BoardLogic.makeMove(selfGame.getBoard(), move, Cell.BLACK);
+        final GameBoard board = new ArrayBoard();
+
+        player1.setColor(PlayerColor.BLACK);
+        player2.setColor(PlayerColor.WHITE);
+        final GameGUI gui = new WindowGUI();
+
+        final List<Long> moveTime = new ArrayList<>();
+        for (int i = 0; i < GAMES_COUNT; i++) {
+            System.out.printf("Game %d started\n", i);
+            final Game game = new Game(player1, player2, new ArrayBoard());
+            GameBoard gameBoard = board;
+            final StopWatch stopWatch = new StopWatch();
+            try {
+                while (game.getGameState() != GameState.END) {
+                    if (game.getGameState() == GameState.BLACK_MOVE) {
+                        stopWatch.start();
+                    }
+                    gameBoard = game.playNext();
+                    if (game.getGameState() == GameState.BLACK_MOVE) {
+                        stopWatch.stop();
+                        moveTime.add(stopWatch.getTime(TimeUnit.MILLISECONDS));
+                        stopWatch.reset();
+                    }
+                    gui.updateGUI(gameBoard, game.getGameState(), "RANDOM");
                 }
-                selfGame.setState(GameState.WHITE_MOVE);
-                break;
-            case WHITE_MOVE:
-                if (!BoardLogic.getAvailableMoves(selfGame.getBoard(), selfGame.getWhitePlayer().getColor()).isEmpty()) {
-                    final Point move = second.move(selfGame.getBoard());
-                    BoardLogic.makeMove(selfGame.getBoard(), move, Cell.WHITE);
+                if (gameBoard.getCountBlackCells() > gameBoard.getCountWhiteCells()) {
+                    blackWins++;
+                } else {
+                    whiteWins++;
                 }
-                selfGame.setState(GameState.BLACK_MOVE);
-                break;
+            } catch (final ServerException e) {
+                e.printStackTrace();
+            }
         }
-        if (isGameEnd(selfGame)) {
-            selfGame.setState(GameState.END);
-        }
-    }
 
-    /**
-     * Функция просчитывает и вовзвращает закончена ли игра
-     *
-     * @param selfGame - Игра
-     * @return boolean
-     */
-    private static boolean isGameEnd(final SelfGame selfGame) throws ServerException {
-        if (BoardLogic.getCountEmpty(selfGame.getBoard()) == 0) {
-            return true;
+        long timeSum = 0L;
+        for (final long t : moveTime) {
+            timeSum += t;
         }
-        return !BoardLogic.canMove(selfGame.getBoard(), selfGame.getBlackPlayer().getColor())
-                && !BoardLogic.canMove(selfGame.getBoard(), selfGame.getWhitePlayer().getColor());
-    }
-
-    private static PlayerColor getGameResult(final SelfGame selfGame) throws ServerException {
-        if (selfGame.getState() != GameState.END) {
-            throw new ServerException(GameErrorCode.GAME_NOT_FINISHED);
+        double avgTime = 0;
+        if (!moveTime.isEmpty()) {
+            avgTime = timeSum / (double) moveTime.size();
         }
-        GameBoard board = selfGame.getBoard();
-        final int blackCells = BoardLogic.getCountBlack(board);
-        final int whiteCells = BoardLogic.getCountWhite(board);
-        if (blackCells <= whiteCells) {
-            return PlayerColor.WHITE;
-        } else {
-            return PlayerColor.BLACK;
-        }
-    }
-
-    public PlayerColor play() throws ServerException {
-        while (selfGame.getState() != GameState.END) {
-            playNext(selfGame, first, second);
-        }
-        return getGameResult(selfGame);
+        System.out.println("Avg move time: " + avgTime);
+        System.out.printf("BLACK %s - %d\n", player1.getNickname(), blackWins);
+        System.out.printf("WHITE %s - %d\n", player2.getNickname(), whiteWins);
     }
 }

@@ -9,7 +9,12 @@ public class ClientProperties {
     private String guiType;
     private String playerColor;
     private String nickname;
+    private String logPath;
+    private String logFile;
+    private String profilePath;
     private int numberOfGames;
+    private int depth;
+    private long windowDelay;
 
     public ClientProperties() {
     }
@@ -68,5 +73,45 @@ public class ClientProperties {
 
     public void setNumberOfGames(final int numberOfGames) {
         this.numberOfGames = numberOfGames;
+    }
+
+    public Optional<String> getLogPath() {
+        return Optional.of(logPath);
+    }
+
+    public void setLogPath(final String logPath) {
+        this.logPath = logPath;
+    }
+
+    public Optional<String> getLogFile() {
+        return Optional.of(logFile);
+    }
+
+    public void setLogFile(final String logFile) {
+        this.logFile = logFile;
+    }
+
+    public Optional<Integer> getDepth() {
+        return Optional.of(depth);
+    }
+
+    public void setDepth(final int depth) {
+        this.depth = depth;
+    }
+
+    public Optional<Long> getWindowDelay() {
+        return Optional.of(windowDelay);
+    }
+
+    public void setWindowDelay(final long windowDelay) {
+        this.windowDelay = windowDelay;
+    }
+
+    public Optional<String> getProfilePath() {
+        return Optional.of(profilePath);
+    }
+
+    public void setProfilePath(final String profilePath) {
+        this.profilePath = profilePath;
     }
 }

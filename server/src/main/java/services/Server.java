@@ -58,7 +58,9 @@ public class Server extends Thread implements AutoCloseable {
             initLogger(properties);
             try (final Server server = new Server(properties)) {
                 server.start();
-                handleCommands(server);
+                server.join();
+            } catch (final InterruptedException e) {
+                e.printStackTrace();
             }
         } catch (final IOException e) {
             e.printStackTrace();
@@ -81,14 +83,6 @@ public class Server extends Thread implements AutoCloseable {
         controllersFileAppender.activateOptions();
     }
 
-    private static void handleCommands(final Server server) {
-        while (true) {
-            final String input = scanner.nextLine().trim().toLowerCase();
-            final Command command = Command.parse(input, server, SERVER_FILE);
-            command.execute();
-        }
-    }
-
     public Server(final int port, final DataBase database) {
         this.port = port;
         Server.database = database;
@@ -103,7 +97,7 @@ public class Server extends Thread implements AutoCloseable {
     }
 
     public Server() {
-        this(8000, new DataBase());
+        this(8080, new DataBase());
     }
 
     @Override
