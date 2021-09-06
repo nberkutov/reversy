@@ -1,0 +1,5 @@
+port: 8080
+statsPath: "/home/nikita/server/stats/"
+logPath: "/home/nikita/server/log/"
+controllersLogFileName: "controllers.log"
+servicesLogFileName: "services.log"

@@ -1,0 +1,12 @@
+host: "127.0.0.1"
+port: 8080
+botType: "MINIMAX"
+depth: 3
+guiType: "WINDOW"
+windowDelay: 0
+playerColor: "BLACK"
+nickname: "nikita"
+numberOfGames: 1000000
+logPath: "client1/logs"
+logFile: "client.log"
+profilePath: "/home/nikita/client/commonLog.log"

@@ -1,0 +1,9 @@
+host: "162.55.92.106"
+port: 8082
+botType: "random"
+guiType: "window"
+playerColor: "BLACK"
+nickname: "1nikita313"
+numberOfGames: 10
+logPath: "/home/nikita/remote_client/logs/"
+logFile: "client_remote22.log"
