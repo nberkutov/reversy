@@ -23,7 +23,7 @@ public class SelfPlay {
         int blackWins = 0;
         int whiteWins = 0;
 
-        final Player player1 = new BotPlayer("Minimax1", new MTMinimaxStrategy(3, Utility::multiHeuristic));
+        final Player player1 = new BotPlayer("Minimax1", new ExpectimaxStrategy(3, Utility::multiHeuristic));
         final Player player2 = new BotPlayer("Minimax2", new RandomStrategy());
 
         final GameBoard board = new ArrayBoard();

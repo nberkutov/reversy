@@ -52,8 +52,6 @@ public class Profile implements Serializable {
         if (!freq.containsKey(initialBoard)) {
             freq.put(initialBoard, new HashMap<>());
         }
-        final int frequency = freq.get(initialBoard).getOrDefault(nextBoard, 1);
-        addOrInc(initialBoard, nextBoard);
-        return frequency;
+        return freq.get(initialBoard).getOrDefault(nextBoard, 0);
     }
 }

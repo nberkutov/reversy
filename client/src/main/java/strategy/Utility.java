@@ -25,7 +25,7 @@ public class Utility {
     public static double multiHeuristic(final GameBoard board, final PlayerColor playerColor) {
         return coinParityHeuristic(board, playerColor)
                 +  mobilityHeuristic(board, playerColor)
-                +  10 * countCapturedCorners(board, playerColor);
+                +  10 * cornerHeuristic(board, playerColor);
     }
 
     /**
